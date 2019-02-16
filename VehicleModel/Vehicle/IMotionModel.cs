@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace RacePlanning.Model.VehicleModel
+﻿namespace Racing.Model.Vehicle
 {
     internal interface IMotionModel
     {
-        VehicleState CalculateNextState(VehicleState state, SteeringInput action, double time);
+        IState CalculateNextState(IState state, IAction action, double time);
     }
 }

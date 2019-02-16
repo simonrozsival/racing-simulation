@@ -1,9 +1,8 @@
-﻿using RacePlanning.Model.Math;
-
+﻿using Racing.Model.Math;
+using Racing.Model.Vehicle;
 using static System.Math;
-using static RacePlanning.Model.Math.Helpers;
 
-namespace RacePlanning.Model.VehicleModel
+namespace Racing.Model.VehicleModel
 {
     internal sealed class KineticModel : IMotionModel
     {
@@ -14,7 +13,7 @@ namespace RacePlanning.Model.VehicleModel
             this.vehicle = vehicle;
         }
 
-        public VehicleState CalculateNextState(VehicleState state, SteeringInput action, double time)
+        public IState CalculateNextState(IState state, IAction action, double time)
         {
             var targetVelocity = action.Throttle * vehicle.MaxVelocity;
             var targetSteeringAngle = action.Steering * vehicle.MaxSteeringAngle;

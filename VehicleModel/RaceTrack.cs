@@ -1,7 +1,7 @@
-﻿using RacePlanning.Model.Math;
+﻿using Racing.Model.Math;
 using System.Collections.Generic;
 
-namespace RacePlanning.Model
+namespace RacingModel
 {
     internal sealed class RaceTrack
     {

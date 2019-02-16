@@ -1,4 +1,4 @@
-﻿namespace RacePlanning.Model.Math
+﻿namespace Racing.Model.Math
 {
     internal static class Helpers
     {

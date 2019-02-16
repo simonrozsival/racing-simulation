@@ -1,6 +1,7 @@
-﻿using RacePlanning.Model.Math;
+﻿using Racing.Model.Math;
+using Racing.Model.Vehicle;
 
-namespace RacePlanning.Model.VehicleModel
+namespace Racing.Model.VehicleModel
 {
     interface IVehicleModel
     {
@@ -13,6 +14,6 @@ namespace RacePlanning.Model.VehicleModel
         double Acceleration { get; }
         double SteeringAcceleration { get; }
 
-        Rectangle CalculateBounds(VehicleState state);
+        Rectangle CalculateBounds(IState state);
     }
 }

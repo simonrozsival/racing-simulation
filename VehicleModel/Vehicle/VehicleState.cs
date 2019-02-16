@@ -1,8 +1,9 @@
-﻿using RacePlanning.Model.Math;
+﻿using Racing.Model.Math;
+using Racing.Model.Vehicle;
 
-namespace RacePlanning.Model.VehicleModel
+namespace Racing.Model.VehicleModel
 {
-    internal class VehicleState
+    internal class VehicleState : IState
     {
         public Point Position { get; }
         public double HeadingAngle { get; }

@@ -1,7 +1,7 @@
-﻿using RacePlanning.Model.Math;
-using RacePlanning.Model.VehicleModel;
+﻿using Racing.Model.Math;
+using Racing.Model.VehicleModel;
 
-namespace RacePlanning.Model
+namespace RacingModel
 {
     internal class Goal
     {

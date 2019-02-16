@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Racing.Model.Vehicle;
 using System.Collections.Immutable;
 
-namespace RacePlanning.Model
+namespace RacingModel
 {
-    internal sealed class SteeringInput
+    internal sealed class SteeringInput : IAction
     {
         public const double MinAngle = -1;
         public const double MaxAngle = 1;

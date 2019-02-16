@@ -1,8 +1,8 @@
 ﻿using static System.Math;
 
-namespace RacePlanning.Model.Math
+namespace Racing.Model.Math
 {
-    internal sealed class Point
+    public sealed class Point
     {
         public double X { get; }
         public double Y { get; }

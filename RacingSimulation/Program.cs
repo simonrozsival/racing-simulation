@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RacingSimulation
+namespace Racing.Simulation
 {
     class Program
     {

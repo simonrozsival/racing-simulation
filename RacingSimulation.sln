@@ -7,7 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RacingSimulation", "RacingS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CircuitGenerator", "CircuitGenerator\CircuitGenerator.csproj", "{9663F176-EF87-4355-9DFB-DE8D8A13747A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VehicleModel", "VehicleModel\VehicleModel.csproj", "{301015B0-D79E-4A43-9862-03E348E92A8C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RacingModel", "VehicleModel\RacingModel.csproj", "{301015B0-D79E-4A43-9862-03E348E92A8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agents", "Agents\Agents.csproj", "{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{301015B0-D79E-4A43-9862-03E348E92A8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{301015B0-D79E-4A43-9862-03E348E92A8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{301015B0-D79E-4A43-9862-03E348E92A8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

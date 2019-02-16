@@ -1,6 +1,6 @@
-﻿using RacePlanning.Model.Math;
+﻿using Racing.Model.Math;
 
-namespace RacePlanning.Model.VehicleModel
+namespace Racing.Model.VehicleModel
 {
     internal sealed class SmallCar : IVehicleModel
     {

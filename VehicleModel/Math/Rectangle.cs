@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace RacePlanning.Model.Math
+namespace Racing.Model.Math
 {
     internal sealed class Rectangle : IEnumerable<Point>
     {
