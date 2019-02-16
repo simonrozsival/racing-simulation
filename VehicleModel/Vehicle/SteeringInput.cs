@@ -1,4 +1,4 @@
-﻿using Racing.Model.Vehicle;
+﻿using Racing.Model;
 using System.Collections.Immutable;
 
 namespace RacingModel

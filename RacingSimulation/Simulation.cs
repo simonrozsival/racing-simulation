@@ -1,67 +1,74 @@
 ﻿using Racing.Agents;
-using Racing.CircuitGenerator;
 using Racing.Mathematics;
+using Racing.Model;
 using Racing.Model.Vehicle;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
-namespace Simulation
+namespace Racing.Simulation
 {
     internal sealed class Simulation
     {
         private readonly IAgent agent;
-        private readonly ITrackDefinition track;
+        private readonly ITrack track;
+        private readonly IStateClassificator stateClassificator;
         private readonly IMotionModel motionModel;
 
         public Simulation(
             IAgent agent,
-            ITrackDefinition track,
+            ITrack track,
+            IStateClassificator stateClassificator,
             IMotionModel motionModel)
         {
             this.agent = agent;
             this.track = track;
+            this.stateClassificator = stateClassificator;
             this.motionModel = motionModel;
         }
 
-        public async Task<TimeSpan?> Simulate(TimeSpan simulationStep, TimeSpan perceptionPeriod)
+        public async Task<SimulationResult> Simulate(TimeSpan simulationStep, TimeSpan perceptionStep)
         {
+            var states = new List<Log<IState>>();
+            var actions = new List<Log<IAction>>();
+
             IState vehicleState = new InitialState(track.Circuit);
+            IAction nextAction = new NoOpAction();
+
             var elapsedTime = TimeSpan.Zero;
+            var timeToNextPerception = TimeSpan.Zero;
 
-            var environmentObservable =
-                Observable.Interval(simulationStep)
-                    .WithLatestFrom(
-                        agent.Actions,
-                        (_, action) =>
-                        {
-                            vehicleState = motionModel.CalculateNextState(vehicleState, action, simulationStep);
-                            elapsedTime += simulationStep;
-                            return vehicleState;
-                        });
+            var agentActionsSubscription = agent.Actions
+                .Subscribe(action =>
+                {
+                    actions.Add(new Log<IAction>(elapsedTime, action));
+                    nextAction = action;
+                });
 
-            var agentSubscription =
-                Observable.Interval(perceptionPeriod)
-                    .Select(_ => vehicleState)
-                    .Subscribe(agent.Perception);
+            var stateType = stateClassificator.Classify(vehicleState);
 
-            var succeeded =
-                await environmentObservable
-                    .TakeUntil(reachedGoalOrCrashed)
-                    .Select(reachedGoal);
+            while (stateType == StateType.Free)
+            {
+                vehicleState = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep);
+                states.Add(new Log<IState>(elapsedTime, vehicleState));
 
-            agentSubscription.Dispose();
+                elapsedTime += simulationStep;
+                timeToNextPerception -= simulationStep;
 
-            return succeeded ? elapsedTime : (TimeSpan?)null;
+                if (timeToNextPerception - simulationStep < TimeSpan.Zero)
+                {
+                    agent.Perception.OnNext(vehicleState);
+                    timeToNextPerception = perceptionStep;
+                }
+
+                stateType = stateClassificator.Classify(vehicleState);
+            }
+
+            var succeeded = stateClassificator.Classify(vehicleState) == StateType.Goal;
+            return new SimulationResult(states, actions, elapsedTime, succeeded);
         }
-
-        private bool reachedGoalOrCrashed(IState state)
-            => reachedGoal(state) || crashed(state);
-
-        private bool crashed(IState state) => true;
-
-        private bool reachedGoal(IState state) => false;
 
         private sealed class InitialState : IState
         {
@@ -77,6 +84,12 @@ namespace Simulation
                 Position = circuit.Start;
                 HeadingAngle = startDirection.Direction();
             }
+        }
+
+        private sealed class NoOpAction : IAction
+        {
+            public double Throttle => 0;
+            public double Steering => 0;
         }
     }
 }

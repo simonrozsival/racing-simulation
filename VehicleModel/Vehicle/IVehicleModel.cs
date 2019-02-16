@@ -1,9 +1,8 @@
 ﻿using Racing.Mathematics;
-using Racing.Model.Vehicle;
 
-namespace Racing.Model.VehicleModel
+namespace Racing.Model.Vehicle
 {
-    interface IVehicleModel
+    public interface IVehicleModel
     {
         double Width { get; }
         double Length { get; }
@@ -13,7 +12,5 @@ namespace Racing.Model.VehicleModel
         Angle MaxSteeringAngle { get; }
         double Acceleration { get; }
         Angle SteeringAcceleration { get; }
-
-        Rectangle CalculateBounds(IState state);
     }
 }

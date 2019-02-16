@@ -34,6 +34,9 @@ namespace Racing.Mathematics
         public static implicit operator Angle(double radians)
             => new Angle(radians);
 
+        public static Angle FromDegrees(double degrees)
+            => new Angle(degrees / 180.0 * PI);
+
         private static double clamp(double angle)
         {
             while (angle > 2 * PI) angle -= 2 * PI;

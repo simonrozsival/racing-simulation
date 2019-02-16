@@ -1,22 +1,21 @@
 ﻿using Racing.Mathematics;
-using Racing.Model.VehicleModel;
 
-namespace RacingModel
+namespace Racing.Model
 {
-    internal class Goal
+    public class RadialGoal : IGoal
     {
         private readonly double minimumDistanceForReachingSquared;
 
         public Point Position { get; }
 
-        public Goal(Point position, double minimumDistanceForReaching)
+        public RadialGoal(Point position, double minimumDistanceForReaching)
         {
             Position = position;
 
             minimumDistanceForReachingSquared = minimumDistanceForReaching * minimumDistanceForReaching;
         }
 
-        public bool ReachedGoal(VehicleState state)
+        public bool ReachedGoal(IState state)
             => Position.DistanceSq(state.Position) <= minimumDistanceForReachingSquared;
     }
 }

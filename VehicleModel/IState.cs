@@ -1,6 +1,6 @@
 ﻿using Racing.Mathematics;
 
-namespace Racing.Model.Vehicle
+namespace Racing.Model
 {
     public interface IState
     {

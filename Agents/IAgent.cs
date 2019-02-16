@@ -1,5 +1,5 @@
 ﻿using System;
-using Racing.Model.Vehicle;
+using Racing.Model;
 
 namespace Racing.Agents
 {

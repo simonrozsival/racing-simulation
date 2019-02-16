@@ -1,7 +1,7 @@
 ﻿using Racing.Mathematics;
 using System.Collections.Generic;
 
-namespace Racing.CircuitGenerator
+namespace Racing.Model
 {
     public interface ICircuit
     {

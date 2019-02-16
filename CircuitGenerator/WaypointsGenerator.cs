@@ -130,7 +130,7 @@ namespace Racing.CircuitGenerator
         private List<Point> insertRandomMidpoints(IList<Point> dataSet)
         {
             var extendedDataSet = new List<Point>(dataSet.Count * 2);
-            var difficulty = random.NextDouble(); //the closer the value is to 0, the harder the track should be. Grows exponentially.  
+            var difficulty = random.NextDouble();
             var maxDisp = minimumDistance / 2;
             for (int i = 0; i < dataSet.Count; ++i)
             {

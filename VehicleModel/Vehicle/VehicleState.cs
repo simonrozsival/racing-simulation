@@ -1,7 +1,7 @@
 ﻿using Racing.Mathematics;
 using Racing.Model.Vehicle;
 
-namespace Racing.Model.VehicleModel
+namespace Racing.Model.Vehicle
 {
     internal class VehicleState : IState
     {

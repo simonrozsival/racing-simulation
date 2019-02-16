@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28306.52
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simulation", "RacingSimulation\Simulation.csproj", "{F20D2AD9-6CB0-4FD7-B029-655E24230721}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racing.Simulation", "RacingSimulation\Racing.Simulation.csproj", "{F20D2AD9-6CB0-4FD7-B029-655E24230721}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CircuitGenerator", "CircuitGenerator\CircuitGenerator.csproj", "{9663F176-EF87-4355-9DFB-DE8D8A13747A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racing.CircuitGenerator", "CircuitGenerator\Racing.CircuitGenerator.csproj", "{9663F176-EF87-4355-9DFB-DE8D8A13747A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "VehicleModel\Model.csproj", "{301015B0-D79E-4A43-9862-03E348E92A8C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racing.Model", "VehicleModel\Racing.Model.csproj", "{301015B0-D79E-4A43-9862-03E348E92A8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agents", "Agents\Agents.csproj", "{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racing.Agents", "Agents\Racing.Agents.csproj", "{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mathematics", "Math\Mathematics.csproj", "{04D1DD71-6D59-4B30-A6FC-691D672C9834}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racing.Mathematics", "Math\Racing.Mathematics.csproj", "{04D1DD71-6D59-4B30-A6FC-691D672C9834}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racing.IO", "Racing.IO\Racing.IO.csproj", "{F064E96A-A555-4130-96DF-7E83E07EE8E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{04D1DD71-6D59-4B30-A6FC-691D672C9834}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04D1DD71-6D59-4B30-A6FC-691D672C9834}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04D1DD71-6D59-4B30-A6FC-691D672C9834}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F064E96A-A555-4130-96DF-7E83E07EE8E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F064E96A-A555-4130-96DF-7E83E07EE8E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F064E96A-A555-4130-96DF-7E83E07EE8E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F064E96A-A555-4130-96DF-7E83E07EE8E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

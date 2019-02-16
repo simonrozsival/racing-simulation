@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
@@ -10,9 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Agents\Agents.csproj" />
-    <ProjectReference Include="..\CircuitGenerator\CircuitGenerator.csproj" />
-    <ProjectReference Include="..\VehicleModel\Model.csproj" />
+    <ProjectReference Include="..\VehicleModel\Racing.Model.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Racing.Mathematics;
 using Racing.Mathematics.Splines;
+using Racing.Model;
 using System.Collections.Generic;
 using System.Linq;
 

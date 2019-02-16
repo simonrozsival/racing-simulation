@@ -3,9 +3,9 @@ using Racing.Model.Vehicle;
 using System;
 using static System.Math;
 
-namespace Racing.Model.VehicleModel
+namespace Racing.Model.Vehicle
 {
-    internal sealed class KineticModel : IMotionModel
+    public sealed class KineticModel : IMotionModel
     {
         private readonly IVehicleModel vehicle;
 

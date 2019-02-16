@@ -1,7 +1,7 @@
 ﻿using Racing.Mathematics;
 using Racing.Model.Vehicle;
 
-namespace Racing.Model.VehicleModel
+namespace Racing.Model.Vehicle
 {
     internal sealed class SmallCar : IVehicleModel
     {
@@ -32,19 +32,6 @@ namespace Racing.Model.VehicleModel
             MaxSteeringAngle = maxSteeringAngle;
             Acceleration = acceleration;
             SteeringAcceleration = steeringAcceleration;
-        }
-
-        public Rectangle CalculateBounds(IState state)
-        {
-            var ux = Length / 2;
-            var uy = Width / 2;
-            var alignedRect = new Rectangle(
-                new Point(state.Position.X - ux, state.Position.Y + uy),
-                new Point(state.Position.X - ux, state.Position.Y - uy),
-                new Point(state.Position.X + ux, state.Position.Y - uy),
-                new Point(state.Position.X + ux, state.Position.Y + uy));
-
-            return alignedRect.Rotate(state.Position, state.HeadingAngle);
         }
     }
 }

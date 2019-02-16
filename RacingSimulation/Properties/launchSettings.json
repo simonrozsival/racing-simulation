@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Racing.Simulation": {
+      "commandName": "Project",
+      "commandLineArgs": "--input \"../../../../simple.json\""
+    }
+  }
+}

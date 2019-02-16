@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VehicleModel\Model.csproj" />
+    <ProjectReference Include="..\Math\Racing.Mathematics.csproj" />
   </ItemGroup>
 
 </Project>
