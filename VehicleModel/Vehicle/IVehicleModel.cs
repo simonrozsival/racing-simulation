@@ -1,4 +1,4 @@
-﻿using Racing.Model.Math;
+﻿using Racing.Mathematics;
 using Racing.Model.Vehicle;
 
 namespace Racing.Model.VehicleModel
@@ -9,10 +9,10 @@ namespace Racing.Model.VehicleModel
         double Length { get; }
         double MinVelocity { get; }
         double MaxVelocity { get; }
-        double MinSteeringAngle { get; }
-        double MaxSteeringAngle { get; }
+        Angle MinSteeringAngle { get; }
+        Angle MaxSteeringAngle { get; }
         double Acceleration { get; }
-        double SteeringAcceleration { get; }
+        Angle SteeringAcceleration { get; }
 
         Rectangle CalculateBounds(IState state);
     }

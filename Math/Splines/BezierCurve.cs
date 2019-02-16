@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
-namespace Racing.CircuitGenerator.Splines
+namespace Racing.Mathematics.Splines
 {
-    internal sealed class BezierCurve
+    public sealed class BezierCurve
     {
         public IList<Segment> Segments { get; }
 

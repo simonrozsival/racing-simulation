@@ -1,6 +1,6 @@
-﻿namespace Racing.Model.Math
+﻿namespace Racing.Mathematics
 {
-    internal static class Helpers
+    public static class Helpers
     {
         public static double DegreesToRadians(double degrees)
             => (degrees / 180) * System.Math.PI;

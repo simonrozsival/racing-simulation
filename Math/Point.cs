@@ -1,6 +1,7 @@
 ﻿using System;
+using static System.Math;
 
-namespace Racing.CircuitGenerator.Splines
+namespace Racing.Mathematics
 {
     public struct Point : IEquatable<Point>
     {
@@ -26,12 +27,15 @@ namespace Racing.CircuitGenerator.Splines
         }
 
         public double Length()
-            => Math.Sqrt(X * X + Y * Y);
+            => Sqrt(X * X + Y * Y);
 
-        public Point Rotate(double angle)
+        public Point Rotate(Angle angle)
             => new Point(
-                x: X * Math.Cos(angle) - Y * Math.Sin(angle),
-                y: X * Math.Sin(angle) + Y * Math.Cos(angle));
+                x: X * Cos(angle.Radians) - Y * Sin(angle.Radians),
+                y: X * Sin(angle.Radians) + Y * Cos(angle.Radians));
+
+        public Point Rotate(Point center, Angle angle)
+            => (this - center).Rotate(angle) + center;
 
         public double DistanceSq(Point other)
         {
@@ -45,6 +49,9 @@ namespace Racing.CircuitGenerator.Splines
 
         public double Dot(Point other)
             => X * other.X + Y * other.Y;
+
+        public Angle Direction()
+            => Sin(Y);
 
         public static Point operator +(Point a, Point b)
             => new Point(a.X + b.X, a.Y + b.Y);

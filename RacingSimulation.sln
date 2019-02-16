@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "VehicleModel\Model
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agents", "Agents\Agents.csproj", "{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mathematics", "Math\Mathematics.csproj", "{04D1DD71-6D59-4B30-A6FC-691D672C9834}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7FF6E0E-CD85-4EF1-B038-D61881B4FF5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04D1DD71-6D59-4B30-A6FC-691D672C9834}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04D1DD71-6D59-4B30-A6FC-691D672C9834}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04D1DD71-6D59-4B30-A6FC-691D672C9834}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04D1DD71-6D59-4B30-A6FC-691D672C9834}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

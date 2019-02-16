@@ -1,4 +1,4 @@
-﻿using Racing.Model.Math;
+﻿using Racing.Mathematics;
 using Racing.Model.VehicleModel;
 
 namespace RacingModel
@@ -17,11 +17,6 @@ namespace RacingModel
         }
 
         public bool ReachedGoal(VehicleState state)
-        {
-            var dx = state.Position.X - Position.X;
-            var dy = state.Position.Y - Position.Y;
-            var distanceSq = dx * dx + dy * dy;
-            return distanceSq <= minimumDistanceForReachingSquared;
-        }
+            => Position.DistanceSq(state.Position) <= minimumDistanceForReachingSquared;
     }
 }

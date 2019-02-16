@@ -2,7 +2,6 @@ using CommandLine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Racing.CircuitGenerator.Output;
-using Racing.CircuitGenerator.Splines;
 using System;
 using System.Diagnostics;
 using System.DrawingCore;

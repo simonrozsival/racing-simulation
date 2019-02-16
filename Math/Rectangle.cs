@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Racing.Model.Math
+namespace Racing.Mathematics
 {
-    internal sealed class Rectangle : IEnumerable<Point>
+    public struct Rectangle : IEnumerable<Point>
     {
         public Point A { get; }
         public Point B { get; }
@@ -18,7 +18,7 @@ namespace Racing.Model.Math
             D = d;
         }
 
-        public Rectangle Rotate(Point center, double angle)
+        public Rectangle Rotate(Point center, Angle angle)
             => new Rectangle(
                 A.Rotate(center, angle),
                 B.Rotate(center, angle),

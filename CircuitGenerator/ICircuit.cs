@@ -1,4 +1,4 @@
-﻿using Racing.CircuitGenerator.Splines;
+﻿using Racing.Mathematics;
 using System.Collections.Generic;
 
 namespace Racing.CircuitGenerator

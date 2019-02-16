@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using static Racing.CircuitGenerator.Splines.BezierCurve;
+﻿using System.Collections.Generic;
 
-namespace Racing.CircuitGenerator.Splines
+namespace Racing.Mathematics.Splines
 {
-    internal sealed class CatmullRomSpline
+    public sealed class CatmullRomSpline
     {
         public IReadOnlyList<Point> Points { get; }
 
@@ -15,7 +13,7 @@ namespace Racing.CircuitGenerator.Splines
 
         public BezierCurve ToBezierCurve()
         {
-            var segments = new List<Segment>(Points.Count);
+            var segments = new List<BezierCurve.Segment>(Points.Count);
 
             for (int i = 0; i < Points.Count; i++)
             {
@@ -30,8 +28,8 @@ namespace Racing.CircuitGenerator.Splines
             return new BezierCurve(segments);
         }
 
-        private static Segment createBezierSegment(Point a, Point b, Point c, Point d)
-            => new Segment(
+        private static BezierCurve.Segment createBezierSegment(Point a, Point b, Point c, Point d)
+            => new BezierCurve.Segment(
                 start: b,
                 startControlPoint:
                     new Point(

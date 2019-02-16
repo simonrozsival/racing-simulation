@@ -6,7 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="4.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Agents\Agents.csproj" />
+    <ProjectReference Include="..\CircuitGenerator\CircuitGenerator.csproj" />
+    <ProjectReference Include="..\VehicleModel\Model.csproj" />
   </ItemGroup>
 
 </Project>

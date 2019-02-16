@@ -1,12 +1,12 @@
-﻿using Racing.Model.Math;
+﻿using Racing.Mathematics;
 
 namespace Racing.Model.Vehicle
 {
     public interface IState
     {
         Point Position { get; }
-        double HeadingAngle { get; }
-        double SteeringAngle { get; }
+        Angle HeadingAngle { get; }
+        Angle SteeringAngle { get; }
         double Velocity { get; }
     }
 }

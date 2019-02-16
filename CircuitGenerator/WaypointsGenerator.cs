@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Racing.Mathematics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Racing.CircuitGenerator.Splines
+namespace Racing.CircuitGenerator
 {
     internal sealed class WaypointsGenerator
     {

@@ -1,4 +1,5 @@
-﻿using Racing.CircuitGenerator.Splines;
+﻿using Racing.Mathematics;
+using Racing.Mathematics.Splines;
 using System.Linq;
 using System.Text;
 

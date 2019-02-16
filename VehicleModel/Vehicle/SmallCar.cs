@@ -1,4 +1,4 @@
-﻿using Racing.Model.Math;
+﻿using Racing.Mathematics;
 using Racing.Model.Vehicle;
 
 namespace Racing.Model.VehicleModel
@@ -9,20 +9,20 @@ namespace Racing.Model.VehicleModel
         public double Length { get; }
         public double MinVelocity { get; }
         public double MaxVelocity { get; }
-        public double MinSteeringAngle { get; }
-        public double MaxSteeringAngle { get; }
+        public Angle MinSteeringAngle { get; }
+        public Angle MaxSteeringAngle { get; }
         public double Acceleration { get; }
-        public double SteeringAcceleration { get; }
+        public Angle SteeringAcceleration { get; }
 
         public SmallCar(
             double width,
             double length,
             double minVelocity,
             double maxVelocity,
-            double minSteeringAngle,
-            double maxSteeringAngle,
+            Angle minSteeringAngle,
+            Angle maxSteeringAngle,
             double acceleration,
-            double steeringAcceleration)
+            Angle steeringAcceleration)
         {
             Width = width;
             Length = length;

@@ -1,4 +1,5 @@
 ﻿using Racing.Agents;
+using Racing.CircuitGenerator;
 using System;
 
 namespace Racing.Simulation
@@ -8,6 +9,7 @@ namespace Racing.Simulation
         static void Main(string[] args)
         {
             // load track
+            ITrackDefinition trackDefinition;
 
             // prepare simulation
 

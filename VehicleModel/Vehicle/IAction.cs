@@ -1,4 +1,6 @@
-﻿namespace Racing.Model.Vehicle
+﻿using Racing.Mathematics;
+
+namespace Racing.Model.Vehicle
 {
     public interface IAction
     {
