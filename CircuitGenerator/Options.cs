@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace RaceCircuitGenerator
+namespace Racing.CircuitGenerator
 {
     internal sealed class Options
     {

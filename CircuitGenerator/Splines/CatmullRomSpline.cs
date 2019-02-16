@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using static RaceCircuitGenerator.Splines.BezierCurve;
+using static Racing.CircuitGenerator.Splines.BezierCurve;
 
-namespace RaceCircuitGenerator.Splines
+namespace Racing.CircuitGenerator.Splines
 {
     internal sealed class CatmullRomSpline
     {

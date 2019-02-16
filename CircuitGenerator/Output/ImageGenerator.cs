@@ -1,8 +1,8 @@
-﻿using RaceCircuitGenerator.Splines;
+﻿using Racing.CircuitGenerator.Splines;
 using System.Linq;
 using System.Text;
 
-namespace RaceCircuitGenerator.Output
+namespace Racing.CircuitGenerator.Output
 {
     internal sealed class ImageGenerator
     {

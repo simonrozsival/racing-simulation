@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace RaceCircuitGenerator.Splines
+namespace Racing.CircuitGenerator.Splines
 {
-    internal struct Point : IEquatable<Point>
+    public struct Point : IEquatable<Point>
     {
         public double X { get; }
         public double Y { get; }

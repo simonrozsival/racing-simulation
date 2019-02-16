@@ -1,10 +1,10 @@
-﻿using RaceCircuitGenerator.Splines;
+﻿using Racing.CircuitGenerator.Splines;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RaceCircuitGenerator
+namespace Racing.CircuitGenerator
 {
-    internal sealed class Circuit
+    internal sealed class Circuit : ICircuit
     {
         public double Radius { get; }
         public Point Start => WayPoints.First();

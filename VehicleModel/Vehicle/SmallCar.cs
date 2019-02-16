@@ -1,4 +1,5 @@
 ﻿using Racing.Model.Math;
+using Racing.Model.Vehicle;
 
 namespace Racing.Model.VehicleModel
 {
@@ -33,7 +34,7 @@ namespace Racing.Model.VehicleModel
             SteeringAcceleration = steeringAcceleration;
         }
 
-        public Rectangle CalculateBounds(VehicleState state)
+        public Rectangle CalculateBounds(IState state)
         {
             var ux = Length / 2;
             var uy = Width / 2;

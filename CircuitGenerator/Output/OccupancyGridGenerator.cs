@@ -2,7 +2,7 @@
 using System.DrawingCore;
 using System.Text;
 
-namespace RaceCircuitGenerator.Output
+namespace Racing.CircuitGenerator.Output
 {
     internal sealed class OccupancyGridGenerator
     {
@@ -13,13 +13,7 @@ namespace RaceCircuitGenerator.Output
             this.resolution = resolution;
         }
 
-        public string[]GenerateOccupancyGrid(Bitmap image)
-        {
-            var grid = calculateOccupationGrid(image);
-            return printOccupationGrid(grid);
-        }
-
-        private bool[,] calculateOccupationGrid(Bitmap image)
+        public bool[,] GenerateOccupancyGrid(Bitmap image)
         {
             var backgroundColor = image.GetPixel(0, 0); // we always assume the top left corner is the background color
             var width = (int)(image.Width / resolution);
@@ -55,25 +49,6 @@ namespace RaceCircuitGenerator.Output
             }
 
             return true;
-        }
-
-        private static string[] printOccupationGrid(bool[,] grid)
-        {
-            var lines = new List<string>();
-
-            for (int i = 0; i < grid.GetLength(0); i++)
-            {
-                var builder = new StringBuilder();
-                for (int j = 0; j < grid.GetLength(1); j++)
-                {
-                    var symbol = grid[i, j] ? ' ' : '#';
-                    builder.Append(symbol);
-                }
-
-                lines.Add(builder.ToString());
-            }
-
-            return lines.ToArray();
         }
     }
 }

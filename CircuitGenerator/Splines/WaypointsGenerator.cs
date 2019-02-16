@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RaceCircuitGenerator.Splines
+namespace Racing.CircuitGenerator.Splines
 {
     internal sealed class WaypointsGenerator
     {

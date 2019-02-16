@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Racing.Agents;
+using System;
 
 namespace Racing.Simulation
 {
@@ -6,7 +7,16 @@ namespace Racing.Simulation
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            // load track
+
+            // prepare simulation
+
+            // prepare the agent
+            IAgent agent = null;
+
+            // run the simulation
+
+            // present results
         }
     }
 }
