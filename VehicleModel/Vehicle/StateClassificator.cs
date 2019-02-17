@@ -20,7 +20,7 @@ namespace Racing.Model.Vehicle
                 return StateType.Collision;
             }
 
-            if (goal.ReachedGoal(state))
+            if (goal.ReachedGoal(state.Position))
             {
                 return StateType.Goal;
             }

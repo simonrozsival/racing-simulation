@@ -1,16 +1,88 @@
-﻿using System;
+﻿using Racing.Model;
+using Racing.Model.Simulation;
+using System;
+using System.Collections.Generic;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace Racing.Simulation
 {
-    internal sealed class Log<T>
+    public sealed class Log
     {
-        public TimeSpan Time { get; }
-        public T Value { get; }
+        private readonly List<IEvent> history = new List<IEvent>();
+        private readonly ISubject<IEvent> events = new Subject<IEvent>();
 
-        public Log(TimeSpan time, T value)
+        private TimeSpan simulationTime = TimeSpan.Zero;
+
+        public IEnumerable<IEvent> History => history;
+        public IObservable<IEvent> Events => events.AsObservable();
+
+        public void SimulationTimeChanged(TimeSpan time)
         {
-            Time = time;
-            Value = value;
+            simulationTime = time;
         }
+
+        public void ActionSelected(IAction action)
+        {
+            log(new ActionSelectedEvent(action, simulationTime));
+        }
+
+        public void StateUpdated(IState state)
+        {
+            log(new StateUpdatedEvent(state, simulationTime));
+        }
+
+        public void Finished(Result result)
+        {
+            log(new SimulationEndedEvent(result, simulationTime));
+            events.OnCompleted();
+        }
+
+        private void log(IEvent loggedEvent)
+        {
+            events.OnNext(loggedEvent);
+            history.Add(loggedEvent);
+        }
+
+        private sealed class ActionSelectedEvent : IActionSelectedEvent
+        {
+            public ActionSelectedEvent(IAction action, TimeSpan time)
+            {
+                Action = action;
+                Time = time;
+            }
+
+            public IAction Action { get; }
+
+            public TimeSpan Time { get; }
+        }
+
+        private sealed class SimulationEndedEvent : ISimulationEndedEvent
+        {
+            public SimulationEndedEvent(Result result, TimeSpan time)
+            {
+                Result = result;
+                Time = time;
+            }
+
+            public Result Result { get; }
+
+            public TimeSpan Time { get; }
+        }
+
+
+        private sealed class StateUpdatedEvent : IStateUpdatedEvent
+        {
+            public StateUpdatedEvent(IState state, TimeSpan time)
+            {
+                State = state;
+                Time = time;
+            }
+
+            public IState State { get; }
+
+            public TimeSpan Time { get; }
+        }
+
     }
 }

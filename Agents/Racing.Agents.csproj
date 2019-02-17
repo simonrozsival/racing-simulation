@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,7 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Racing.IO\Racing.IO.csproj" />
     <ProjectReference Include="..\VehicleModel\Racing.Model.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Algorithms\Planning\AStar\DataStructures\" />
   </ItemGroup>
 
 </Project>

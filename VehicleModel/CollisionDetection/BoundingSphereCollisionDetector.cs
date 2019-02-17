@@ -1,4 +1,5 @@
-﻿using Racing.Model.Vehicle;
+﻿using Racing.Mathematics;
+using Racing.Model.Vehicle;
 using System;
 
 namespace Racing.Model.CollisionDetection
@@ -21,13 +22,16 @@ namespace Racing.Model.CollisionDetection
         }
 
         public bool IsCollision(IState state)
+            => IsCollision(state.Position);
+
+        public bool IsCollision(Point position)
         {
             for (var dx = -1; dx <= 1; dx++)
             {
                 for (var dy = -1; dy <= 1; dy++)
                 {
-                    var x = state.Position.X + dx * diagonal;
-                    var y = state.Position.Y + dy * diagonal;
+                    var x = position.X + dx * diagonal;
+                    var y = position.Y + dy * diagonal;
 
                     if (boundsDetector.IsOutOfBounds(x, y))
                     {

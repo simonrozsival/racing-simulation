@@ -116,7 +116,7 @@ namespace Racing.CircuitGenerator
                     if (points[i].DistanceSq(points[j]) < dst2)
                     {
                         var direction = points[j] - points[i];
-                        var distance = direction.Length();
+                        var distance = direction.CalculateLength();
                         var shiftDistance = minimumDistance - distance;
                         var displacement = shiftDistance * direction.Normalize();
 
@@ -160,8 +160,8 @@ namespace Racing.CircuitGenerator
                 var a = curr - prev;
                 var b = next - curr;
 
-                var lengthA = a.Length();
-                var lengthB = b.Length();
+                var lengthA = a.CalculateLength();
+                var lengthB = b.CalculateLength();
                 var angle = Math.Acos((a.Dot(b) / (lengthA * lengthB)));
 
                 if (angle < Math.PI / 6 && maxLength < lengthA + lengthB)

@@ -40,7 +40,7 @@ namespace Racing.CircuitGenerator
             var svg = imageGenerator.GenerateSvg();
 
             var path = $"{options.OutputPath}/generated-at-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}";
-            TrackLoader.Save(path, circuit, svg, options.OccupancyGridResolution);
+            Track.Save(path, circuit, svg, options.OccupancyGridResolution);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.DrawingCore;
 
 namespace Racing.IO.Transformations
 {
-    internal static class OccupancyGridLoader
+    internal static class OccupancyGrid
     {
         public static bool[,] GenerateOccupancyGrid(Bitmap image, double tileSize)
         {

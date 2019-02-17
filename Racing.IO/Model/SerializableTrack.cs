@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Racing.IO.Model
 {
-    internal sealed class Track : ITrack
+    internal sealed class SerializableTrack : ITrack
     {
         public double TileSize { get; set; }
 
         [JsonProperty(PropertyName = "circuit")]
-        public Circuit ConcreteCircuit { get; set; }
+        public SerializableCircuit ConcreteCircuit { get; set; }
 
         [JsonIgnore]
         public bool[,] OccupancyGrid { get; set; }
@@ -19,7 +19,7 @@ namespace Racing.IO.Model
         public ICircuit Circuit
         {
             get => ConcreteCircuit;
-            set => ConcreteCircuit = new Circuit { Start = value.Start, Goal = value.Goal, Radius = value.Radius, WayPoints = value.WayPoints };
+            set => ConcreteCircuit = new SerializableCircuit { Start = value.Start, Goal = value.Goal, Radius = value.Radius, WayPoints = value.WayPoints };
         }
 
         [JsonProperty(PropertyName = "occupancyGrid")]

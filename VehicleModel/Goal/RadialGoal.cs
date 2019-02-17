@@ -15,7 +15,7 @@ namespace Racing.Model
             minimumDistanceForReachingSquared = minimumDistanceForReaching * minimumDistanceForReaching;
         }
 
-        public bool ReachedGoal(IState state)
-            => Position.DistanceSq(state.Position) <= minimumDistanceForReachingSquared;
+        public bool ReachedGoal(Point position)
+            => Position.DistanceSq(position) <= minimumDistanceForReachingSquared;
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Racing.Model.CollisionDetection
+﻿using Racing.Mathematics;
+
+namespace Racing.Model.CollisionDetection
 {
     public interface ICollisionDetector
     {

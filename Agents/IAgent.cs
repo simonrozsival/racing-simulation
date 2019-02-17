@@ -1,11 +1,9 @@
-﻿using System;
-using Racing.Model;
+﻿using Racing.Model;
 
 namespace Racing.Agents
 {
     public interface IAgent
     {
-        IObservable<IAction> Actions { get; }
-        IObserver<IState> Perception { get; }
+        IAction ReactTo(IState state);
     }
 }

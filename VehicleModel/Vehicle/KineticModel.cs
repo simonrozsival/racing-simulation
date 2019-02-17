@@ -27,7 +27,7 @@ namespace Racing.Model.Vehicle
 
             var maxSteeringChange = vehicle.SteeringAcceleration * seconds;
             var da = (targetSteeringAngle - state.SteeringAngle).Clamp(-maxSteeringChange, maxSteeringChange);
-            var steeringAngle = state.SteeringAngle + da;
+            var steeringAngle = (state.SteeringAngle + da).Clamp(vehicle.MinSteeringAngle, vehicle.MaxSteeringAngle);
 
             var velocityVector = new Point(
                 x: velocity * Cos(steeringAngle.Radians) * Cos(state.HeadingAngle.Radians),

@@ -1,21 +1,24 @@
 ﻿using Racing.Agents;
 using Racing.Mathematics;
 using Racing.Model;
+using Racing.Model.Simulation;
 using Racing.Model.Vehicle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 
 namespace Racing.Simulation
 {
-    internal sealed class Simulation
+    internal sealed class Simulation : ISimulation
     {
         private readonly IAgent agent;
         private readonly ITrack track;
         private readonly IStateClassificator stateClassificator;
         private readonly IMotionModel motionModel;
+        private readonly Log log;
+
+        public IObservable<IEvent> Events { get; }
 
         public Simulation(
             IAgent agent,
@@ -27,47 +30,49 @@ namespace Racing.Simulation
             this.track = track;
             this.stateClassificator = stateClassificator;
             this.motionModel = motionModel;
+            this.log = new Log();
+
+            Events = log.Events;
         }
 
-        public async Task<SimulationResult> Simulate(TimeSpan simulationStep, TimeSpan perceptionStep)
+        public ISummary Simulate(TimeSpan simulationStep, TimeSpan perceptionPeriod, TimeSpan maximumSimulationTime)
         {
-            var states = new List<Log<IState>>();
-            var actions = new List<Log<IAction>>();
-
             IState vehicleState = new InitialState(track.Circuit);
             IAction nextAction = new NoOpAction();
+
+            var queue = new Queue<IGoal>(track.Circuit.WayPoints.Select(wp => new RadialGoal(wp, track.Circuit.Radius)));
+            queue.Enqueue(new RadialGoal(track.Circuit.Goal, track.Circuit.Radius));
 
             var elapsedTime = TimeSpan.Zero;
             var timeToNextPerception = TimeSpan.Zero;
 
-            var agentActionsSubscription = agent.Actions
-                .Subscribe(action =>
-                {
-                    actions.Add(new Log<IAction>(elapsedTime, action));
-                    nextAction = action;
-                });
-
-            var stateType = stateClassificator.Classify(vehicleState);
-
-            while (stateType == StateType.Free)
+            while (queue.Count > 0 && stateClassificator.Classify(vehicleState) != StateType.Collision && elapsedTime < maximumSimulationTime)
             {
-                vehicleState = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep);
-                states.Add(new Log<IState>(elapsedTime, vehicleState));
-
-                elapsedTime += simulationStep;
                 timeToNextPerception -= simulationStep;
-
-                if (timeToNextPerception - simulationStep < TimeSpan.Zero)
+                if (timeToNextPerception < TimeSpan.Zero)
                 {
-                    agent.Perception.OnNext(vehicleState);
-                    timeToNextPerception = perceptionStep;
+                    nextAction = agent.ReactTo(vehicleState);
+                    timeToNextPerception = perceptionPeriod;
                 }
 
-                stateType = stateClassificator.Classify(vehicleState);
+                vehicleState = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep);
+                log.StateUpdated(vehicleState);
+
+                if (queue.Peek().ReachedGoal(vehicleState.Position))
+                {
+                    queue.Dequeue();
+                }
+
+                elapsedTime += simulationStep;
+                log.SimulationTimeChanged(elapsedTime);
             }
 
+            var timeouted = elapsedTime >= maximumSimulationTime;
             var succeeded = stateClassificator.Classify(vehicleState) == StateType.Goal;
-            return new SimulationResult(states, actions, elapsedTime, succeeded);
+            var result = timeouted ? Result.TimeOut : (succeeded ? Result.Suceeded : Result.Failed);
+            log.Finished(result);
+
+            return new SimulationSummary(elapsedTime, result, log.History);
         }
 
         private sealed class InitialState : IState

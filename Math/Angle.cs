@@ -31,6 +31,9 @@ namespace Racing.Mathematics
         public static Angle operator *(Angle a, double scale)
             => new Angle(scale * a.Radians);
 
+        public static Angle operator /(Angle a, double divisor)
+            => new Angle(a.Radians / divisor);
+
         public static implicit operator Angle(double radians)
             => new Angle(radians);
 
@@ -40,7 +43,7 @@ namespace Racing.Mathematics
         private static double clamp(double angle)
         {
             while (angle > 2 * PI) angle -= 2 * PI;
-            while (angle < 0) angle += 2 * PI;
+            while (angle < -2 * PI) angle += 2 * PI;
             return angle;
         }
     }

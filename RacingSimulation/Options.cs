@@ -4,8 +4,11 @@ namespace Racing.Simulation
 {
     internal sealed class Options
     {
-        [Option('i', "input", Required = true, HelpText = "Path of JSON track definition file.")]
+        [Option('i', "track", Required = true, HelpText = "Path of JSON track definition file.")]
         public string Input { get; set; }
+
+        [Option('o', "results", Required = true, HelpText = "Directory where the results will be written.")]
+        public string Output { get; set; }
 
         [Option('n', "number-of-repetitions", Required = false, Default = 1, HelpText = "Number of simulation repetitions.")]
         public int NumberOfRepetitions { get; set; }

@@ -1,9 +1,10 @@
-﻿using Racing.Model.Vehicle;
+﻿using Racing.Mathematics;
 
 namespace Racing.Model
 {
     public interface IGoal
     {
-        bool ReachedGoal(IState state);
+        Point Position { get; }
+        bool ReachedGoal(Point position);
     }
 }

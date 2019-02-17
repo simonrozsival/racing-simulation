@@ -31,7 +31,7 @@ namespace Racing.IO
                 using (var image = Image.FromStream(stream))
                 {
                     var bitmap = new Bitmap(image);
-                    return OccupancyGridLoader.GenerateOccupancyGrid(bitmap, tileSize);
+                    return OccupancyGrid.GenerateOccupancyGrid(bitmap, tileSize);
                 }
             }
         }

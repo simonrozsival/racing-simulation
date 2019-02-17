@@ -1,5 +1,4 @@
 ﻿using Racing.Mathematics;
-using Racing.Model;
 using Racing.Model.Vehicle;
 using System;
 
@@ -17,25 +16,18 @@ namespace Racing.Simulation.Vehicle
         public Angle SteeringAcceleration { get; }
 
         public InaccuratelyMeasuredVehicleModel(
-            double width,
-            double length,
-            double minVelocity,
-            double maxVelocity,
-            Angle minSteeringAngle,
-            Angle maxSteeringAngle,
-            double acceleration,
-            Angle steeringAcceleration,
+            IVehicleModel measuredVehicleModel,
             double bias,
             Random random)
         {
-            Width = width + bias * width * random.NextDouble();
-            Length = length + bias * length * random.NextDouble();
-            MinVelocity = minVelocity + bias * minVelocity * random.NextDouble();
-            MaxVelocity = maxVelocity - bias * maxVelocity * random.NextDouble();
-            MinSteeringAngle = minSteeringAngle + bias * minSteeringAngle * random.NextDouble();
-            MaxSteeringAngle = maxSteeringAngle + bias * maxSteeringAngle * random.NextDouble();
-            Acceleration = acceleration + bias * acceleration * random.NextDouble();
-            SteeringAcceleration = steeringAcceleration + bias * steeringAcceleration * random.NextDouble();
+            Width = measuredVehicleModel.Width + bias * measuredVehicleModel.Width * random.NextDouble();
+            Length = measuredVehicleModel.Length + bias * measuredVehicleModel.Length * random.NextDouble();
+            MinVelocity = measuredVehicleModel.MinVelocity + bias * measuredVehicleModel.MinVelocity * random.NextDouble();
+            MaxVelocity = measuredVehicleModel.MaxVelocity - bias * measuredVehicleModel.MaxVelocity * random.NextDouble();
+            MinSteeringAngle = measuredVehicleModel.MinSteeringAngle + bias * measuredVehicleModel.MinSteeringAngle * random.NextDouble();
+            MaxSteeringAngle = measuredVehicleModel.MaxSteeringAngle + bias * measuredVehicleModel.MaxSteeringAngle * random.NextDouble();
+            Acceleration = measuredVehicleModel.Acceleration + bias * measuredVehicleModel.Acceleration * random.NextDouble();
+            SteeringAcceleration = measuredVehicleModel.SteeringAcceleration + bias * measuredVehicleModel.SteeringAcceleration * random.NextDouble();
         }
     }
 }

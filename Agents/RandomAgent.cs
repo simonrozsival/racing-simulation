@@ -7,22 +7,14 @@ namespace Racing.Agents
 {
     public sealed class RandomAgent : IAgent
     {
-        public IObservable<IAction> Actions { get; }
-
-        public IObserver<IState> Perception { get; }
+        private readonly Random random;
 
         public RandomAgent(Random random)
         {
-            IAction randomAction()
-                => SteeringAction.PossibleActions[random.Next(0, SteeringAction.PossibleActions.Count - 1)];
-
-            var perceptionSubject = new Subject<IState>();
-            Perception = perceptionSubject;
-            Actions = perceptionSubject.Select(_ =>
-            {
-                Console.WriteLine("random action");
-                return randomAction();
-            });
+            this.random = random;
         }
+
+        public IAction ReactTo(IState state)
+            => SteeringAction.PossibleActions[random.Next(0, SteeringAction.PossibleActions.Count - 1)];
     }
 }

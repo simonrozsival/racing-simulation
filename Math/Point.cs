@@ -22,11 +22,11 @@ namespace Racing.Mathematics
 
         public Point Normalize()
         {
-            var length = Length();
+            var length = CalculateLength();
             return (1 / length) * this;
         }
 
-        public double Length()
+        public double CalculateLength()
             => Sqrt(X * X + Y * Y);
 
         public Point Rotate(Angle angle)

@@ -2,7 +2,7 @@
   "profiles": {
     "Racing.Simulation": {
       "commandName": "Project",
-      "commandLineArgs": "--input \"../../../../simple.json\""
+      "commandLineArgs": "--track \"../../../../tracks/simple-circuit/circuit_definition.json\" --results \"../../../../results/\" -n 3"
     }
   }
 }

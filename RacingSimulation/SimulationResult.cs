@@ -1,26 +1,20 @@
-﻿using Racing.Model;
+﻿using Racing.Model.Simulation;
 using System;
 using System.Collections.Generic;
 
 namespace Racing.Simulation
 {
-    internal sealed class SimulationResult
+    internal sealed class SimulationSummary : ISummary
     {
-        public IList<Log<IState>> States { get; }
-        public IList<Log<IAction>> Actions { get; }
-        public TimeSpan SimulationTime { get; }
-        public bool Succeeded { get; }
-
-        public SimulationResult(
-            IList<Log<IState>> states,
-            IList<Log<IAction>> actions,
-            TimeSpan simulationTime,
-            bool succeeded)
+        public SimulationSummary(TimeSpan simulationTime, Result result, IEnumerable<IEvent> log)
         {
-            States = states;
-            Actions = actions;
             SimulationTime = simulationTime;
-            Succeeded = succeeded;
+            Result = result;
+            Log = log;
         }
+
+        public TimeSpan SimulationTime { get; }
+        public Result Result { get; }
+        public IEnumerable<IEvent> Log { get; }
     }
 }

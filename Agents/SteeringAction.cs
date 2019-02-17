@@ -1,4 +1,5 @@
 ﻿using Racing.Model;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Racing.Agents
@@ -10,7 +11,8 @@ namespace Racing.Agents
         public const double MinThrottle = 0;
         public const double MaxThrottle = 1;
 
-        public static ImmutableList<SteeringAction> PossibleActions { get; }
+        public static ImmutableList<IAction> PossibleActions { get; }
+        public static IAction Brake { get; } = new SteeringAction(0, 0);
 
         public double Throttle { get; }
         public double Steering { get; }
@@ -23,15 +25,22 @@ namespace Racing.Agents
 
         static SteeringAction()
         {
-            PossibleActions = new[]
+            IEnumerable<IAction> generateActions(int throttleSteps, int steeringSteps)
             {
-                new SteeringAction(throttle: 0, steering: -1),
-                new SteeringAction(throttle: 0, steering: 0),
-                new SteeringAction(throttle: 0, steering: 1),
-                new SteeringAction(throttle: 1, steering: -1),
-                new SteeringAction(throttle: 1, steering: 0),
-                new SteeringAction(throttle: 1, steering: 1),
-            }.ToImmutableList();
+                for (double t = 0; t <= 1.0; t += 1.0 / throttleSteps)
+                {
+                    for (double s = 0; s <= 1.0; s += 1.0 / steeringSteps)
+                    {
+                        yield return new SteeringAction(throttle: t, steering: s);
+                        if (s != 0)
+                        {
+                            yield return new SteeringAction(throttle: t, steering: -s);
+                        }
+                    }
+                }
+            }
+
+            PossibleActions = generateActions(throttleSteps: 10, steeringSteps: 10).ToImmutableList();
         }
     }
 }

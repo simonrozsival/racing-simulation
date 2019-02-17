@@ -4,7 +4,7 @@ using Racing.Model;
 
 namespace Racing.IO.Model
 {
-    internal sealed class Circuit : ICircuit
+    internal sealed class SerializableCircuit : ICircuit
     {
         public double Radius { get; set; }
         public Point Start { get; set; }
