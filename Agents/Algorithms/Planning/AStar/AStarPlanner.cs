@@ -40,6 +40,7 @@ namespace Racing.Agents.Algorithms.Planning
         {
             //var heuristic = createShortestPathHeuristic(problem);
             var heuristic = new EuclideanDistanceHeuristic();
+            // var heuristic = new DijkstraAkaNoHeuristic();
 
             //var open = new BinaryHeapOpenSet<SearchNode>();
             var open = new HashTableOpenSet<SearchNode>();

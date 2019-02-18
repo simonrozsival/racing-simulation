@@ -3,7 +3,7 @@ using System;
 
 namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
 {
-    internal sealed class DijkstraHeuristic : IHeuristic
+    internal sealed class DijkstraAkaNoHeuristic : IHeuristic
     {
         public TimeSpan EstimateTimeToGoal(IState state, PlanningProblem problem)
         {
