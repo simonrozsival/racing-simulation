@@ -4,11 +4,11 @@ using static System.Math;
 
 namespace Racing.Model.Vehicle
 {
-    public sealed class KineticModel : IMotionModel
+    public sealed class DynamicModel : IMotionModel
     {
         private readonly IVehicleModel vehicle;
 
-        public KineticModel(IVehicleModel vehicle)
+        public DynamicModel(IVehicleModel vehicle)
         {
             this.vehicle = vehicle;
         }

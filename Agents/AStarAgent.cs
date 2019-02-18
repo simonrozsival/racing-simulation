@@ -32,7 +32,7 @@ namespace Racing.Agents
             this.motionModel = motionModel;
             this.track = track;
             this.perceptionPeriod = perceptionPeriod;
-            this.simulationStep = perceptionPeriod / 20;
+            this.simulationStep = perceptionPeriod / 10;
 
             collisionDetector = new BoundingSphereCollisionDetector(track, vehicleModel);
 
@@ -63,7 +63,7 @@ namespace Racing.Agents
 
             if (pointsToGo.Count == 0)
             {
-                return SteeringAction.Brake;
+                return SteeringInput.Brake;
             }
 
             if (plan == null || plan.Count == 0)
@@ -71,7 +71,7 @@ namespace Racing.Agents
                 plan = createNewPlan(state);
                 if (plan == null || plan.Count == 0)
                 {
-                    return SteeringAction.Brake;
+                    return SteeringInput.Brake;
                 }
             }
 
@@ -88,7 +88,7 @@ namespace Racing.Agents
 
             // todo: is too off the planned trajectory?
 
-            return nextAction ?? SteeringAction.Brake;
+            return nextAction ?? SteeringInput.Brake;
         }
 
         private IState intention(IAction action, IState state)
@@ -113,7 +113,7 @@ namespace Racing.Agents
         {
             var nextWaypoint = nextGoal(lookahead: 2);
             var planningProblem = new PlanningProblem(
-                state, vehicleModel, motionModel, SteeringAction.PossibleActions, track, nextWaypoint);
+                state, vehicleModel, motionModel, SteeringInput.PossibleActions, track, nextWaypoint);
 
             var planner = new AStarPlanner(collisionDetector, perceptionPeriod, simulationStep);
             var newPlan = planner.FindOptimalPlanFor(planningProblem);

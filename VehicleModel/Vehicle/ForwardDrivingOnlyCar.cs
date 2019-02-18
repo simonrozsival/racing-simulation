@@ -20,9 +20,9 @@ namespace Racing.Model.Vehicle
             Length = 2 * width;
             MinVelocity = 0;
             MaxVelocity = 27 * oneMeter;
-            MinSteeringAngle = Angle.FromDegrees(-45);
-            MaxSteeringAngle = Angle.FromDegrees(45);
-            Acceleration = 8 * oneMeter;
+            MinSteeringAngle = Angle.FromDegrees(-25);
+            MaxSteeringAngle = Angle.FromDegrees(25);
+            Acceleration = 16 * oneMeter;
             SteeringAcceleration = MaxSteeringAngle / 0.5;
         }
     }

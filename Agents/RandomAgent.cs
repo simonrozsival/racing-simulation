@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using Racing.Model;
+using Racing.Model.Vehicle;
 
 namespace Racing.Agents
 {
@@ -15,6 +14,6 @@ namespace Racing.Agents
         }
 
         public IAction ReactTo(IState state)
-            => SteeringAction.PossibleActions[random.Next(0, SteeringAction.PossibleActions.Count - 1)];
+            => SteeringInput.PossibleActions[random.Next(0, SteeringInput.PossibleActions.Count - 1)];
     }
 }

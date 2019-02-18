@@ -1,16 +1,18 @@
-﻿using Racing.Model;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace RacingModel
+namespace Racing.Model.Vehicle
 {
-    internal sealed class SteeringInput : IAction
+    public sealed class SteeringInput : IAction
     {
         public const double MinAngle = -1;
         public const double MaxAngle = 1;
         public const double MinThrottle = 0;
         public const double MaxThrottle = 1;
 
-        public static ImmutableList<SteeringInput> PossibleActions { get; }
+        public static ImmutableList<IAction> PossibleActions { get; }
+        public static SteeringInput Brake { get; } = new SteeringInput(0, 0);
 
         public double Throttle { get; }
         public double Steering { get; }
@@ -23,15 +25,29 @@ namespace RacingModel
 
         static SteeringInput()
         {
-            PossibleActions = new[]
+            PossibleActions = generateInputs(9, 33).ToImmutableList();
+        }
+
+        public override string ToString()
+            => $"[t: {Throttle}, s: {Steering}]";
+
+        private static IEnumerable<IAction> generateInputs(int throttleSteps, int steeringSteps)
+        {
+            if (steeringSteps % 2 != 1)
             {
-                new SteeringInput(throttle: 0, steering: -1),
-                new SteeringInput(throttle: 0, steering: 0),
-                new SteeringInput(throttle: 0, steering: 1),
-                new SteeringInput(throttle: 1, steering: -1),
-                new SteeringInput(throttle: 1, steering: 0),
-                new SteeringInput(throttle: 1, steering: 1),
-            }.ToImmutableList();
+                throw new ArgumentException($"The number of steering levels must be an odd number, {steeringSteps} is even.");
+            }
+
+            var steeringShift = steeringSteps / 2;
+            for (int t = 0; t < throttleSteps; t++)
+            {
+                for (int s = 0; s < steeringSteps; s++)
+                {
+                    yield return new SteeringInput(
+                        throttle: (double)t / (throttleSteps - 1),
+                        steering: (double)(s - steeringShift) / steeringShift);
+                }
+            }
         }
     }
 }

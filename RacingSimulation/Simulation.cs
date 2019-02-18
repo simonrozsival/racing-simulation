@@ -51,8 +51,14 @@ namespace Racing.Simulation
                 timeToNextPerception -= simulationStep;
                 if (timeToNextPerception < TimeSpan.Zero)
                 {
+                    var stopwatch = new System.Diagnostics.Stopwatch();
+                    stopwatch.Restart();
                     nextAction = agent.ReactTo(vehicleState);
+                    stopwatch.Stop();
+                    Console.WriteLine($"Agent was thinking for: {stopwatch.ElapsedMilliseconds}ms");
                     timeToNextPerception = perceptionPeriod;
+
+                    log.ActionSelected(nextAction);
                 }
 
                 vehicleState = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep);

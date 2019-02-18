@@ -24,14 +24,14 @@ namespace Racing.Simulation
         private static void run(Options options)
         {
             var random = new Random(Seed: 123);
-            var perceptionPeriod = TimeSpan.FromSeconds(0.8);
+            var perceptionPeriod = TimeSpan.FromSeconds(0.6);
             var simulationStep = TimeSpan.FromSeconds(1 / 60.0);
 
             var track = Track.Load(options.Input);
 
             var assumedVehicleModel =
                 VehicleModelFactory.ForwardDrivingOnlyWhichFitsOnto(track);
-            var assumedMotionModel = new KineticModel(assumedVehicleModel);
+            var assumedMotionModel = new DynamicModel(assumedVehicleModel);
 
             //var realVehicleModel = new InaccuratelyMeasuredVehicleModel(
             //    assumedVehicleModel,
@@ -43,8 +43,7 @@ namespace Racing.Simulation
             var realMotionModel = assumedMotionModel;
 
             var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel);
-            // todo: I must figure how how to include the "waypoints" into the goal - using "track.Circuit.Goal" now finishes the race in the start position...
-            var goal = new RadialGoal(track.Circuit.WayPoints.Last(), realVehicleModel.Length);
+            var goal = new RadialGoal(track.Circuit.Goal, track.Circuit.Radius);
             var stateClassificator = new StateClassificator(collisionDetector, goal);
 
             var results = new List<ISummary>(options.NumberOfRepetitions);
@@ -61,7 +60,8 @@ namespace Racing.Simulation
 
                 Console.WriteLine($"Result: {summary.Result.ToString()} after {summary.SimulationTime.TotalSeconds}s");
 
-                var fileName = $"{options.Output.TrimEnd('/')}/run-{i}.json";
+                // var fileName = $"{options.Output.TrimEnd('/')}/run-{i}.json";
+                var fileName = "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json";
                 IO.Simulation.StoreResult(track, realVehicleModel, summary, fileName);
                 Console.WriteLine($"Storing  result into: {fileName}");
                 Console.WriteLine($"=====================");

@@ -17,15 +17,15 @@ namespace Racing.Agents
     {
         public static void Main(string[] args)
         {
-            var perceptionPeriod = TimeSpan.FromSeconds(0.8);
-            var simulationStep = perceptionPeriod / 20;
+            var perceptionPeriod = TimeSpan.FromSeconds(0.3);
+            var simulationStep = perceptionPeriod / 3;
             var numberOfSimulationsPerAction = (int)(perceptionPeriod / simulationStep);
 
             var track = Track.Load("../../../../tracks/simple-circuit/circuit_definition.json");
 
             var assumedVehicleModel =
-                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 2.5);
-            var assumedMotionModel = new KineticModel(assumedVehicleModel);
+                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 2);
+            var assumedMotionModel = new DynamicModel(assumedVehicleModel);
 
             var agent = new AStarAgent(assumedVehicleModel, assumedMotionModel, track, perceptionPeriod);
 
@@ -33,12 +33,12 @@ namespace Racing.Agents
             var realMotionModel = assumedMotionModel;
 
             var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel);
-            var goal = new RadialGoal(track.Circuit.WayPoints.Skip(5).First(), realVehicleModel.Length);
+            var goal = new RadialGoal(track.Circuit.WayPoints.ElementAt(7), realVehicleModel.Length);
             var stateClassificator = new StateClassificator(collisionDetector, goal);
 
             IState initialState = new InitialState(track.Circuit);
 
-            var planningProblem = new PlanningProblem(initialState, realVehicleModel, realMotionModel, SteeringAction.PossibleActions, track, goal);
+            var planningProblem = new PlanningProblem(initialState, realVehicleModel, realMotionModel, SteeringInput.PossibleActions, track, goal);
             var aStarPlanner = new AStarPlanner(new BoundingSphereCollisionDetector(track, realVehicleModel), perceptionPeriod, simulationStep);
 
             var stopwatch = new System.Diagnostics.Stopwatch();

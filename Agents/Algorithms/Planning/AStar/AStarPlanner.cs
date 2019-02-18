@@ -38,12 +38,12 @@ namespace Racing.Agents.Algorithms.Planning
 
         public IEnumerable<IAction> FindOptimalPlanFor(PlanningProblem problem)
         {
-            //var heuristic = createShortestPathHeuristic(problem);
+            // var heuristic = createShortestPathHeuristic(problem);
             var heuristic = new EuclideanDistanceHeuristic();
             // var heuristic = new DijkstraAkaNoHeuristic();
 
-            //var open = new BinaryHeapOpenSet<SearchNode>();
-            var open = new HashTableOpenSet<SearchNode>();
+            var open = new BinaryHeapOpenSet<SearchNode>();
+            //var open = new HashTableOpenSet<SearchNode>();
             var closed = new ClosedSet<long>();
 
             void exporeLater(SearchNode node)
@@ -87,13 +87,20 @@ namespace Racing.Agents.Algorithms.Planning
 
                 foreach (var action in problem.PossibleActions)
                 {
+                    var timeSpentOnManeuver = TimeSpan.Zero;
                     var nextVehicleState = expandedNode.State;
                     for (int i = 0; i < simulationsPerStep; i++)
                     {
                         nextVehicleState = problem.MotionModel.CalculateNextState(nextVehicleState, action, simulationStep);
+                        timeSpentOnManeuver += simulationStep;
                         if (collisionDetector.IsCollision(nextVehicleState.Position))
                         {
                             closed.Add(hash(nextVehicleState));
+                            break;
+                        }
+
+                        if (problem.Goal.ReachedGoal(nextVehicleState.Position))
+                        {
                             break;
                         }
                     }
@@ -109,7 +116,9 @@ namespace Racing.Agents.Algorithms.Planning
                         continue;
                     }
 
-                    var timeFromStart = expandedNode.TimeNeededFromStartToThisState + timeStep.TotalSeconds;
+                    // time can be different from one whole "step" because the simulation could have broken at some sub-step
+                    // if it reached a goal somewhere in the middle of the time step.
+                    var timeFromStart = expandedNode.TimeNeededFromStartToThisState + timeSpentOnManeuver.TotalSeconds;
                     var discoveredNode = new SearchNode(
                         state: nextVehicleState,
                         actionFromPreviousState: action,
@@ -205,7 +214,7 @@ namespace Racing.Agents.Algorithms.Planning
         private static long hash(IState state)
         {
             const double resolution = 5;
-            const double angularResolution = (2 * Math.PI) / 6;
+            const double angularResolution = (2 * Math.PI) / 12;
 
             var x = (long)(state.Position.X / resolution);
             var y = (long)(state.Position.Y / resolution) * 10000;
