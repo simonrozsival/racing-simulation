@@ -1,5 +1,4 @@
 ﻿using Racing.Mathematics;
-using Racing.Model.Vehicle;
 using System;
 using static System.Math;
 
@@ -19,20 +18,20 @@ namespace Racing.Model.Vehicle
             var seconds = time.TotalSeconds;
 
             var targetVelocity = action.Throttle * vehicle.MaxVelocity;
-            var targetSteeringAngle = action.Steering * vehicle.MaxSteeringAngle;
+            var targetSteeringAngle = action.Steering * vehicle.MaxSteeringAngle.Radians;
 
             var maxVelocityChange = vehicle.Acceleration * seconds;
             var dv = Clamp(targetVelocity - state.Velocity, - maxVelocityChange, maxVelocityChange);
             var velocity = state.Velocity + dv;
 
-            var maxSteeringChange = vehicle.SteeringAcceleration * seconds;
-            var da = (targetSteeringAngle - state.SteeringAngle).Clamp(-maxSteeringChange.Radians, maxSteeringChange.Radians);
-            var steeringAngle = (state.SteeringAngle + da).Clamp(vehicle.MinSteeringAngle.Radians, vehicle.MaxSteeringAngle.Radians);
+            var maxSteeringChange = vehicle.SteeringAcceleration.Radians * seconds;
+            var da = Clamp(targetSteeringAngle - state.SteeringAngle.Radians, -maxSteeringChange, maxSteeringChange);
+            var steeringAngle = Clamp(state.SteeringAngle.Radians + da, vehicle.MinSteeringAngle.Radians, vehicle.MaxSteeringAngle.Radians);
 
             var velocityVector = new Point(
-                x: velocity * Cos(steeringAngle.Radians) * Cos(state.HeadingAngle.Radians),
-                y: velocity * Cos(steeringAngle.Radians) * Sin(state.HeadingAngle.Radians));
-            Angle headingAngularVelocity = (velocity / vehicle.Length) * Sin(steeringAngle.Radians);
+                x: velocity * Cos(steeringAngle) * Cos(state.HeadingAngle.Radians),
+                y: velocity * Cos(steeringAngle) * Sin(state.HeadingAngle.Radians));
+            Angle headingAngularVelocity = (velocity / vehicle.Length) * Sin(steeringAngle);
 
             return new VehicleState(
                 position: state.Position + seconds * velocityVector,
