@@ -72,7 +72,7 @@ namespace Racing.Agents
             }
 
             var summary = new SimulationSummary(elapsedTime, Result.TimeOut, log.History);
-            Simulation.StoreResult(track, realVehicleModel, summary, "../../../../astar.json");
+            Simulation.StoreResult(track, realVehicleModel, summary, "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
         }
 
         private sealed class InitialState : IState
