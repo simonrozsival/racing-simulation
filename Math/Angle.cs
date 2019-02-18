@@ -10,11 +10,11 @@ namespace Racing.Mathematics
 
         private Angle(double radians)
         {
-            Radians = clamp(radians);
+            Radians = radians;
         }
 
-        public Angle Clamp(Angle min, Angle max)
-            => new Angle(Min(max.Radians, Max(min.Radians, Radians)));
+        public Angle Clamp(double min, double max)
+            => new Angle(Min(max, Max(min, Radians)));
 
         public static Angle operator +(Angle a, Angle b)
             => new Angle(a.Radians + b.Radians);
@@ -39,12 +39,5 @@ namespace Racing.Mathematics
 
         public static Angle FromDegrees(double degrees)
             => new Angle(degrees / 180.0 * PI);
-
-        private static double clamp(double angle)
-        {
-            while (angle > 2 * PI) angle -= 2 * PI;
-            while (angle < -2 * PI) angle += 2 * PI;
-            return angle;
-        }
     }
 }

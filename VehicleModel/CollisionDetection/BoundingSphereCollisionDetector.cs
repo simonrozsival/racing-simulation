@@ -8,6 +8,7 @@ namespace Racing.Model.CollisionDetection
     {
         private readonly ITrack track;
         private readonly double diagonal;
+        private readonly double tileSize;
         private readonly BoundsDetector boundsDetector;
 
         public BoundingSphereCollisionDetector(ITrack track, IVehicleModel vehicleModel)
@@ -19,6 +20,7 @@ namespace Racing.Model.CollisionDetection
             var u = vehicleModel.Length / 2;
             var v = vehicleModel.Width / 2;
             diagonal = Math.Sqrt(u * u + v * v);
+            tileSize = track.TileSize;
         }
 
         public bool IsCollision(IState state)
@@ -33,15 +35,7 @@ namespace Racing.Model.CollisionDetection
                     var x = position.X + dx * diagonal;
                     var y = position.Y + dy * diagonal;
 
-                    if (boundsDetector.IsOutOfBounds(x, y))
-                    {
-                        return true;
-                    }
-
-                    var tileX = (int)(x / track.TileSize);
-                    var tileY = (int)(y / track.TileSize);
-
-                    if (!track.OccupancyGrid[tileX, tileY])
+                    if (collides(x, y))
                     {
                         return true;
                     }
@@ -49,6 +43,18 @@ namespace Racing.Model.CollisionDetection
             }
 
             return false;
+        }
+
+        private bool collides(double x, double y)
+        {
+            if (boundsDetector.IsOutOfBounds(x, y))
+            {
+                return true;
+            }
+
+            var tileX = (int)(x / tileSize);
+            var tileY = (int)(y / tileSize);
+            return !track.OccupancyGrid[tileX, tileY];
         }
     }
 
