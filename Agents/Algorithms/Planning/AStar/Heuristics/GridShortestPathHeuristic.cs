@@ -55,14 +55,14 @@ namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
 
         private ShortestPathNode findShortestPath(Point start, IGoal goal, double stepSize)
         {
-            var open = new OpenSet<GridSearchNode>();
+            var open = new BinaryHeapOpenSet<GridSearchNode>();
             var closed = new ClosedSet<long>();
 
             open.Add(new GridSearchNode(start, null, 0.0, 0.0));
 
             while (!open.IsEmpty)
             {
-                var nodeToExpand = open.DequeueMostPromissingState();
+                var nodeToExpand = open.DequeueMostPromissing();
 
                 if (goal.ReachedGoal(nodeToExpand.Position))
                 {
@@ -108,7 +108,7 @@ namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
                         var node = new GridSearchNode(nextPoint, nodeToExpand, distance, distance);
                         if (open.Contains(node))
                         {
-                            if (node.DistanceFromStart < open.AlreadyStoredStateCloseTo(node).DistanceFromStart)
+                            if (node.DistanceFromStart < open.NodeSimilarTo(node).DistanceFromStart)
                             {
                                 open.Replace(node);
                             }

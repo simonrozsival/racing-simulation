@@ -3,7 +3,11 @@ using System.Collections.Generic;
 
 namespace Racing.Agents.Algorithms.Planning.AStar.DataStructures
 {
-    internal sealed class OpenSet<T>
+    /// <summary>
+    /// This data structure has all operations at most O(log n).
+    /// </summary>
+    /// <typeparam name="T">Search node type</typeparam>
+    internal sealed class BinaryHeapOpenSet<T> : IOpenSet<T>
         where T : ISearchNode, IComparable<T>
     {
         private readonly Dictionary<long, T> allStates = new Dictionary<long, T>();
@@ -14,7 +18,7 @@ namespace Racing.Agents.Algorithms.Planning.AStar.DataStructures
         public bool Contains(T state)
             => allStates.ContainsKey(state.Id);
 
-        public T AlreadyStoredStateCloseTo(T state)
+        public T NodeSimilarTo(T state)
             => allStates[state.Id];
 
         public void Add(T state)
@@ -30,7 +34,7 @@ namespace Racing.Agents.Algorithms.Planning.AStar.DataStructures
             costs.Replace(removedState, state);
         }
 
-        public T DequeueMostPromissingState()
+        public T DequeueMostPromissing()
         {
             var next = costs.DequeueMin();
             allStates.Remove(next.Id);

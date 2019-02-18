@@ -43,7 +43,8 @@ namespace Racing.Agents.Algorithms.Planning
             //var heuristic = createShortestPathHeuristic(problem);
             var heuristic = new EuclideanDistanceHeuristic();
 
-            var open = new OpenSet<SearchNode>();
+            //var open = new BinaryHeapOpenSet<SearchNode>();
+            var open = new HashTableOpenSet<SearchNode>();
             var closed = new ClosedSet<long>();
 
             open.Add(
