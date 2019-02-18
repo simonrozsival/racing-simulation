@@ -2,7 +2,6 @@
 using Racing.Agents.Algorithms.Planning.AStar.Heuristics;
 using Racing.Model;
 using Racing.Model.CollisionDetection;
-using Racing.Model.Vehicle;
 using System;
 using System.Collections.Generic;
 
@@ -37,7 +36,6 @@ namespace Racing.Agents.Algorithms.Planning
             this.collisionDetector = collisionDetector;
         }
 
-
         public IEnumerable<IAction> FindOptimalPlanFor(PlanningProblem problem)
         {
             //var heuristic = createShortestPathHeuristic(problem);
@@ -47,17 +45,37 @@ namespace Racing.Agents.Algorithms.Planning
             var open = new HashTableOpenSet<SearchNode>();
             var closed = new ClosedSet<long>();
 
-            open.Add(
+            void exporeLater(SearchNode node)
+            {
+                if (!open.Contains(node))
+                {
+                    open.Add(node);
+                }
+                else if (node.TimeNeededFromStartToThisState < open.NodeSimilarTo(node).TimeNeededFromStartToThisState)
+                {
+                    open.Replace(node);
+                }
+            }
+
+            var exploreNext =
                 new SearchNode(
                     state: problem.InitialState,
                     actionFromPreviousState: null,
                     previousState: null,
                     timeNeededFromStartToThisState: 0,
-                    estimatedCost: heuristic.EstimateTimeToGoal(problem.InitialState, problem).TotalSeconds));
+                    estimatedCost: heuristic.EstimateTimeToGoal(problem.InitialState, problem).TotalSeconds);
 
-            while (!open.IsEmpty)
+            while (exploreNext != null || !open.IsEmpty)
             {
-                var expandedNode = open.DequeueMostPromissingState();
+                var expandedNode = exploreNext;
+                if (expandedNode == null)
+                {
+                    expandedNode = open.DequeueMostPromissing();
+                }
+                else
+                {
+                    exploreNext = null;
+                }
 
                 if (problem.Goal.ReachedGoal(expandedNode.State.Position))
                 {
@@ -91,23 +109,35 @@ namespace Racing.Agents.Algorithms.Planning
                     }
 
                     var timeFromStart = expandedNode.TimeNeededFromStartToThisState + timeStep.TotalSeconds;
-                    var next = new SearchNode(
+                    var discoveredNode = new SearchNode(
                         state: nextVehicleState,
                         actionFromPreviousState: action,
                         previousState: expandedNode,
                         timeNeededFromStartToThisState: timeFromStart,
                         estimatedCost: timeFromStart + heuristic.EstimateTimeToGoal(nextVehicleState, problem).TotalSeconds);
 
-                    if (!open.Contains(next))
+                    if (!open.Contains(discoveredNode))
                     {
-                        open.Add(next);
+                        if (discoveredNode.EstimatedCost < expandedNode.EstimatedCost)
+                        {
+                            if (exploreNext == null)
+                            {
+                                exploreNext = discoveredNode;
+                            }
+                            else if (discoveredNode.EstimatedCost < exploreNext.EstimatedCost)
+                            {
+                                exporeLater(exploreNext);
+                                exploreNext = discoveredNode;
+                            }
+                        }
+                        else
+                        {
+                            exporeLater(discoveredNode);
+                        }
                     }
                     else
                     {
-                        if (next.TimeNeededFromStartToThisState < open.AlreadyStoredStateCloseTo(next).TimeNeededFromStartToThisState)
-                        {
-                            open.Replace(next);
-                        }
+                        exporeLater(discoveredNode);
                     }
                 }
             }
