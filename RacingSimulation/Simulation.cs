@@ -40,13 +40,13 @@ namespace Racing.Simulation
             IState vehicleState = new InitialState(track.Circuit);
             IAction nextAction = new NoOpAction();
 
-            var queue = new Queue<IGoal>(track.Circuit.WayPoints.Select(wp => new RadialGoal(wp, track.Circuit.Radius)));
-            queue.Enqueue(new RadialGoal(track.Circuit.Goal, track.Circuit.Radius));
+            var wayPointsQueue = new Queue<IGoal>(track.Circuit.WayPoints.Select(wp => new RadialGoal(wp, track.Circuit.Radius)));
+            wayPointsQueue.Enqueue(new RadialGoal(track.Circuit.Goal, track.Circuit.Radius));
 
             var elapsedTime = TimeSpan.Zero;
             var timeToNextPerception = TimeSpan.Zero;
 
-            while (queue.Count > 0 && stateClassificator.Classify(vehicleState) != StateType.Collision && elapsedTime < maximumSimulationTime)
+            while (wayPointsQueue.Count > 0 && stateClassificator.Classify(vehicleState) != StateType.Collision && elapsedTime < maximumSimulationTime)
             {
                 timeToNextPerception -= simulationStep;
                 if (timeToNextPerception < TimeSpan.Zero)
@@ -58,9 +58,10 @@ namespace Racing.Simulation
                 vehicleState = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep);
                 log.StateUpdated(vehicleState);
 
-                if (queue.Peek().ReachedGoal(vehicleState.Position))
+                if (wayPointsQueue.Peek().ReachedGoal(vehicleState.Position))
                 {
-                    queue.Dequeue();
+                    Console.WriteLine($"Reached next way point, {wayPointsQueue.Count} to go.");
+                    wayPointsQueue.Dequeue();
                 }
 
                 elapsedTime += simulationStep;

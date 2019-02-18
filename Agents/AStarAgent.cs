@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using Racing.Agents.Algorithms.Planning;
 using Racing.Model;
 using Racing.Model.CollisionDetection;
@@ -54,9 +52,7 @@ namespace Racing.Agents
                     var pointBetween = previousPercievedState.Position + (double)i / steps * traveledDistance;
                     if (pointsToGo.Peek().ReachedGoal(pointBetween))
                     {
-                        Console.WriteLine($"Reached waypoint {pointsToGo.Peek().Position}");
                         pointsToGo.Dequeue();
-
                         plan = createNewPlan(state);
                         break;
                     }
@@ -115,12 +111,7 @@ namespace Racing.Agents
 
         private Queue<IAction> createNewPlan(IState state)
         {
-            Console.WriteLine("Replan");
-
-            var nextWaypoint = pointsToGo.Count > 1 ? pointsToGo.Skip(1).First() : pointsToGo.Peek();
-
-            Console.WriteLine($"Aim for {nextWaypoint.Position}");
-
+            var nextWaypoint = nextGoal(lookahead: 2);
             var planningProblem = new PlanningProblem(
                 state, vehicleModel, motionModel, SteeringAction.PossibleActions, track, nextWaypoint);
 
@@ -134,5 +125,8 @@ namespace Racing.Agents
 
             return new Queue<IAction>(newPlan);
         }
+
+        private IGoal nextGoal(int lookahead)
+            => pointsToGo.Skip(Math.Min(lookahead, pointsToGo.Count) - 1).First();
     }
 }

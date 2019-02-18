@@ -61,7 +61,7 @@ namespace Racing.Simulation
 
                 Console.WriteLine($"Result: {summary.Result.ToString()} after {summary.SimulationTime.TotalSeconds}s");
 
-                var fileName = $"{options.Output}/run-{i}.json";
+                var fileName = $"{options.Output.TrimEnd('/')}/run-{i}.json";
                 IO.Simulation.StoreResult(track, realVehicleModel, summary, fileName);
                 Console.WriteLine($"Storing  result into: {fileName}");
                 Console.WriteLine($"=====================");
