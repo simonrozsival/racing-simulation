@@ -14,6 +14,7 @@ namespace Racing.Model.CollisionDetection
 
         private static readonly double discretizationStep = 0.05;
         private readonly Dictionary<int, Point> frontLeft = new Dictionary<int, Point>();
+        private readonly Dictionary<int, Point> front = new Dictionary<int, Point>();
         private readonly Dictionary<int, Point> frontRight = new Dictionary<int, Point>();
 
         public AccurateCollisionDetector(ITrack track, IVehicleModel vehicleModel, double safetyMargin = 0)
@@ -29,9 +30,11 @@ namespace Racing.Model.CollisionDetection
             {
                 var a = i * discretizationStep;
                 var pointA = new Point(ux, -uy).Rotate(a);
-                var pointB = new Point(ux, uy).Rotate(a);
+                var pointB = new Point(ux, 0).Rotate(a);
+                var pointC = new Point(ux, uy).Rotate(a);
                 frontLeft.Add(i, pointA);
-                frontRight.Add(i, pointB);
+                front.Add(i, pointB);
+                frontRight.Add(i, pointC);
             }
         }
 
@@ -44,7 +47,13 @@ namespace Racing.Model.CollisionDetection
                 return true;
             }
 
-            var pointB = state.Position + frontRight[i];
+            var pointB = state.Position + front[i];
+            if (isCollision(pointA))
+            {
+                return true;
+            }
+
+            var pointC = state.Position + frontRight[i];
             return isCollision(pointB);
         }
 
