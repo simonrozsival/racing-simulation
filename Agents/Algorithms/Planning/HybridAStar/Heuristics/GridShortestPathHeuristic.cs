@@ -235,8 +235,21 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             public Point Position { get; }
             public ShortestPathNode Next { get; set; }
             public TimeSpan CostToNext { get; set; }
-            public TimeSpan CostToTheGoal => CostToNext + (Next?.CostToTheGoal ?? TimeSpan.Zero);
+            public TimeSpan CostToTheGoal
+            {
+                get
+                {
+                    if (!costToGoalCache.HasValue)
+                    {
+                        costToGoalCache = CostToNext + (Next?.CostToTheGoal ?? TimeSpan.Zero);
+                    }
+
+                    return costToGoalCache.Value;
+                }
+            }
             public bool IsGoal => Next == null;
+
+            private TimeSpan? costToGoalCache;
 
             public ShortestPathNode(Point position)
             {
