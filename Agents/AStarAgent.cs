@@ -123,7 +123,7 @@ namespace Racing.Agents
                 return null;
             }
 
-            return new Queue<IAction>(newPlan);
+            return new Queue<IAction>(newPlan.Actions);
         }
 
         private IGoal nextGoal(int lookahead)

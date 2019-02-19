@@ -53,7 +53,7 @@ namespace Racing.Agents.Algorithms.Planning
                 headingAngleCellSize: 2 * Math.PI / 12);
         }
 
-        public IEnumerable<IAction> FindOptimalPlanFor(PlanningProblem problem)
+        public IPlan FindOptimalPlanFor(PlanningProblem problem)
         {
             // var heuristic = createShortestPathHeuristic(problem);
             var heuristic = new EuclideanDistanceHeuristic(vehicleModel.MaxVelocity, problem.Goal);
@@ -97,7 +97,7 @@ namespace Racing.Agents.Algorithms.Planning
 
                 if (problem.Goal.ReachedGoal(expandedNode.State.Position))
                 {
-                    return reconstructActions(expandedNode);
+                    return reconstructPlan(expandedNode);
                 }
 
                 closed.Add(expandedNode.Key);
@@ -106,18 +106,11 @@ namespace Racing.Agents.Algorithms.Planning
                 {
                     var timeSpentOnManeuver = TimeSpan.Zero;
                     var nextVehicleState = expandedNode.State;
-                    var nextDiscreteState = default(DiscreteState);
 
                     for (int i = 0; i < simulationsPerStep; i++)
                     {
                         nextVehicleState = motionModel.CalculateNextState(nextVehicleState, action, simulationStep);
-                        nextDiscreteState = discretizer.Discretize(nextVehicleState);
                         timeSpentOnManeuver += simulationStep;
-                        if (collisionDetector.IsCollision(nextVehicleState))
-                        {
-                            closed.Add(nextDiscreteState);
-                            break;
-                        }
 
                         if (problem.Goal.ReachedGoal(nextVehicleState.Position))
                         {
@@ -125,9 +118,16 @@ namespace Racing.Agents.Algorithms.Planning
                         }
                     }
 
+                    var nextDiscreteState = discretizer.Discretize(nextVehicleState);
                     if (closed.Contains(nextDiscreteState))
                     {
                         continue;
+                    }
+
+                    if (collisionDetector.IsCollision(nextVehicleState))
+                    {
+                        closed.Add(nextDiscreteState);
+                        break;
                     }
 
                     // time can be different from one whole "step" because the simulation could have broken at some sub-step
@@ -183,24 +183,31 @@ namespace Racing.Agents.Algorithms.Planning
             return heuristic;
         }
 
-        private IEnumerable<IAction> reconstructActions(SearchNode state)
+        private IPlan reconstructPlan(SearchNode node)
         {
+            var timeToGoal = node.CostToCome;
+            var states = new List<IState>();
             var actions = new List<IAction>();
-            while (state != null && state.ActionFromPreviousState != null)
+            while (node != null)
             {
-                actions.Insert(0, state.ActionFromPreviousState);
-                state = state.PreviousState;
+                states.Insert(0, node.State);
+                if (node.ActionFromPreviousState != null)
+                {
+                    actions.Insert(0, node.ActionFromPreviousState);
+                }
+
+                node = node.PreviousNode;
             }
 
-            return actions;
+            return new Plan(TimeSpan.FromSeconds(timeToGoal), states, actions);
         }
 
-        private sealed class SearchNode : ISearchNode<DiscreteState>, IComparable<SearchNode>
+        internal sealed class SearchNode : ISearchNode<DiscreteState>, IComparable<SearchNode>
         {
             public DiscreteState Key { get; }
             public IState State { get; }
             public IAction ActionFromPreviousState { get; }
-            public SearchNode PreviousState { get; }
+            public SearchNode PreviousNode { get; }
             public double CostToCome { get; }
             public double EstimatedTotalCost { get; }
 
@@ -215,7 +222,7 @@ namespace Racing.Agents.Algorithms.Planning
                 Key = discreteState;
                 State = state;
                 ActionFromPreviousState = actionFromPreviousState;
-                PreviousState = previousState;
+                PreviousNode = previousState;
                 CostToCome = costToCome;
                 EstimatedTotalCost = estimatedTotalCost;
             }
