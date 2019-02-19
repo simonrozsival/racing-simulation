@@ -1,9 +1,9 @@
 ﻿using Racing.Mathematics;
-using Racing.Model.Vehicle;
+using System;
 
 namespace Racing.Model.Vehicle
 {
-    internal class VehicleState : IState
+    internal readonly struct VehicleState : IState, IEquatable<VehicleState>
     {
         public Point Position { get; }
         public Angle HeadingAngle { get; }
@@ -21,5 +21,14 @@ namespace Racing.Model.Vehicle
             SteeringAngle = steering;
             Velocity = velocity;
         }
+
+        public override bool Equals(object obj)
+            => (obj is VehicleState other) && Equals(other);
+
+        public override int GetHashCode()
+            => HashCode.Combine(Position, HeadingAngle, SteeringAngle, Velocity);
+
+        public bool Equals(VehicleState other)
+            => (Position, HeadingAngle, SteeringAngle, Velocity) == (other.Position, other.HeadingAngle, other.SteeringAngle, other.Velocity);
     }
 }

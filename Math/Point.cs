@@ -3,7 +3,7 @@ using static System.Math;
 
 namespace Racing.Mathematics
 {
-    public struct Point : IEquatable<Point>
+    public readonly struct Point : IEquatable<Point>
     {
         public double X { get; }
         public double Y { get; }
@@ -71,20 +71,13 @@ namespace Racing.Mathematics
         public static bool operator !=(Point a, Point b)
             => !(a == b);
 
-        public override bool Equals(object other)
-        {
-            if (other != null && other is Point point)
-            {
-                return Equals(point);
-            }
-
-            return false;
-        }
+        public override bool Equals(object obj)
+            => (obj is Point other) && Equals(other);
 
         public bool Equals(Point other)
-            => other.X == X && other.Y == Y;
+            => (X, Y) == (other.X, other.Y);
 
         public override int GetHashCode()
-            => X.GetHashCode() + 23 * Y.GetHashCode();
+            => HashCode.Combine(X, Y);
     }
 }
