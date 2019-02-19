@@ -1,5 +1,6 @@
 ﻿using Racing.Mathematics;
 using Racing.Model.Vehicle;
+using System;
 using System.Collections.Generic;
 
 namespace Racing.Model.CollisionDetection
@@ -10,7 +11,10 @@ namespace Racing.Model.CollisionDetection
         private readonly BoundsDetector boundsDetector;
         private readonly double ux;
         private readonly double uy;
-        private readonly bool allowsBackwaradDriving = false;
+
+        private static readonly double discretizationStep = 0.05;
+        private readonly Dictionary<int, Point> frontLeft = new Dictionary<int, Point>();
+        private readonly Dictionary<int, Point> frontRight = new Dictionary<int, Point>();
 
         public AccurateCollisionDetector(ITrack track, IVehicleModel vehicleModel, double safetyMargin = 0)
         {
@@ -20,45 +24,53 @@ namespace Racing.Model.CollisionDetection
             uy = vehicleModel.Width / 2 + safetyMargin;
 
             boundsDetector = new BoundsDetector(track);
+
+            for (var i = 0; i < 2 * Math.PI  / discretizationStep; i++)
+            {
+                var a = i * discretizationStep;
+                var pointA = new Point(ux, -uy).Rotate(a);
+                var pointB = new Point(ux, uy).Rotate(a);
+                frontLeft.Add(i, pointA);
+                frontRight.Add(i, pointB);
+            }
         }
 
         public bool IsCollision(IState state)
         {
-            var bounds = calculateBounds(state);
-            return isCollision(bounds);
+            var i = discretize(state.HeadingAngle.Radians);
+            var pointA = state.Position + frontLeft[i];
+            if (isCollision(pointA))
+            {
+                return true;
+            }
+
+            var pointB = state.Position + frontRight[i];
+            return isCollision(pointB);
         }
 
-        private bool isCollision(IEnumerable<Point> points)
+        private bool isCollision(Point point)
         {
-            foreach (var point in points)
+            if (boundsDetector.IsOutOfBounds(point.X, point.Y))
             {
-                if (boundsDetector.IsOutOfBounds(point.X, point.Y))
-                {
-                    return true;
-                }
+                return true;
+            }
 
-                var tileX = (int)(point.X / track.TileSize);
-                var tileY = (int)(point.Y / track.TileSize);
+            var tileX = (int)(point.X / track.TileSize);
+            var tileY = (int)(point.Y / track.TileSize);
 
-                if (!track.OccupancyGrid[tileX, tileY])
-                {
-                    return true;
-                }
+            if (!track.OccupancyGrid[tileX, tileY])
+            {
+                return true;
             }
 
             return false;
         }
 
-        private IEnumerable<Point> calculateBounds(IState state)
+        private static int discretize(double angle)
         {
-            yield return new Point(state.Position.X - ux, state.Position.Y + uy).Rotate(state.Position, state.HeadingAngle);
-            yield return new Point(state.Position.X + ux, state.Position.Y + uy).Rotate(state.Position, state.HeadingAngle);
-
-            if (allowsBackwaradDriving)
-            {
-                yield return new Point(state.Position.X - ux, state.Position.Y - uy).Rotate(state.Position, state.HeadingAngle);
-                yield return new Point(state.Position.X + ux, state.Position.Y - uy).Rotate(state.Position, state.HeadingAngle);
-            }
+            while (angle < 0) angle += 2 * Math.PI;
+            while (angle >= 2 * Math.PI) angle -= 2 * Math.PI;
+            return (int)(angle / discretizationStep);
         }
     }
 }
