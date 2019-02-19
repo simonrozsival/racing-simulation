@@ -1,23 +1,32 @@
-﻿using Racing.Agents.Algorithms.Planning.AStar.DataStructures;
-using Racing.Agents.Algorithms.Planning.AStar.Heuristics;
+﻿using Racing.Agents.Algorithms.Planning.HybridAStar;
+using Racing.Agents.Algorithms.Planning.HybridAStar.DataStructures;
+using Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics;
 using Racing.Model;
 using Racing.Model.CollisionDetection;
+using Racing.Model.Vehicle;
 using System;
 using System.Collections.Generic;
 
 namespace Racing.Agents.Algorithms.Planning
 {
-    internal class AStarPlanner : IPlanner
+    internal class HybridAStarPlanner : IPlanner
     {
         private readonly TimeSpan timeStep;
         private readonly TimeSpan simulationStep;
         private readonly int simulationsPerStep;
-        private readonly BoundingSphereCollisionDetector collisionDetector;
+        private readonly ICollisionDetector collisionDetector;
+        private readonly IVehicleModel vehicleModel;
+        private readonly IMotionModel motionModel;
+        private readonly ITrack track;
+        private readonly StateDiscretizer discretizer;
 
-        public AStarPlanner(
-            BoundingSphereCollisionDetector collisionDetector,
+        public HybridAStarPlanner(
+            ICollisionDetector collisionDetector,
             TimeSpan timeStep,
-            TimeSpan simulationStep)
+            TimeSpan simulationStep,
+            IVehicleModel vehicleModel,
+            IMotionModel motionModel,
+            ITrack track)
         {
             if (Math.Floor(timeStep / simulationStep) != (timeStep / simulationStep))
             {
@@ -34,37 +43,45 @@ namespace Racing.Agents.Algorithms.Planning
             this.timeStep = timeStep;
             this.simulationStep = simulationStep;
             this.collisionDetector = collisionDetector;
+            this.vehicleModel = vehicleModel;
+            this.motionModel = motionModel;
+            this.track = track;
+
+            discretizer = new StateDiscretizer(
+                positionXCellSize: vehicleModel.Width / 2,
+                positionYCellSize: vehicleModel.Width / 2,
+                headingAngleCellSize: 2 * Math.PI / 12);
         }
 
         public IEnumerable<IAction> FindOptimalPlanFor(PlanningProblem problem)
         {
             // var heuristic = createShortestPathHeuristic(problem);
-            var heuristic = new EuclideanDistanceHeuristic();
+            var heuristic = new EuclideanDistanceHeuristic(vehicleModel.MaxVelocity);
             // var heuristic = new DijkstraAkaNoHeuristic();
 
-            var open = new BinaryHeapOpenSet<SearchNode>();
-            //var open = new HashTableOpenSet<SearchNode>();
-            var closed = new ClosedSet<long>();
+            var open = new BinaryHeapOpenSet<DiscreteState, SearchNode>();
+            var closed = new ClosedSet<DiscreteState>();
 
             void exporeLater(SearchNode node)
             {
-                if (!open.Contains(node))
+                if (!open.Contains(node.Key))
                 {
                     open.Add(node);
                 }
-                else if (node.TimeNeededFromStartToThisState < open.NodeSimilarTo(node).TimeNeededFromStartToThisState)
+                else if (node.CostToCome < open.Get(node.Key).CostToCome)
                 {
-                    open.Replace(node);
+                    open.ReplaceExistingWithTheSameKey(node);
                 }
             }
 
             var exploreNext =
                 new SearchNode(
+                    discreteState: discretizer.Discretize(problem.InitialState),
                     state: problem.InitialState,
                     actionFromPreviousState: null,
                     previousState: null,
-                    timeNeededFromStartToThisState: 0,
-                    estimatedCost: heuristic.EstimateTimeToGoal(problem.InitialState, problem).TotalSeconds);
+                    costToCome: 0,
+                    estimatedTotalCost: heuristic.EstimateTimeToGoal(problem.InitialState, problem.Goal).TotalSeconds);
 
             while (exploreNext != null || !open.IsEmpty)
             {
@@ -83,19 +100,22 @@ namespace Racing.Agents.Algorithms.Planning
                     return reconstructActions(expandedNode);
                 }
 
-                closed.Add(expandedNode.Id);
+                closed.Add(expandedNode.Key);
 
                 foreach (var action in problem.PossibleActions)
                 {
                     var timeSpentOnManeuver = TimeSpan.Zero;
                     var nextVehicleState = expandedNode.State;
+                    var nextDiscreteState = default(DiscreteState);
+
                     for (int i = 0; i < simulationsPerStep; i++)
                     {
-                        nextVehicleState = problem.MotionModel.CalculateNextState(nextVehicleState, action, simulationStep);
+                        nextVehicleState = motionModel.CalculateNextState(nextVehicleState, action, simulationStep);
+                        nextDiscreteState = discretizer.Discretize(nextVehicleState);
                         timeSpentOnManeuver += simulationStep;
-                        if (collisionDetector.IsCollision(nextVehicleState.Position))
+                        if (collisionDetector.IsCollision(nextVehicleState))
                         {
-                            closed.Add(hash(nextVehicleState));
+                            closed.Add(nextDiscreteState);
                             break;
                         }
 
@@ -105,36 +125,31 @@ namespace Racing.Agents.Algorithms.Planning
                         }
                     }
 
-                    if (closed.Contains(hash(nextVehicleState)))
+                    if (closed.Contains(nextDiscreteState))
                     {
-                        continue;
-                    }
-
-                    if (collisionDetector.IsCollision(nextVehicleState.Position))
-                    {
-                        closed.Add(hash(nextVehicleState));
                         continue;
                     }
 
                     // time can be different from one whole "step" because the simulation could have broken at some sub-step
                     // if it reached a goal somewhere in the middle of the time step.
-                    var timeFromStart = expandedNode.TimeNeededFromStartToThisState + timeSpentOnManeuver.TotalSeconds;
+                    var costToCome = expandedNode.CostToCome + timeSpentOnManeuver.TotalSeconds;
                     var discoveredNode = new SearchNode(
+                        discreteState: nextDiscreteState,
                         state: nextVehicleState,
                         actionFromPreviousState: action,
                         previousState: expandedNode,
-                        timeNeededFromStartToThisState: timeFromStart,
-                        estimatedCost: timeFromStart + heuristic.EstimateTimeToGoal(nextVehicleState, problem).TotalSeconds);
+                        costToCome: costToCome,
+                        estimatedTotalCost: costToCome + heuristic.EstimateTimeToGoal(nextVehicleState, problem.Goal).TotalSeconds);
 
-                    if (!open.Contains(discoveredNode))
+                    if (!open.Contains(nextDiscreteState))
                     {
-                        if (discoveredNode.EstimatedCost < expandedNode.EstimatedCost)
+                        if (discoveredNode.EstimatedTotalCost < expandedNode.EstimatedTotalCost)
                         {
                             if (exploreNext == null)
                             {
                                 exploreNext = discoveredNode;
                             }
-                            else if (discoveredNode.EstimatedCost < exploreNext.EstimatedCost)
+                            else if (discoveredNode.EstimatedTotalCost < exploreNext.EstimatedTotalCost)
                             {
                                 exporeLater(exploreNext);
                                 exploreNext = discoveredNode;
@@ -160,10 +175,10 @@ namespace Racing.Agents.Algorithms.Planning
             var heuristic = new GridShortestPathHeuristic(
                 problem.InitialState.Position,
                 problem.Goal,
-                problem.Environment,
-                collisionDetector,
-                stepSize: problem.VehicleModel.Length,
-                maxSpeed: problem.VehicleModel.MaxVelocity);
+                track,
+                new BoundingSphereCollisionDetector(track, vehicleModel),
+                stepSize: vehicleModel.Length,
+                maxSpeed: vehicleModel.MaxVelocity);
 
             return heuristic;
         }
@@ -180,46 +195,36 @@ namespace Racing.Agents.Algorithms.Planning
             return actions;
         }
 
-        private sealed class SearchNode : ISearchNode, IComparable<SearchNode>
+        private sealed class SearchNode : ISearchNode<DiscreteState>, IComparable<SearchNode>
         {
-            public long Id { get; }
+            public DiscreteState Key { get; }
             public IState State { get; }
             public IAction ActionFromPreviousState { get; }
             public SearchNode PreviousState { get; }
-            public double TimeNeededFromStartToThisState { get; }
-            public double EstimatedCost { get; }
+            public double CostToCome { get; }
+            public double EstimatedTotalCost { get; }
 
             public SearchNode(
+                DiscreteState discreteState,
                 IState state,
                 IAction actionFromPreviousState,
                 SearchNode previousState,
-                double timeNeededFromStartToThisState,
-                double estimatedCost)
+                double costToCome,
+                double estimatedTotalCost)
             {
-                Id = hash(state);
+                Key = discreteState;
                 State = state;
                 ActionFromPreviousState = actionFromPreviousState;
                 PreviousState = previousState;
-                TimeNeededFromStartToThisState = timeNeededFromStartToThisState;
-                EstimatedCost = estimatedCost;
+                CostToCome = costToCome;
+                EstimatedTotalCost = estimatedTotalCost;
             }
 
             public int CompareTo(SearchNode other)
             {
-                var diff = EstimatedCost - other.EstimatedCost;
+                var diff = EstimatedTotalCost - other.EstimatedTotalCost;
                 return diff < 0 ? -1 : (diff == 0 ? 0 : 1);
             }
-        }
-
-        private static long hash(IState state)
-        {
-            const double resolution = 5;
-            const double angularResolution = (2 * Math.PI) / 12;
-
-            var x = (long)(state.Position.X / resolution);
-            var y = (long)(state.Position.Y / resolution) * 10000;
-            var a = (long)(state.HeadingAngle.Radians / angularResolution) * 10000 * 10000;
-            return x + y + a;
         }
     }
 }

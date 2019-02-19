@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Racing.Agents.Algorithms.Planning.AStar.DataStructures
+namespace Racing.Agents.Algorithms.Planning.HybridAStar.DataStructures
 {
     internal sealed class ClosedSet<T>
     {

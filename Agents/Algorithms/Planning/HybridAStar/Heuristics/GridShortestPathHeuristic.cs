@@ -1,10 +1,10 @@
-﻿using Racing.Agents.Algorithms.Planning.AStar.DataStructures;
+﻿using Racing.Agents.Algorithms.Planning.HybridAStar.DataStructures;
 using Racing.Model;
 using Racing.Mathematics;
 using System;
 using Racing.Model.CollisionDetection;
 
-namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
+namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 {
     internal sealed class GridShortestPathHeuristic : IHeuristic
     {
@@ -34,7 +34,7 @@ namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
             shortestPathStart = simplifyPath(path);
         }
 
-        public TimeSpan EstimateTimeToGoal(IState state, PlanningProblem problem)
+        public TimeSpan EstimateTimeToGoal(IState state, IGoal goal)
         {
             // find next directly visible node on the track
             var node = furthestNodeDirectlyVisibleFrom(state.Position);
@@ -55,7 +55,7 @@ namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
 
         private ShortestPathNode findShortestPath(Point start, IGoal goal, double stepSize)
         {
-            var open = new BinaryHeapOpenSet<GridSearchNode>();
+            var open = new BinaryHeapOpenSet<long, GridSearchNode>();
             var closed = new ClosedSet<long>();
 
             open.Add(new GridSearchNode(start, null, 0.0, 0.0));
@@ -80,7 +80,7 @@ namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
                     return head;
                 }
 
-                closed.Add(nodeToExpand.Id);
+                closed.Add(nodeToExpand.Key);
 
                 for (var dx = -1; dx <= 1; dx++)
                 {
@@ -106,11 +106,11 @@ namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
 
                         var distance = nodeToExpand.DistanceFromStart + (nextPoint - nodeToExpand.Position).CalculateLength();
                         var node = new GridSearchNode(nextPoint, nodeToExpand, distance, distance);
-                        if (open.Contains(node))
+                        if (open.Contains(node.Key))
                         {
-                            if (node.DistanceFromStart < open.NodeSimilarTo(node).DistanceFromStart)
+                            if (node.DistanceFromStart < open.Get(node.Key).DistanceFromStart)
                             {
-                                open.Replace(node);
+                                open.ReplaceExistingWithTheSameKey(node);
                             }
                         }
                         else
@@ -206,26 +206,26 @@ namespace Racing.Agents.Algorithms.Planning.AStar.Heuristics
             return true;
         }
 
-        private sealed class GridSearchNode : ISearchNode, IComparable<GridSearchNode>
+        private sealed class GridSearchNode : ISearchNode<long>, IComparable<GridSearchNode>
         {
-            public long Id { get; }
+            public long Key { get; }
             public double DistanceFromStart { get; }
-            public double EstimatedCost { get; }
+            public double EstimatedTotalCost { get; }
             public GridSearchNode Previous { get; }
             public Point Position { get; }
 
             public GridSearchNode(Point position, GridSearchNode previous, double distanceFromStart, double estimatedCost)
             {
-                Id = hash(position);
+                Key = hash(position);
                 Position = position;
                 Previous = previous;
                 DistanceFromStart = distanceFromStart;
-                EstimatedCost = estimatedCost;
+                EstimatedTotalCost = estimatedCost;
             }
 
             public int CompareTo(GridSearchNode other)
             {
-                var diff = EstimatedCost - other.EstimatedCost;
+                var diff = EstimatedTotalCost - other.EstimatedTotalCost;
                 return diff < 0 ? -1 : (diff == 0 ? 0 : 1);
             }
         }

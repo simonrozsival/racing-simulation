@@ -113,9 +113,9 @@ namespace Racing.Agents
         {
             var nextWaypoint = nextGoal(lookahead: 2);
             var planningProblem = new PlanningProblem(
-                state, vehicleModel, motionModel, SteeringInput.PossibleActions, track, nextWaypoint);
+                state, SteeringInput.PossibleActions, nextWaypoint);
 
-            var planner = new AStarPlanner(collisionDetector, perceptionPeriod, simulationStep);
+            var planner = new HybridAStarPlanner(collisionDetector, perceptionPeriod, simulationStep, vehicleModel, motionModel, track);
             var newPlan = planner.FindOptimalPlanFor(planningProblem);
 
             if (newPlan == null)
