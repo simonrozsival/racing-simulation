@@ -34,7 +34,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             shortestPathStart = simplifyPath(path);
         }
 
-        public TimeSpan EstimateTimeToGoal(IState state, IGoal goal)
+        public TimeSpan EstimateTimeToGoal(IState state)
         {
             // find next directly visible node on the track
             var node = furthestNodeDirectlyVisibleFrom(state.Position);

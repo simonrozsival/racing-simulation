@@ -56,7 +56,7 @@ namespace Racing.Agents.Algorithms.Planning
         public IEnumerable<IAction> FindOptimalPlanFor(PlanningProblem problem)
         {
             // var heuristic = createShortestPathHeuristic(problem);
-            var heuristic = new EuclideanDistanceHeuristic(vehicleModel.MaxVelocity);
+            var heuristic = new EuclideanDistanceHeuristic(vehicleModel.MaxVelocity, problem.Goal);
             // var heuristic = new DijkstraAkaNoHeuristic();
 
             var open = new BinaryHeapOpenSet<DiscreteState, SearchNode>();
@@ -81,7 +81,7 @@ namespace Racing.Agents.Algorithms.Planning
                     actionFromPreviousState: null,
                     previousState: null,
                     costToCome: 0,
-                    estimatedTotalCost: heuristic.EstimateTimeToGoal(problem.InitialState, problem.Goal).TotalSeconds);
+                    estimatedTotalCost: heuristic.EstimateTimeToGoal(problem.InitialState).TotalSeconds);
 
             while (exploreNext != null || !open.IsEmpty)
             {
@@ -139,7 +139,7 @@ namespace Racing.Agents.Algorithms.Planning
                         actionFromPreviousState: action,
                         previousState: expandedNode,
                         costToCome: costToCome,
-                        estimatedTotalCost: costToCome + heuristic.EstimateTimeToGoal(nextVehicleState, problem.Goal).TotalSeconds);
+                        estimatedTotalCost: costToCome + heuristic.EstimateTimeToGoal(nextVehicleState).TotalSeconds);
 
                     if (!open.Contains(nextDiscreteState))
                     {

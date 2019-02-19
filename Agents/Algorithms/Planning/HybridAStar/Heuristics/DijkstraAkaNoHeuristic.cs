@@ -5,7 +5,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 {
     internal sealed class DijkstraAkaNoHeuristic : IHeuristic
     {
-        public TimeSpan EstimateTimeToGoal(IState state, IGoal goal)
+        public TimeSpan EstimateTimeToGoal(IState state)
         {
             return TimeSpan.Zero;
         }
