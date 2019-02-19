@@ -7,13 +7,17 @@ namespace Racing.Model.CollisionDetection
     public sealed class AccurateCollisionDetector : ICollisionDetector
     {
         private readonly ITrack track;
-        private readonly IVehicleModel vehicleModel;
         private readonly BoundsDetector boundsDetector;
+        private readonly double ux;
+        private readonly double uy;
+        private readonly bool allowsBackwaradDriving = false;
 
-        public AccurateCollisionDetector(ITrack track, IVehicleModel vehicleModel)
+        public AccurateCollisionDetector(ITrack track, IVehicleModel vehicleModel, double safetyMargin = 0)
         {
             this.track = track;
-            this.vehicleModel = vehicleModel;
+
+            ux = vehicleModel.Length / 2 + safetyMargin;
+            uy = vehicleModel.Width / 2 + safetyMargin;
 
             boundsDetector = new BoundsDetector(track);
         }
@@ -45,17 +49,16 @@ namespace Racing.Model.CollisionDetection
             return false;
         }
 
-        private Rectangle calculateBounds(IState state)
+        private IEnumerable<Point> calculateBounds(IState state)
         {
-            var ux = vehicleModel.Length / 2;
-            var uy = vehicleModel.Width / 2;
-            var alignedRect = new Rectangle(
-                new Point(state.Position.X - ux, state.Position.Y + uy),
-                new Point(state.Position.X - ux, state.Position.Y - uy),
-                new Point(state.Position.X + ux, state.Position.Y - uy),
-                new Point(state.Position.X + ux, state.Position.Y + uy));
+            yield return new Point(state.Position.X - ux, state.Position.Y + uy).Rotate(state.Position, state.HeadingAngle);
+            yield return new Point(state.Position.X + ux, state.Position.Y + uy).Rotate(state.Position, state.HeadingAngle);
 
-            return alignedRect.Rotate(state.Position, state.HeadingAngle);
+            if (allowsBackwaradDriving)
+            {
+                yield return new Point(state.Position.X - ux, state.Position.Y - uy).Rotate(state.Position, state.HeadingAngle);
+                yield return new Point(state.Position.X + ux, state.Position.Y - uy).Rotate(state.Position, state.HeadingAngle);
+            }
         }
     }
 }
