@@ -27,19 +27,24 @@ namespace Racing.Agents
                 new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 2);
             var assumedMotionModel = new DynamicModel(assumedVehicleModel);
 
-            var agent = new AStarAgent(assumedVehicleModel, assumedMotionModel, track, perceptionPeriod);
-
             var realVehicleModel = assumedVehicleModel;
             var realMotionModel = assumedMotionModel;
 
-            var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel);
+            // var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel);
+            var collisionDetector = new BoundingSphereCollisionDetector(track, realVehicleModel);
             var goal = new RadialGoal(track.Circuit.WayPoints.ElementAt(7), realVehicleModel.Length);
             var stateClassificator = new StateClassificator(collisionDetector, goal);
 
             IState initialState = new InitialState(track.Circuit);
 
-            var planningProblem = new PlanningProblem(initialState, realVehicleModel, realMotionModel, SteeringInput.PossibleActions, track, goal);
-            var aStarPlanner = new AStarPlanner(new BoundingSphereCollisionDetector(track, realVehicleModel), perceptionPeriod, simulationStep);
+            var planningProblem = new PlanningProblem(initialState, SteeringInput.PossibleActions, goal);
+            var aStarPlanner = new HybridAStarPlanner(
+                collisionDetector,
+                perceptionPeriod,
+                simulationStep,
+                realVehicleModel,
+                realMotionModel,
+                track);
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Restart();
@@ -59,6 +64,8 @@ namespace Racing.Agents
             var elapsedTime = TimeSpan.Zero;
             var state = initialState;
 
+            var length = 0.0;
+
             foreach (var action in plan)
             {
                 log.ActionSelected(action);
@@ -66,13 +73,20 @@ namespace Racing.Agents
                 {
                     elapsedTime += simulationStep;
                     log.SimulationTimeChanged(elapsedTime);
+
+                    var prevPosition = state.Position;
                     state = realMotionModel.CalculateNextState(state, action, simulationStep);
+                    length += (state.Position - prevPosition).CalculateLength();
+
                     log.StateUpdated(state);
                 }
             }
 
             var summary = new SimulationSummary(elapsedTime, Result.TimeOut, log.History);
             Simulation.StoreResult(track, realVehicleModel, summary, "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
+
+            Console.WriteLine($"Path length: {length / (realVehicleModel.Width / 1.85)}m");
+            Console.WriteLine($"Time to finish: {elapsedTime.TotalSeconds}s");
         }
 
         private sealed class InitialState : IState
