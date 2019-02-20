@@ -57,7 +57,7 @@ namespace Racing.Agents.Algorithms.Planning
         public IPlan FindOptimalPlanFor(PlanningProblem problem)
         {
             // var heuristic = createShortestPathHeuristic(problem);
-            var heuristic = new EuclideanDistanceHeuristic(vehicleModel.MaxVelocity, problem.Goal);
+            var heuristic = new EuclideanDistanceHeuristic(vehicleModel.MaxSpeed, problem.Goal);
             // var heuristic = new DijkstraAkaNoHeuristic();
 
             var open = new BinaryHeapOpenSet<DiscreteState, SearchNode>();
@@ -103,7 +103,7 @@ namespace Racing.Agents.Algorithms.Planning
 
                 closed.Add(expandedNode.Key);
 
-                foreach (var action in problem.PossibleActions)
+                foreach (var action in problem.Actions.AllPossibleActions)
                 {
                     var timeSpentOnManeuver = TimeSpan.Zero;
                     var nextVehicleState = expandedNode.State;
