@@ -9,6 +9,6 @@ namespace Racing.IO.Model
         public double Radius { get; set; }
         public Point Start { get; set; }
         public Point Goal { get; set; }
-        public IList<Point> WayPoints { get; set; }
+        public IList<Point> WayPoints { get; set; } = new List<Point>();
     }
 }

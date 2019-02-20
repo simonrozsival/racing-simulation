@@ -7,21 +7,27 @@ namespace Racing.Model.Vehicle
     public sealed class DynamicModel : IMotionModel
     {
         private readonly IVehicleModel vehicle;
-        private readonly TimeSpan simulationTime;
+        private readonly TimeSpan minimumSimulationTime;
 
-        public DynamicModel(IVehicleModel vehicle)
+        public DynamicModel(IVehicleModel vehicle, TimeSpan minimumSimulationTime)
         {
             this.vehicle = vehicle;
+            this.minimumSimulationTime = minimumSimulationTime;
         }
 
-        public IState CalculateNextState(IState state, IAction action, TimeSpan time)
+        public IState CalculateNextState(IState state, IAction action, TimeSpan time, IGoal? goal = null)
         {
             while (time > TimeSpan.Zero)
             {
-                var step = time < simulationTime ? time : simulationTime;
-                time -= simulationTime;
+                var step = time < minimumSimulationTime ? time : minimumSimulationTime;
+                time -= minimumSimulationTime;
 
                 state = calculateNextState(state, action, step);
+
+                if (goal?.ReachedGoal(state.Position) ?? false)
+                {
+                    break;
+                }
             }
 
             return state;
@@ -48,7 +54,7 @@ namespace Racing.Model.Vehicle
 
             return new VehicleState(
                 position: state.Position + seconds * velocity,
-                heading: state.HeadingAngle + seconds * headingAngularVelocity,
+                headingAngle: state.HeadingAngle + seconds * headingAngularVelocity,
                 speed: speed,
                 steeringAngle: steeringAngle);
         }

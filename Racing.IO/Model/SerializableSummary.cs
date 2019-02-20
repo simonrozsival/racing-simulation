@@ -13,10 +13,10 @@ namespace Racing.IO.Model
         [JsonConverter(typeof(StringEnumConverter))]
         public Result Result { get; set; }
 
-        public IEnumerable<ISerializableEvent> Log { get; set; }
+        public IEnumerable<ISerializableEvent> Log { get; set; } = new List<ISerializableEvent>();
 
-        public SerializableTrack Track { get; set; }
+        public SerializableTrack? Track { get; set; }
 
-        public IVehicleModel VehicleModel { get; set; }
+        public IVehicleModel? VehicleModel { get; set; }
     }
 }

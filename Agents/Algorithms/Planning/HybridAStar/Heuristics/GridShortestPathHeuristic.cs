@@ -53,7 +53,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return minCostToNextNode + node.CostToTheGoal;
         }
 
-        private ShortestPathNode findShortestPath(Point start, IGoal goal, double stepSize)
+        private ShortestPathNode? findShortestPath(Point start, IGoal goal, double stepSize)
         {
             var open = new BinaryHeapOpenSet<long, GridSearchNode>();
             var closed = new ClosedSet<long>();
@@ -131,7 +131,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
             while (node != null)
             {
-                if (node.IsGoal || !areInLineOfSight(start.Position, node.Next.Position))
+                if (node.IsGoal || node.Next != null && !areInLineOfSight(start.Position, node.Next.Position))
                 {
                     start.Next = node;
                     start.CostToNext = TimeSpan.FromSeconds((start.Position - node.Position).CalculateLength() / maxSpeed);
@@ -144,9 +144,9 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return head;
         }
 
-        private ShortestPathNode furthestNodeDirectlyVisibleFrom(Point position)
+        private ShortestPathNode? furthestNodeDirectlyVisibleFrom(Point position)
         {
-            ShortestPathNode furthestNodeSoFar = null;
+            ShortestPathNode? furthestNodeSoFar = null;
             var candidate = shortestPathStart;
             while (candidate.Next != null)
             {
@@ -211,10 +211,10 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             public long Key { get; }
             public double DistanceFromStart { get; }
             public double EstimatedTotalCost { get; }
-            public GridSearchNode Previous { get; }
+            public GridSearchNode? Previous { get; }
             public Point Position { get; }
 
-            public GridSearchNode(Point position, GridSearchNode previous, double distanceFromStart, double estimatedCost)
+            public GridSearchNode(Point position, GridSearchNode? previous, double distanceFromStart, double estimatedCost)
             {
                 Key = hash(position);
                 Position = position;
@@ -233,7 +233,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
         private sealed class ShortestPathNode
         {
             public Point Position { get; }
-            public ShortestPathNode Next { get; set; }
+            public ShortestPathNode? Next { get; set; }
             public TimeSpan CostToNext { get; set; }
             public TimeSpan CostToTheGoal
             {
@@ -254,6 +254,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             public ShortestPathNode(Point position)
             {
                 Position = position;
+                Next = null;
             }
         }
 

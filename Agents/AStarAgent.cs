@@ -21,8 +21,8 @@ namespace Racing.Agents
         private readonly BoundingSphereCollisionDetector collisionDetector;
         private readonly IActionSet actions;
 
-        private Queue<IAction> plan = null;
-        private IState previousPercievedState = null;
+        private Queue<IAction>? plan = null;
+        private IState? previousPercievedState = null;
 
         public ISubject<IState> ExploredStates { get; } = new Subject<IState>();
 
@@ -75,20 +75,21 @@ namespace Racing.Agents
             if (plan == null || plan.Count == 0)
             {
                 plan = createNewPlan(state);
-                if (plan == null || plan.Count == 0)
-                {
-                    return actions.Brake;
-                }
             }
 
-            var nextAction = plan?.Dequeue();
+            if (plan == null || plan.Count == 0)
+            {
+                return actions.Brake;
+            }
+
+            var nextAction = plan.Dequeue();
 
             if (nextAction != null && couldLeadToCrash(state, nextAction))
             {
                 plan = createNewPlan(state);
-                if (plan?.Count != 0)
+                if (plan != null && plan.Count != 0)
                 {
-                    nextAction = plan?.Dequeue();
+                    nextAction = plan.Dequeue();
                 }
             }
 
@@ -96,9 +97,6 @@ namespace Racing.Agents
 
             return nextAction ?? actions.Brake;
         }
-
-        private IState intention(IAction action, IState state)
-            => motionModel.CalculateNextState(state, action, perceptionPeriod);
 
         private bool couldLeadToCrash(IState state, IAction action)
         {
@@ -115,12 +113,12 @@ namespace Racing.Agents
             return false;
         }
 
-        private Queue<IAction> createNewPlan(IState state)
+        private Queue<IAction>? createNewPlan(IState state)
         {
             var nextWaypoint = nextGoal(lookahead: 2);
             var planningProblem = new PlanningProblem(state, actions, nextWaypoint);
 
-            var planner = new HybridAStarPlanner(collisionDetector, perceptionPeriod, simulationStep, vehicleModel, motionModel, track);
+            var planner = new HybridAStarPlanner(collisionDetector, perceptionPeriod, vehicleModel, motionModel, track);
             planner.ExploredStates.Subscribe(x => ExploredStates.OnNext(x));
             var newPlan = planner.FindOptimalPlanFor(planningProblem);
 

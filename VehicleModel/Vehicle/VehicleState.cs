@@ -12,12 +12,12 @@ namespace Racing.Model.Vehicle
 
         public VehicleState(
             Point position,
-            Angle heading,
+            Angle headingAngle,
             Angle steeringAngle,
             double speed)
         {
             Position = position;
-            HeadingAngle = heading;
+            HeadingAngle = headingAngle;
             SteeringAngle = steeringAngle;
             Speed = speed;
         }
@@ -30,5 +30,8 @@ namespace Racing.Model.Vehicle
 
         public bool Equals(VehicleState other)
             => (Position, HeadingAngle, SteeringAngle, Speed) == (other.Position, other.HeadingAngle, other.SteeringAngle, other.Speed);
+
+        public override string ToString()
+            => $"{Position}, heading: {HeadingAngle}, speed: {Speed}";
     }
 }

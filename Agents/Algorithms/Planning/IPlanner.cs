@@ -2,6 +2,6 @@
 {
     internal interface IPlanner
     {
-        IPlan FindOptimalPlanFor(PlanningProblem problem);
+        IPlan? FindOptimalPlanFor(PlanningProblem problem);
     }
 }

@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Racing.Agents;
 using Racing.IO;
-using Racing.Mathematics;
 using Racing.Model;
 using Racing.Model.CollisionDetection;
 using Racing.Model.Simulation;
@@ -34,7 +33,7 @@ namespace Racing.Simulation
 
             var assumedVehicleModel =
                 VehicleModelFactory.ForwardDrivingOnlyWhichFitsOnto(track);
-            var assumedMotionModel = new DynamicModel(assumedVehicleModel);
+            var assumedMotionModel = new DynamicModel(assumedVehicleModel, simulationStep);
 
             //var realVehicleModel = new InaccuratelyMeasuredVehicleModel(
             //    assumedVehicleModel,

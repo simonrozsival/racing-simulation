@@ -10,10 +10,10 @@ namespace Racing.IO.Model
         public double TileSize { get; set; }
 
         [JsonProperty(PropertyName = "circuit")]
-        public SerializableCircuit ConcreteCircuit { get; set; }
+        public SerializableCircuit ConcreteCircuit { get; set; } = new SerializableCircuit();
 
         [JsonIgnore]
-        public bool[,] OccupancyGrid { get; set; }
+        public bool[,] OccupancyGrid { get; set; } = new bool[0, 0];
 
         [JsonIgnore]
         public ICircuit Circuit

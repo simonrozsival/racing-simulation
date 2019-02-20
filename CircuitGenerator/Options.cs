@@ -5,7 +5,7 @@ namespace Racing.CircuitGenerator
     internal sealed class Options
     {
         [Option("output", Required = true, HelpText = "Output directory.")]
-        public string OutputPath { get; set; }
+        public string OutputPath { get; set; } = string.Empty;
 
         [Option('w', "width", Required = false, HelpText = "Width of the track in meters.", Default = 1000)]
         public int Width { get; set; }

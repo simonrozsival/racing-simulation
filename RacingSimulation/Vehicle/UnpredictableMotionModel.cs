@@ -21,9 +21,9 @@ namespace Racing.Simulation.Vehicle
             this.random = random;
         }
 
-        public IState CalculateNextState(IState state, IAction action, TimeSpan time)
+        public IState CalculateNextState(IState state, IAction action, TimeSpan time, IGoal? goal = null)
         {
-            var accurateState = internalModel.CalculateNextState(state, action, time);
+            var accurateState = internalModel.CalculateNextState(state, action, time, goal);
             return new NoisyState(accurateState, bias, random);
         }
 
