@@ -1,4 +1,6 @@
-﻿using Racing.Agents.Algorithms.Planning;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Racing.Agents.Algorithms.Planning;
 using Racing.IO;
 using Racing.Mathematics;
 using Racing.Model;
@@ -7,6 +9,7 @@ using Racing.Model.Simulation;
 using Racing.Model.Vehicle;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -17,22 +20,22 @@ namespace Racing.Agents
     {
         public static void Main(string[] args)
         {
-            var perceptionPeriod = TimeSpan.FromSeconds(0.3);
-            var simulationStep = perceptionPeriod / 3;
+            var perceptionPeriod = TimeSpan.FromSeconds(0.4);
+            var simulationStep = perceptionPeriod / 8;
             var numberOfSimulationsPerAction = (int)(perceptionPeriod / simulationStep);
 
             var track = Track.Load("../../../../tracks/simple-circuit/circuit_definition.json");
 
             var assumedVehicleModel =
-                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 2);
+                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 2.5);
             var assumedMotionModel = new DynamicModel(assumedVehicleModel);
 
             var realVehicleModel = assumedVehicleModel;
             var realMotionModel = assumedMotionModel;
 
-            // var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel);
-            var collisionDetector = new BoundingSphereCollisionDetector(track, realVehicleModel);
-            var goal = new RadialGoal(track.Circuit.WayPoints.ElementAt(7), realVehicleModel.Length);
+            var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel, safetyMargin: realVehicleModel.Width * 0.5);
+            //var collisionDetector = new BoundingSphereCollisionDetector(track, realVehicleModel);
+            var goal = new RadialGoal(track.Circuit.WayPoints.ElementAt(4), realVehicleModel.Length);
             var stateClassificator = new StateClassificator(collisionDetector, goal);
 
             IState initialState = new InitialState(track.Circuit);
@@ -46,6 +49,29 @@ namespace Racing.Agents
                 realMotionModel,
                 track);
 
+            var exploredStates = new List<IState>();
+            void flush()
+            {
+                var data = JsonConvert.SerializeObject(exploredStates, new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+                File.WriteAllText("C:/Users/simon/Projects/racer-experiment/simulator/src/progress.json", data);
+            }
+
+            aStarPlanner.ExploredStates.Subscribe(
+                exploredState =>
+                {
+                    exploredStates.Add(exploredState);
+                    if (exploredStates.Count % 100 == 0)
+                    {
+                        //flush();
+                        //Task.Delay(TimeSpan.FromSeconds(2)).Wait();
+                    }
+                },
+                flush);
+
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Restart();
             var plan = aStarPlanner.FindOptimalPlanFor(planningProblem);
@@ -54,6 +80,8 @@ namespace Racing.Agents
             if (plan == null)
             {
                 Console.WriteLine("Couldn't find any plan.");
+                Console.WriteLine(exploredStates.Count);
+                flush();
                 return;
             }
 

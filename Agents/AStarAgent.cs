@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Racing.Agents.Algorithms.Planning;
 using Racing.Model;
 using Racing.Model.CollisionDetection;
@@ -22,6 +23,8 @@ namespace Racing.Agents
 
         private Queue<IAction> plan = null;
         private IState previousPercievedState = null;
+
+        public ISubject<IState> ExploredStates { get; } = new Subject<IState>();
 
         public AStarAgent(
             IVehicleModel vehicleModel,
@@ -118,6 +121,7 @@ namespace Racing.Agents
             var planningProblem = new PlanningProblem(state, actions, nextWaypoint);
 
             var planner = new HybridAStarPlanner(collisionDetector, perceptionPeriod, simulationStep, vehicleModel, motionModel, track);
+            planner.ExploredStates.Subscribe(x => ExploredStates.OnNext(x));
             var newPlan = planner.FindOptimalPlanFor(planningProblem);
 
             if (newPlan == null)

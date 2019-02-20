@@ -1,4 +1,6 @@
 ﻿using CommandLine;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Racing.Agents;
 using Racing.IO;
 using Racing.Mathematics;
@@ -9,6 +11,7 @@ using Racing.Model.Vehicle;
 using Racing.Simulation.Vehicle;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Racing.Simulation
@@ -24,7 +27,7 @@ namespace Racing.Simulation
         private static void run(Options options)
         {
             var random = new Random(Seed: 123);
-            var perceptionPeriod = TimeSpan.FromSeconds(0.6);
+            var perceptionPeriod = TimeSpan.FromSeconds(0.4);
             var simulationStep = TimeSpan.FromSeconds(1 / 60.0);
 
             var track = Track.Load(options.Input);
@@ -54,6 +57,28 @@ namespace Racing.Simulation
                 var agent = new AStarAgent(assumedVehicleModel, assumedMotionModel, track, actions, perceptionPeriod);
                 var simulation = new Simulation(agent, track, stateClassificator, realMotionModel);
 
+                var exploredStates = new List<IState>();
+                void flush()
+                {
+                    var data = JsonConvert.SerializeObject(exploredStates, new JsonSerializerSettings
+                    {
+                        Formatting = Formatting.Indented,
+                        ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    });
+                    File.WriteAllText("C:/Users/simon/Projects/racer-experiment/simulator/src/progress.json", data);
+                }
+
+                agent.ExploredStates.Subscribe(
+                    exploredState =>
+                    {
+                        exploredStates.Add(exploredState);
+                        if (exploredStates.Count % 100 == 0)
+                        {
+                        //flush();
+                        //Task.Delay(TimeSpan.FromSeconds(2)).Wait();
+                    }
+                    });
+
                 var summary = simulation.Simulate(
                     simulationStep,
                     perceptionPeriod,
@@ -68,6 +93,8 @@ namespace Racing.Simulation
                 Console.WriteLine($"=====================");
 
                 results.Add(summary);
+
+                flush();
             }
 
             evaluate(results);
