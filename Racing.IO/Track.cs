@@ -7,7 +7,7 @@ namespace Racing.IO
 {
     public static class Track
     {
-        public static void Save(string path, ICircuit circut, string svg, double tileSize)
+        public static void Save(string path, ICircuit circuit, string svg, double tileSize)
         {
             Directory.CreateDirectory(path);
 
@@ -23,12 +23,7 @@ namespace Racing.IO
             var occupancyGrid = Images.LoadOccupancyGrid(pngFileName, tileSize);
 
             // json
-            var track = new SerializableTrack
-            {
-                Circuit = circut,
-                OccupancyGrid = occupancyGrid,
-                TileSize = tileSize
-            };
+            var track = new SerializableTrack(tileSize, circuit, occupancyGrid);
             var jsonFileName = $"{path}/circuit_definition.json";
             var json = JsonConvert.SerializeObject(track, CustomJsonSerializationSettings.Default);
             File.WriteAllText(path, json);
@@ -37,7 +32,8 @@ namespace Racing.IO
         public static ITrack Load(string path)
         {
             var json = File.ReadAllText(path);
-            return JsonConvert.DeserializeObject<SerializableTrack>(json, CustomJsonSerializationSettings.Default);
+            var deserializedTrack = JsonConvert.DeserializeObject<SerializableTrack>(json, CustomJsonSerializationSettings.Default);
+            return deserializedTrack.ToTrack();
         }
     }
 }

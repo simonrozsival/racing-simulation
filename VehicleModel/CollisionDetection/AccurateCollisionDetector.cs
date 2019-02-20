@@ -64,15 +64,7 @@ namespace Racing.Model.CollisionDetection
                 return true;
             }
 
-            var tileX = (int)(point.X / track.TileSize);
-            var tileY = (int)(point.Y / track.TileSize);
-
-            if (!track.OccupancyGrid[tileX, tileY])
-            {
-                return true;
-            }
-
-            return false;
+            return track.IsOccupied(point.X, point.Y);
         }
 
         private static int discretize(double angle)

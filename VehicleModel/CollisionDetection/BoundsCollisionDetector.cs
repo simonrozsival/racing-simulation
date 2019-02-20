@@ -14,8 +14,8 @@ namespace Racing.Model.CollisionDetection
         {
             minX = 0;
             minY = 0;
-            maxX = track.OccupancyGrid.GetLength(0) * track.TileSize;
-            maxY = track.OccupancyGrid.GetLength(1) * track.TileSize;
+            maxX = track.Width;
+            maxY = track.Height;
         }
 
         public bool IsOutOfBounds(double x, double y)

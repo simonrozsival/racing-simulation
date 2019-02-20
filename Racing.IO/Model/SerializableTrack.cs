@@ -1,64 +1,62 @@
 ﻿using Newtonsoft.Json;
+using Racing.Mathematics;
 using Racing.Model;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Racing.IO.Model
 {
-    internal sealed class SerializableTrack : ITrack
+    internal sealed class SerializableTrack
     {
-        public double TileSize { get; set; }
-
-        [JsonProperty(PropertyName = "circuit")]
-        public SerializableCircuit ConcreteCircuit { get; set; } = new SerializableCircuit();
-
-        [JsonIgnore]
-        public bool[,] OccupancyGrid { get; set; } = new bool[0, 0];
-
-        [JsonIgnore]
-        public ICircuit Circuit
+        public SerializableTrack(double tileSize, ICircuit circuit, bool[,] occupancyGrid)
         {
-            get => ConcreteCircuit;
-            set => ConcreteCircuit = new SerializableCircuit { Start = value.Start, Goal = value.Goal, Radius = value.Radius, WayPoints = value.WayPoints };
+            var occupancyGridLines = new List<string>();
+            for (int i = 0; i < occupancyGrid.GetLength(0); i++)
+            {
+                var line = new StringBuilder();
+                for (int j = 0; j < occupancyGrid.GetLength(1); j++)
+                {
+                    line.Append(occupancyGrid[i, j] ? ' ' : '#');
+                }
+                occupancyGridLines.Add(line.ToString());
+            }
+
+            TileSize = tileSize;
+            Circuit = new SerializableCircuit { Goal = circuit.Goal, Radius = circuit.Radius, Start = circuit.Start, WayPoints = circuit.WayPoints };
+            OccupancyGrid = occupancyGridLines.ToArray();
         }
 
-        [JsonProperty(PropertyName = "occupancyGrid")]
-        public string[] OccupancyGridSerialization
+        public double TileSize { get; set; }
+
+        public SerializableCircuit Circuit { get; set; } = new SerializableCircuit();
+
+        public string[] OccupancyGrid { get; set; } = new string[0];
+
+        public ITrack ToTrack()
         {
-            get
+            var tmpOccupancyGrid = OccupancyGrid.Select(line => line.ToCharArray().Select(symbol => symbol == ' ').ToArray()).ToArray();
+            var occupancyGrid = new bool[tmpOccupancyGrid[0].Length, tmpOccupancyGrid.Length];
+            for (int i = 0; i < occupancyGrid.GetLength(0); i++)
             {
-                var lines = new List<string>();
-
-                for (int x = 0; x < OccupancyGrid?.GetLength(0); x++)
+                for (int j = 0; j < occupancyGrid.GetLength(1); j++)
                 {
-                    var builder = new StringBuilder();
-                    for (int y = 0; y < OccupancyGrid?.GetLength(1); y++)
-                    {
-                        var symbol = OccupancyGrid[x, y] ? ' ' : '#';
-                        builder.Append(symbol);
-                    }
-
-                    lines.Add(builder.ToString());
-                }
-
-                return lines.ToArray();
-            }
-
-            set
-            {
-                var height = value.Length;
-                var width = value[0].Length;
-                OccupancyGrid = new bool[width, height];
-
-                for (int y = 0; y < height; y++)
-                {
-                    var symbols = value[y];
-                    for (int x = 0; x < width; x++)
-                    {
-                        OccupancyGrid[x, y] = symbols[x] == ' ';
-                    }
+                    occupancyGrid[i, j] = tmpOccupancyGrid[i][j];
                 }
             }
+
+            return new RaceTrack(
+                new DeserialziedCircuit { Goal = Circuit.Goal, Start = Circuit.Start, Radius = Circuit.Radius, WayPoints = Circuit.WayPoints },
+                occupancyGrid,
+                TileSize);
+        }
+
+        private sealed class DeserialziedCircuit : ICircuit
+        {
+            public double Radius { get; set; }
+            public Point Start { get; set; }
+            public Point Goal { get; set; }
+            public IList<Point> WayPoints { get; set; } = new List<Point>();
         }
     }
 }
