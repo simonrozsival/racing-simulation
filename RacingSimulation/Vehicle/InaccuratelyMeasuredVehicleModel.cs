@@ -8,8 +8,8 @@ namespace Racing.Simulation.Vehicle
     {
         public double Width { get; }
         public double Length { get; }
-        public double MinVelocity { get; }
-        public double MaxVelocity { get; }
+        public double MinSpeed { get; }
+        public double MaxSpeed { get; }
         public Angle MinSteeringAngle { get; }
         public Angle MaxSteeringAngle { get; }
         public double Acceleration { get; }
@@ -22,8 +22,8 @@ namespace Racing.Simulation.Vehicle
         {
             Width = measuredVehicleModel.Width + bias * measuredVehicleModel.Width * random.NextDouble();
             Length = measuredVehicleModel.Length + bias * measuredVehicleModel.Length * random.NextDouble();
-            MinVelocity = measuredVehicleModel.MinVelocity + bias * measuredVehicleModel.MinVelocity * random.NextDouble();
-            MaxVelocity = measuredVehicleModel.MaxVelocity - bias * measuredVehicleModel.MaxVelocity * random.NextDouble();
+            MinSpeed = measuredVehicleModel.MinSpeed + bias * measuredVehicleModel.MinSpeed * random.NextDouble();
+            MaxSpeed = measuredVehicleModel.MaxSpeed - bias * measuredVehicleModel.MaxSpeed * random.NextDouble();
             MinSteeringAngle = measuredVehicleModel.MinSteeringAngle + bias * measuredVehicleModel.MinSteeringAngle * random.NextDouble();
             MaxSteeringAngle = measuredVehicleModel.MaxSteeringAngle + bias * measuredVehicleModel.MaxSteeringAngle * random.NextDouble();
             Acceleration = measuredVehicleModel.Acceleration + bias * measuredVehicleModel.Acceleration * random.NextDouble();

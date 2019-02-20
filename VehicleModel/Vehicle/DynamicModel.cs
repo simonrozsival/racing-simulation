@@ -7,6 +7,7 @@ namespace Racing.Model.Vehicle
     public sealed class DynamicModel : IMotionModel
     {
         private readonly IVehicleModel vehicle;
+        private readonly TimeSpan simulationTime;
 
         public DynamicModel(IVehicleModel vehicle)
         {
@@ -15,29 +16,41 @@ namespace Racing.Model.Vehicle
 
         public IState CalculateNextState(IState state, IAction action, TimeSpan time)
         {
+            while (time > TimeSpan.Zero)
+            {
+                var step = time < simulationTime ? time : simulationTime;
+                time -= simulationTime;
+
+                state = calculateNextState(state, action, step);
+            }
+
+            return state;
+        }
+
+        private IState calculateNextState(IState state, IAction action, TimeSpan time)
+        {
             var seconds = time.TotalSeconds;
 
-            var targetVelocity = action.Throttle * vehicle.MaxVelocity;
-            var targetSteeringAngle = action.Steering * vehicle.MaxSteeringAngle.Radians;
+            var acceleration = action.Throttle * vehicle.Acceleration;
+            var steeringAcceleration = action.Steering * vehicle.SteeringAcceleration;
 
-            var maxVelocityChange = vehicle.Acceleration * seconds;
-            var dv = Clamp(targetVelocity - state.Velocity, - maxVelocityChange, maxVelocityChange);
-            var velocity = state.Velocity + dv;
+            var ds = seconds * acceleration;
+            var speed = Clamp(state.Speed + ds, vehicle.MinSpeed, vehicle.MaxSpeed);
 
-            var maxSteeringChange = vehicle.SteeringAcceleration.Radians * seconds;
-            var da = Clamp(targetSteeringAngle - state.SteeringAngle.Radians, -maxSteeringChange, maxSteeringChange);
+            var da = seconds * steeringAcceleration.Radians;
             var steeringAngle = Clamp(state.SteeringAngle.Radians + da, vehicle.MinSteeringAngle.Radians, vehicle.MaxSteeringAngle.Radians);
 
-            var velocityVector = new Point(
-                x: velocity * Cos(steeringAngle) * Cos(state.HeadingAngle.Radians),
-                y: velocity * Cos(steeringAngle) * Sin(state.HeadingAngle.Radians));
-            Angle headingAngularVelocity = (velocity / vehicle.Length) * Sin(steeringAngle);
+            var velocity = new Point(
+                x: speed * Cos(steeringAngle) * Cos(state.HeadingAngle.Radians),
+                y: speed * Cos(steeringAngle) * Sin(state.HeadingAngle.Radians));
+
+            Angle headingAngularVelocity = (speed / vehicle.Length) * Sin(steeringAngle);
 
             return new VehicleState(
-                position: state.Position + seconds * velocityVector,
+                position: state.Position + seconds * velocity,
                 heading: state.HeadingAngle + seconds * headingAngularVelocity,
-                velocity: velocity,
-                steering: steeringAngle);
+                speed: speed,
+                steeringAngle: steeringAngle);
         }
     }
 }

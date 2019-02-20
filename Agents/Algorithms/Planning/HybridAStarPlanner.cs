@@ -178,7 +178,7 @@ namespace Racing.Agents.Algorithms.Planning
                 track,
                 new BoundingSphereCollisionDetector(track, vehicleModel),
                 stepSize: vehicleModel.Length,
-                maxSpeed: vehicleModel.MaxVelocity);
+                maxSpeed: vehicleModel.MaxSpeed);
 
             return heuristic;
         }

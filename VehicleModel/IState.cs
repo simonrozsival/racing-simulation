@@ -7,6 +7,6 @@ namespace Racing.Model
         Point Position { get; }
         Angle HeadingAngle { get; }
         Angle SteeringAngle { get; }
-        double Velocity { get; }
+        double Speed { get; }
     }
 }

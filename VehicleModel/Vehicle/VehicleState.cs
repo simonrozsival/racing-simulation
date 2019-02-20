@@ -8,27 +8,27 @@ namespace Racing.Model.Vehicle
         public Point Position { get; }
         public Angle HeadingAngle { get; }
         public Angle SteeringAngle { get; }
-        public double Velocity { get; }
+        public double Speed { get; }
 
         public VehicleState(
             Point position,
             Angle heading,
-            Angle steering,
-            double velocity)
+            Angle steeringAngle,
+            double speed)
         {
             Position = position;
             HeadingAngle = heading;
-            SteeringAngle = steering;
-            Velocity = velocity;
+            SteeringAngle = steeringAngle;
+            Speed = speed;
         }
 
         public override bool Equals(object obj)
             => (obj is VehicleState other) && Equals(other);
 
         public override int GetHashCode()
-            => HashCode.Combine(Position, HeadingAngle, SteeringAngle, Velocity);
+            => HashCode.Combine(Position, HeadingAngle, SteeringAngle, Speed);
 
         public bool Equals(VehicleState other)
-            => (Position, HeadingAngle, SteeringAngle, Velocity) == (other.Position, other.HeadingAngle, other.SteeringAngle, other.Velocity);
+            => (Position, HeadingAngle, SteeringAngle, Speed) == (other.Position, other.HeadingAngle, other.SteeringAngle, other.Speed);
     }
 }

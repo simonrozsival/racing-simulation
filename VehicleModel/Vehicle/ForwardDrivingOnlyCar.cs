@@ -6,8 +6,8 @@ namespace Racing.Model.Vehicle
     {
         public double Width { get; }
         public double Length { get; }
-        public double MinVelocity { get; }
-        public double MaxVelocity { get; }
+        public double MinSpeed { get; }
+        public double MaxSpeed { get; }
         public Angle MinSteeringAngle { get; }
         public Angle MaxSteeringAngle { get; }
         public double Acceleration { get; }
@@ -18,8 +18,8 @@ namespace Racing.Model.Vehicle
             var oneMeter = width / 1.85;
             Width = width;
             Length = 2 * width;
-            MinVelocity = 0;
-            MaxVelocity = 27 * oneMeter;
+            MinSpeed = 0;
+            MaxSpeed = 27 * oneMeter;
             MinSteeringAngle = Angle.FromDegrees(-25);
             MaxSteeringAngle = Angle.FromDegrees(25);
             Acceleration = 16 * oneMeter;

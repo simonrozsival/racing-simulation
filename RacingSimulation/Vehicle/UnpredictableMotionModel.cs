@@ -32,14 +32,14 @@ namespace Racing.Simulation.Vehicle
             public Point Position { get; }
             public Angle HeadingAngle { get; }
             public Angle SteeringAngle { get; }
-            public double Velocity { get; }
+            public double Speed { get; }
 
             public NoisyState(IState state, double bias, Random random)
             {
                 var velocityBias = Math.Max(0, bias * random.NextDouble() * random.Next(-1, 1));
 
                 Position = state.Position;
-                Velocity = state.Velocity + (state.Velocity != 0 ? velocityBias : 0);
+                Speed = state.Speed + (state.Speed != 0 ? velocityBias : 0);
                 HeadingAngle = state.HeadingAngle + bias * random.NextDouble() * random.Next(-1, 1);
                 SteeringAngle = state.HeadingAngle + bias * random.NextDouble() * random.Next(-1, 1);
             }

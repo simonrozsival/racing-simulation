@@ -94,7 +94,7 @@ namespace Racing.Agents
             public Point Position { get; }
             public Angle HeadingAngle { get; }
             public Angle SteeringAngle => 0;
-            public double Velocity => 0;
+            public double Speed => 0;
 
             public InitialState(ICircuit circuit)
             {
