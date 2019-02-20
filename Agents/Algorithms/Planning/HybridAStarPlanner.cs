@@ -21,6 +21,8 @@ namespace Racing.Agents.Algorithms.Planning
         private readonly ITrack track;
         private readonly StateDiscretizer discretizer;
 
+        public ISubject<IState> ExploredStates { get; } = new Subject<IState>();
+
         public HybridAStarPlanner(
             ICollisionDetector collisionDetector,
             TimeSpan timeStep,
@@ -102,6 +104,8 @@ namespace Racing.Agents.Algorithms.Planning
                 }
 
                 closed.Add(expandedNode.Key);
+                ExploredStates.OnNext(expandedNode.State);
+
 
                 foreach (var action in problem.Actions.AllPossibleActions)
                 {
