@@ -50,7 +50,8 @@ namespace Racing.Simulation
             for (var i = 0; i < options.NumberOfRepetitions; i++)
             {
                 Console.WriteLine($"Simulaton run #{i}...");
-                var agent = new AStarAgent(assumedVehicleModel, assumedMotionModel, track, perceptionPeriod);
+                var actions = new SteeringInputs();
+                var agent = new AStarAgent(assumedVehicleModel, assumedMotionModel, track, actions, perceptionPeriod);
                 var simulation = new Simulation(agent, track, stateClassificator, realMotionModel);
 
                 var summary = simulation.Simulate(

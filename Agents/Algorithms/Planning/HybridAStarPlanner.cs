@@ -1,6 +1,7 @@
 ﻿using Racing.Agents.Algorithms.Planning.HybridAStar;
 using Racing.Agents.Algorithms.Planning.HybridAStar.DataStructures;
 using Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics;
+using Racing.Mathematics;
 using Racing.Model;
 using Racing.Model.CollisionDetection;
 using Racing.Model.Vehicle;

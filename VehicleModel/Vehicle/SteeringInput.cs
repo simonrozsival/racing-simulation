@@ -4,32 +4,24 @@ using System.Collections.Immutable;
 
 namespace Racing.Model.Vehicle
 {
-    public sealed class SteeringInput : IAction
+    public sealed class SteeringInputs : IActionSet
     {
+        private static readonly IAction brake = new SteeringInput(throttle: -1, steering: 0);
+        private static readonly IAction fullThrustForward = new SteeringInput(throttle: 1, steering: 0);
+
         public const double MinAngle = -1;
         public const double MaxAngle = 1;
         public const double MinThrottle = 0;
         public const double MaxThrottle = 1;
 
-        public static ImmutableList<IAction> PossibleActions { get; }
-        public static SteeringInput Brake { get; } = new SteeringInput(0, 0);
+        public IReadOnlyList<IAction> AllPossibleActions { get; }
+        public IAction Brake => brake;
+        public IAction FullThrustForward => fullThrustForward;
 
-        public double Throttle { get; }
-        public double Steering { get; }
-
-        private SteeringInput(double throttle, double steering)
+        public SteeringInputs(int throttleSteps = 7, int steeringSteps = 15)
         {
-            Throttle = throttle;
-            Steering = steering;
+            AllPossibleActions = generateInputs(throttleSteps, steeringSteps).ToImmutableList();
         }
-
-        static SteeringInput()
-        {
-            PossibleActions = generateInputs(9, 33).ToImmutableList();
-        }
-
-        public override string ToString()
-            => $"[t: {Throttle}, s: {Steering}]";
 
         private static IEnumerable<IAction> generateInputs(int throttleSteps, int steeringSteps)
         {
@@ -38,16 +30,39 @@ namespace Racing.Model.Vehicle
                 throw new ArgumentException($"The number of steering levels must be an odd number, {steeringSteps} is even.");
             }
 
+            yield return fullThrustForward;
+            yield return brake;
+
             var steeringShift = steeringSteps / 2;
             for (int t = 0; t < throttleSteps; t++)
             {
                 for (int s = 0; s < steeringSteps; s++)
                 {
+                    if (t == throttleSteps - 1 && s == steeringShift)
+                    {
+                        continue; // full thrust forward
+                    }
+
                     yield return new SteeringInput(
                         throttle: (double)t / (throttleSteps - 1),
                         steering: (double)(s - steeringShift) / steeringShift);
                 }
             }
+        }
+
+        private sealed class SteeringInput : IAction
+        {
+            public double Throttle { get; }
+            public double Steering { get; }
+
+            public SteeringInput(double throttle, double steering)
+            {
+                Throttle = throttle;
+                Steering = steering;
+            }
+
+            public override string ToString()
+                => $"[t: {Throttle}, s: {Steering}]";
         }
     }
 }

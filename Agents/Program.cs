@@ -37,7 +37,7 @@ namespace Racing.Agents
 
             IState initialState = new InitialState(track.Circuit);
 
-            var planningProblem = new PlanningProblem(initialState, SteeringInput.PossibleActions, goal);
+            var planningProblem = new PlanningProblem(initialState, new SteeringInputs(), goal);
             var aStarPlanner = new HybridAStarPlanner(
                 collisionDetector,
                 perceptionPeriod,
@@ -66,7 +66,7 @@ namespace Racing.Agents
 
             var length = 0.0;
 
-            foreach (var action in plan)
+            foreach (var action in plan.Actions)
             {
                 log.ActionSelected(action);
                 for (var i = 0; i < numberOfSimulationsPerAction; i++)

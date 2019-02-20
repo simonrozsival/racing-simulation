@@ -18,6 +18,7 @@ namespace Racing.Agents
         private readonly IMotionModel motionModel;
         private readonly ITrack track;
         private readonly BoundingSphereCollisionDetector collisionDetector;
+        private readonly IActionSet actions;
 
         private Queue<IAction> plan = null;
         private IState previousPercievedState = null;
@@ -26,11 +27,13 @@ namespace Racing.Agents
             IVehicleModel vehicleModel,
             IMotionModel motionModel,
             ITrack track,
+            IActionSet actions,
             TimeSpan perceptionPeriod)
         {
             this.vehicleModel = vehicleModel;
             this.motionModel = motionModel;
             this.track = track;
+            this.actions = actions;
             this.perceptionPeriod = perceptionPeriod;
             this.simulationStep = perceptionPeriod / 10;
 
@@ -63,7 +66,7 @@ namespace Racing.Agents
 
             if (pointsToGo.Count == 0)
             {
-                return SteeringInput.Brake;
+                return actions.Brake;
             }
 
             if (plan == null || plan.Count == 0)
@@ -71,7 +74,7 @@ namespace Racing.Agents
                 plan = createNewPlan(state);
                 if (plan == null || plan.Count == 0)
                 {
-                    return SteeringInput.Brake;
+                    return actions.Brake;
                 }
             }
 
@@ -88,7 +91,7 @@ namespace Racing.Agents
 
             // todo: is too off the planned trajectory?
 
-            return nextAction ?? SteeringInput.Brake;
+            return nextAction ?? actions.Brake;
         }
 
         private IState intention(IAction action, IState state)
@@ -112,8 +115,7 @@ namespace Racing.Agents
         private Queue<IAction> createNewPlan(IState state)
         {
             var nextWaypoint = nextGoal(lookahead: 2);
-            var planningProblem = new PlanningProblem(
-                state, SteeringInput.PossibleActions, nextWaypoint);
+            var planningProblem = new PlanningProblem(state, actions, nextWaypoint);
 
             var planner = new HybridAStarPlanner(collisionDetector, perceptionPeriod, simulationStep, vehicleModel, motionModel, track);
             var newPlan = planner.FindOptimalPlanFor(planningProblem);
