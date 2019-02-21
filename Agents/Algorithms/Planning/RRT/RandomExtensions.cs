@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Racing.Agents.Algorithms.Planning
+namespace Racing.Agents.Algorithms.Planning.RRT
 {
     public static class RandomExtensions
     {
