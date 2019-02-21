@@ -41,12 +41,21 @@ namespace Racing.Agents
             IState initialState = new InitialState(track.Circuit);
 
             var planningProblem = new PlanningProblem(initialState, new SteeringInputs(), goal);
-            var aStarPlanner = new HybridAStarPlanner(
-                collisionDetector,
-                perceptionPeriod,
+            //var planner = new HybridAStarPlanner(
+            //    collisionDetector,
+            //    perceptionPeriod,
+            //    realVehicleModel,
+            //    realMotionModel,
+            //    track);
+            var planner = new RRTPlanner(
+                0.2,
+                1000000,
                 realVehicleModel,
                 realMotionModel,
-                track);
+                track,
+                collisionDetector,
+                new Random(),
+                perceptionPeriod);
 
             var exploredStates = new List<IState>();
             void flush()
@@ -59,11 +68,11 @@ namespace Racing.Agents
                 File.WriteAllText("C:/Users/simon/Projects/racer-experiment/simulator/src/progress.json", data);
             }
 
-            aStarPlanner.ExploredStates.Subscribe(exploredStates.Add);
+            planner.ExploredStates.Subscribe(exploredStates.Add);
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Restart();
-            var plan = aStarPlanner.FindOptimalPlanFor(planningProblem);
+            var plan = planner.FindOptimalPlanFor(planningProblem);
             stopwatch.Stop();
 
             if (plan == null)
