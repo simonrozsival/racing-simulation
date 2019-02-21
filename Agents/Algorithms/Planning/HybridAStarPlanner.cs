@@ -18,8 +18,9 @@ namespace Racing.Agents.Algorithms.Planning
         private readonly IMotionModel motionModel;
         private readonly ITrack track;
         private readonly StateDiscretizer discretizer;
+        private readonly ISubject<IState> exploredStates = new Subject<IState>();
 
-        public ISubject<IState> ExploredStates { get; } = new Subject<IState>();
+        public IObservable<IState> ExploredStates { get; }
 
         public HybridAStarPlanner(
             ICollisionDetector collisionDetector,
@@ -38,6 +39,8 @@ namespace Racing.Agents.Algorithms.Planning
                 positionXCellSize: vehicleModel.Width / 2,
                 positionYCellSize: vehicleModel.Width / 2,
                 headingAngleCellSize: 2 * Math.PI / 12);
+
+            ExploredStates = exploredStates;
         }
 
         public IPlan? FindOptimalPlanFor(PlanningProblem problem)
@@ -68,7 +71,7 @@ namespace Racing.Agents.Algorithms.Planning
                 }
 
                 closed.Add(expandedNode.Key);
-                ExploredStates.OnNext(expandedNode.State);
+                exploredStates.OnNext(expandedNode.State);
 
                 foreach (var action in problem.Actions.AllPossibleActions)
                 {
