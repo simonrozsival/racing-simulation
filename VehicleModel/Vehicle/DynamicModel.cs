@@ -1,4 +1,5 @@
 ﻿using Racing.Mathematics;
+using Racing.Model.CollisionDetection;
 using System;
 using static System.Math;
 
@@ -7,11 +8,13 @@ namespace Racing.Model.Vehicle
     public sealed class DynamicModel : IMotionModel
     {
         private readonly IVehicleModel vehicle;
+        private readonly ICollisionDetector collisionDetector;
         private readonly TimeSpan minimumSimulationTime;
 
-        public DynamicModel(IVehicleModel vehicle, TimeSpan minimumSimulationTime)
+        public DynamicModel(IVehicleModel vehicle, ICollisionDetector collisionDetector, TimeSpan minimumSimulationTime)
         {
             this.vehicle = vehicle;
+            this.collisionDetector = collisionDetector;
             this.minimumSimulationTime = minimumSimulationTime;
         }
 
@@ -24,7 +27,7 @@ namespace Racing.Model.Vehicle
 
                 state = calculateNextState(state, action, step);
 
-                if (goal?.ReachedGoal(state.Position) ?? false)
+                if (collisionDetector.IsCollision(state) || (goal?.ReachedGoal(state.Position) ?? false))
                 {
                     break;
                 }

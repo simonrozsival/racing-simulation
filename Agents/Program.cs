@@ -27,13 +27,14 @@ namespace Racing.Agents
 
             var assumedVehicleModel =
                 new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 2.5);
-            var assumedMotionModel = new DynamicModel(assumedVehicleModel, simulationStep);
-
             var realVehicleModel = assumedVehicleModel;
-            var realMotionModel = assumedMotionModel;
 
             var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel, safetyMargin: realVehicleModel.Width * 0.5);
             //var collisionDetector = new BoundingSphereCollisionDetector(track, realVehicleModel);
+
+            var assumedMotionModel = new DynamicModel(assumedVehicleModel, collisionDetector, simulationStep);
+            var realMotionModel = assumedMotionModel;
+
             var goal = new RadialGoal(track.Circuit.WayPoints.ElementAt(4), realVehicleModel.Length);
             var stateClassificator = new StateClassificator(collisionDetector, goal);
 
