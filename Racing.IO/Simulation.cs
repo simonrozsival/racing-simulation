@@ -3,10 +3,8 @@ using Racing.IO.Model;
 using Racing.Model;
 using Racing.Model.Simulation;
 using Racing.Model.Vehicle;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Racing.IO
 {
@@ -19,7 +17,7 @@ namespace Racing.IO
                 SimulationTime = summary.SimulationTime.TotalSeconds,
                 Result = summary.Result,
                 Log = summary.Log.Select(SerializableEventFactory.From),
-                Track = new SerializableTrack(track.TileSize, track.Circuit, track.OccupancyGrid),
+                Track = SerializableTrack.From(track.TileSize, track.Circuit, track.OccupancyGrid),
                 VehicleModel = vehicle
             };
 

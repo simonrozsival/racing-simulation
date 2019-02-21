@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Racing.Mathematics;
+﻿using Racing.Mathematics;
 using Racing.Model;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ namespace Racing.IO.Model
 {
     internal sealed class SerializableTrack
     {
-        public SerializableTrack(double tileSize, ICircuit circuit, bool[,] occupancyGrid)
+        public static SerializableTrack From(double tileSize, ICircuit circuit, bool[,] occupancyGrid)
         {
             var occupancyGridLines = new List<string>();
             for (int i = 0; i < occupancyGrid.GetLength(0); i++)
@@ -22,9 +21,12 @@ namespace Racing.IO.Model
                 occupancyGridLines.Add(line.ToString());
             }
 
-            TileSize = tileSize;
-            Circuit = new SerializableCircuit { Goal = circuit.Goal, Radius = circuit.Radius, Start = circuit.Start, WayPoints = circuit.WayPoints };
-            OccupancyGrid = occupancyGridLines.ToArray();
+            return new SerializableTrack
+            {
+                TileSize = tileSize,
+                Circuit = new SerializableCircuit { Goal = circuit.Goal, Radius = circuit.Radius, Start = circuit.Start, WayPoints = circuit.WayPoints },
+                OccupancyGrid = occupancyGridLines.ToArray()
+            };
         }
 
         public double TileSize { get; set; }
@@ -41,7 +43,7 @@ namespace Racing.IO.Model
             {
                 for (int j = 0; j < occupancyGrid.GetLength(1); j++)
                 {
-                    occupancyGrid[i, j] = tmpOccupancyGrid[i][j];
+                    occupancyGrid[i, j] = tmpOccupancyGrid[j][i];
                 }
             }
 

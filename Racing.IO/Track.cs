@@ -23,10 +23,10 @@ namespace Racing.IO
             var occupancyGrid = Images.LoadOccupancyGrid(pngFileName, tileSize);
 
             // json
-            var track = new SerializableTrack(tileSize, circuit, occupancyGrid);
+            var track = SerializableTrack.From(tileSize, circuit, occupancyGrid);
             var jsonFileName = $"{path}/circuit_definition.json";
             var json = JsonConvert.SerializeObject(track, CustomJsonSerializationSettings.Default);
-            File.WriteAllText(path, json);
+            File.WriteAllText(jsonFileName, json);
         }
 
         public static ITrack Load(string path)
