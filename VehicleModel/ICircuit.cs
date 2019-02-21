@@ -7,7 +7,6 @@ namespace Racing.Model
     {
         double Radius { get; }
         Point Start { get; }
-        Point Goal { get; }
-        IList<Point> WayPoints { get; }
+        IList<IGoal> WayPoints { get; }
     }
 }

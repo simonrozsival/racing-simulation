@@ -6,11 +6,11 @@ namespace Racing.Agents.Algorithms.Planning.RRT
 {
     internal sealed class DistanceMeasurement
     {
-        private double distanceFromStartToGoalSquared;
+        private double maximumDistance;
 
-        public DistanceMeasurement(Point start, Point goal)
+        public DistanceMeasurement(double width, double height)
         {
-            distanceFromStartToGoalSquared = start.DistanceSq(goal);
+            maximumDistance = Sqrt(width * width + height * height);
         }
 
         public double DistanceBetween(IState a, IState b)
@@ -21,7 +21,7 @@ namespace Racing.Agents.Algorithms.Planning.RRT
         }
 
         public double DistanceBetween(Point a, Point b)
-            => a.DistanceSq(b) / distanceFromStartToGoalSquared;
+            => a.DistanceSq(b) / maximumDistance;
 
         public double DistanceBetween(Angle a, Angle b)
         {

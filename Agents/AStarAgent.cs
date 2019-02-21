@@ -14,7 +14,7 @@ namespace Racing.Agents
     {
         private readonly TimeSpan perceptionPeriod;
         private readonly TimeSpan simulationStep;
-        private readonly Queue<RadialGoal> pointsToGo;
+        private readonly Queue<IGoal> pointsToGo;
         private readonly IVehicleModel vehicleModel;
         private readonly IMotionModel motionModel;
         private readonly ITrack track;
@@ -42,9 +42,7 @@ namespace Racing.Agents
 
             collisionDetector = new BoundingSphereCollisionDetector(track, vehicleModel);
 
-            var wayPointGoals = track.Circuit.WayPoints.Select(wayPoint => new RadialGoal(wayPoint, track.Circuit.Radius));
-            pointsToGo = new Queue<RadialGoal>(wayPointGoals);
-            pointsToGo.Enqueue(new RadialGoal(track.Circuit.Start, track.Circuit.Radius));
+            pointsToGo = new Queue<IGoal>(track.Circuit.WayPoints);
         }
 
         public IAction ReactTo(IState state)
@@ -102,12 +100,11 @@ namespace Racing.Agents
         {
             for (int i = 0; i < 3; i++)
             {
-                if (collisionDetector.IsCollision(state))
+                state = motionModel.CalculateNextState(state, action, perceptionPeriod, out var collided);
+                if (collided)
                 {
                     return true;
                 }
-
-                state = motionModel.CalculateNextState(state, action, perceptionPeriod);
             }
 
             return false;
@@ -115,22 +112,29 @@ namespace Racing.Agents
 
         private Queue<IAction>? createNewPlan(IState state)
         {
-            var nextWaypoint = nextGoal(lookahead: 2);
-            var planningProblem = new PlanningProblem(state, actions, nextWaypoint);
-
-            var planner = new HybridAStarPlanner(collisionDetector, perceptionPeriod, vehicleModel, motionModel, track);
+            var wayPoints = nextGoals(lookahead: 2);
+            var planner = new HybridAStarPlanner(perceptionPeriod, vehicleModel, motionModel, track, actions, wayPoints);
             planner.ExploredStates.Subscribe(x => ExploredStates.OnNext(x));
-            var newPlan = planner.FindOptimalPlanFor(planningProblem);
+            var newPlan = planner.FindOptimalPlanFor(state);
 
             if (newPlan == null)
             {
                 return null;
             }
 
-            return new Queue<IAction>(newPlan.Actions);
+            var plannedActions = new List<IAction>();
+            foreach (var action in newPlan.Trajectory.Select(trajectory => trajectory.Action))
+            {
+                if (action != null)
+                {
+                    plannedActions.Add(action);
+                }
+            }
+
+            return new Queue<IAction>(plannedActions);
         }
 
-        private IGoal nextGoal(int lookahead)
-            => pointsToGo.Skip(Math.Min(lookahead, pointsToGo.Count) - 1).First();
+        private IReadOnlyList<IGoal> nextGoals(int lookahead)
+            => pointsToGo.Take(lookahead).ToList().AsReadOnly();
     }
 }

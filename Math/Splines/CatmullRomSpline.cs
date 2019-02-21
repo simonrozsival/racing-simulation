@@ -6,7 +6,7 @@ namespace Racing.Mathematics.Splines
     {
         public IReadOnlyList<Point> Points { get; }
 
-        public CatmullRomSpline(IList<Point> points)
+        public CatmullRomSpline(IEnumerable<Point> points)
         {
             Points = new List<Point>(points).AsReadOnly();
         }

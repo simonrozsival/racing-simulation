@@ -3,6 +3,8 @@ using Racing.Model;
 using Racing.Mathematics;
 using System;
 using Racing.Model.CollisionDetection;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 {
@@ -15,7 +17,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
         public GridShortestPathHeuristic(
             Point startPosition,
-            IGoal goal,
+            IReadOnlyList<IGoal> wayPoints,
             ITrack raceTrack,
             BoundingSphereCollisionDetector collisionDetector,
             double stepSize,
@@ -25,7 +27,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             this.maxSpeed = maxSpeed;
             this.collisionDetector = collisionDetector;
 
-            var path = findShortestPath(startPosition, goal, stepSize);
+            var path = findShortestPath(startPosition, wayPoints, stepSize);
             if (path == null)
             {
                 throw new Exception($"Cannot find path from [{startPosition.X}, {startPosition.Y}] to goal.");
@@ -38,6 +40,10 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
         {
             // find next directly visible node on the track
             var node = furthestNodeDirectlyVisibleFrom(state.Position);
+
+            // solution: only go through the REMAINING nodes ?? :-/
+            // ... although it should work, I wasn't successful in implementing
+            // it so far
 
             if (node == null)
             {
@@ -53,18 +59,20 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return minCostToNextNode + node.CostToTheGoal;
         }
 
-        private ShortestPathNode? findShortestPath(Point start, IGoal goal, double stepSize)
+        private ShortestPathNode? findShortestPath(Point start, IReadOnlyList<IGoal> wayPoints, double stepSize)
         {
-            var open = new BinaryHeapOpenSet<long, GridSearchNode>();
-            var closed = new ClosedSet<long>();
+            var open = new BinaryHeapOpenSet<GridKey, GridSearchNode>();
+            var closed = new ClosedSet<GridKey>();
 
-            open.Add(new GridSearchNode(start, null, 0.0, 0.0));
+            open.Add(
+                new GridSearchNode(
+                    new GridKey(start, wayPoints.Count), start, null, 0.0, 0.0, wayPoints));
 
             while (!open.IsEmpty)
             {
                 var nodeToExpand = open.DequeueMostPromissing();
 
-                if (goal.ReachedGoal(nodeToExpand.Position))
+                if (nodeToExpand.RemainingWayPoints.Count == 0)
                 {
                     var head = new ShortestPathNode(nodeToExpand.Position);
                     var backtrackingNode = nodeToExpand.Previous;
@@ -92,20 +100,24 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                             nodeToExpand.Position.X + dx * stepSize,
                             nodeToExpand.Position.Y + dy * stepSize);
 
-                        var id = hash(nextPoint);
-                        if (closed.Contains(id))
+                        var remainingWayPoints = nodeToExpand.RemainingWayPoints[0].ReachedGoal(nextPoint)
+                            ? nodeToExpand.RemainingWayPoints.Skip(1).ToList().AsReadOnly()
+                            : nodeToExpand.RemainingWayPoints;
+
+                        var key = new GridKey(nextPoint, remainingWayPoints.Count);
+                        if (closed.Contains(key))
                         {
                             continue;
                         }
 
                         if (collisionDetector.IsCollision(nextPoint))
                         {
-                            closed.Add(id);
+                            closed.Add(key);
                             continue;
                         }
 
                         var distance = nodeToExpand.DistanceFromStart + (nextPoint - nodeToExpand.Position).CalculateLength();
-                        var node = new GridSearchNode(nextPoint, nodeToExpand, distance, distance);
+                        var node = new GridSearchNode(key, nextPoint, nodeToExpand, distance, distance, remainingWayPoints);
                         if (open.Contains(node.Key))
                         {
                             if (node.DistanceFromStart < open.Get(node.Key).DistanceFromStart)
@@ -128,6 +140,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
         {
             var start = head;
             var node = head.Next;
+            var accumulatedWayPoints = new HashSet<IGoal>();
 
             while (node != null)
             {
@@ -148,6 +161,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
         {
             ShortestPathNode? furthestNodeSoFar = null;
             var candidate = shortestPathStart;
+
             while (candidate.Next != null)
             {
                 if (areInLineOfSight(candidate.Position, position))
@@ -206,21 +220,29 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return true;
         }
 
-        private sealed class GridSearchNode : ISearchNode<long>, IComparable<GridSearchNode>
+        private sealed class GridSearchNode : ISearchNode<GridKey>, IComparable<GridSearchNode>
         {
-            public long Key { get; }
+            public GridKey Key { get; }
             public double DistanceFromStart { get; }
             public double EstimatedTotalCost { get; }
             public GridSearchNode? Previous { get; }
             public Point Position { get; }
+            public IReadOnlyList<IGoal> RemainingWayPoints { get; }
 
-            public GridSearchNode(Point position, GridSearchNode? previous, double distanceFromStart, double estimatedCost)
+            public GridSearchNode(
+                GridKey key,
+                Point position,
+                GridSearchNode? previous,
+                double distanceFromStart,
+                double estimatedCost,
+                IReadOnlyList<IGoal> remainingWayPoints)
             {
-                Key = hash(position);
+                Key = key;
                 Position = position;
                 Previous = previous;
                 DistanceFromStart = distanceFromStart;
                 EstimatedTotalCost = estimatedCost;
+                RemainingWayPoints = remainingWayPoints;
             }
 
             public int CompareTo(GridSearchNode other)
@@ -228,6 +250,27 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                 var diff = EstimatedTotalCost - other.EstimatedTotalCost;
                 return diff < 0 ? -1 : (diff == 0 ? 0 : 1);
             }
+        }
+
+        private readonly struct GridKey : IEquatable<GridKey>
+        {
+            public GridKey(Point position, int remainingWayPoints)
+            {
+                Position = position;
+                RemainingWayPoints = remainingWayPoints;
+            }
+
+            public Point Position { get; }
+            public int RemainingWayPoints { get; }
+
+            public override bool Equals(object obj)
+                => (obj is GridKey other) && Equals(other);
+
+            public bool Equals(GridKey other)
+                => (Position, RemainingWayPoints) == (other.Position, other.RemainingWayPoints);
+
+            public override int GetHashCode()
+                => HashCode.Combine(Position, RemainingWayPoints);
         }
 
         private sealed class ShortestPathNode
@@ -257,8 +300,5 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                 Next = null;
             }
         }
-
-        private static long hash(Point position)
-            => (long)(position.X) * 10000 + (long)position.Y;
     }
 }

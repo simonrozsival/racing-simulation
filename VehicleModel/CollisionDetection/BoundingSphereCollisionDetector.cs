@@ -10,6 +10,7 @@ namespace Racing.Model.CollisionDetection
         private readonly double diagonal;
         private readonly BoundsDetector boundsDetector;
 
+
         public BoundingSphereCollisionDetector(ITrack track, IVehicleModel vehicleModel)
         {
             this.track = track;

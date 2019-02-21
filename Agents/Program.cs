@@ -21,12 +21,12 @@ namespace Racing.Agents
         public static void Main(string[] args)
         {
             var perceptionPeriod = TimeSpan.FromSeconds(0.4);
-            var simulationStep = perceptionPeriod / 8;
+            var simulationStep = perceptionPeriod / 4;
 
             var track = Track.Load("../../../../tracks/simple-circuit/circuit_definition.json");
 
             var assumedVehicleModel =
-                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 2.5);
+                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
             var realVehicleModel = assumedVehicleModel;
 
             var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel, safetyMargin: realVehicleModel.Width * 0.5);
@@ -35,27 +35,30 @@ namespace Racing.Agents
             var assumedMotionModel = new DynamicModel(assumedVehicleModel, collisionDetector, simulationStep);
             var realMotionModel = assumedMotionModel;
 
-            var goal = new RadialGoal(track.Circuit.WayPoints.ElementAt(4), realVehicleModel.Length);
-            var stateClassificator = new StateClassificator(collisionDetector, goal);
+            var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();
+            var stateClassificator = new StateClassificator(collisionDetector, wayPoints.Last());
 
-            IState initialState = new InitialState(track.Circuit);
+            var initialState = new InitialState(track.Circuit) as IState;
+            var actions = new SteeringInputs(throttleSteps: 5, steeringSteps: 15);
 
-            var planningProblem = new PlanningProblem(initialState, new SteeringInputs(), goal);
             //var planner = new HybridAStarPlanner(
-            //    collisionDetector,
             //    perceptionPeriod,
             //    realVehicleModel,
             //    realMotionModel,
-            //    track);
+            //    track,
+            //    actions,
+            //    wayPoints);
+
             var planner = new RRTPlanner(
-                0.2,
-                1000000,
+                goalBias: 0.15,
+                maximumNumberOfIterations: 100000,
                 realVehicleModel,
                 realMotionModel,
                 track,
-                collisionDetector,
                 new Random(),
-                perceptionPeriod);
+                perceptionPeriod,
+                actions,
+                wayPoints);
 
             var exploredStates = new List<IState>();
             void flush()
@@ -72,7 +75,7 @@ namespace Racing.Agents
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Restart();
-            var plan = planner.FindOptimalPlanFor(planningProblem);
+            var plan = planner.FindOptimalPlanFor(initialState);
             stopwatch.Stop();
 
             if (plan == null)
@@ -87,35 +90,22 @@ namespace Racing.Agents
 
             var log = new Log();
             log.StateUpdated(initialState);
-            var elapsedTime = TimeSpan.Zero;
             var state = initialState;
 
-            var length = 0.0;
-
-            foreach (var action in plan.Actions)
+            for (int i = 0; i < plan.Trajectory.Count; i++)
             {
-                log.ActionSelected(action);
-                var time = perceptionPeriod;
-                while (time > TimeSpan.Zero)
+                var trajectory = plan.Trajectory[i];
+                log.SimulationTimeChanged(trajectory.Time);
+                if (trajectory.Action != null)
                 {
-                    var step = time < simulationStep ? time : simulationStep;
-                    time -= step;
-                    elapsedTime += step;
-                    log.SimulationTimeChanged(elapsedTime);
-
-                    var prevPosition = state.Position;
-                    state = realMotionModel.CalculateNextState(state, action, step);
-                    length += (state.Position - prevPosition).CalculateLength();
-
-                    log.StateUpdated(state);
+                    log.ActionSelected(trajectory.Action);
                 }
+                log.StateUpdated(trajectory.State);
             }
 
-            var summary = new SimulationSummary(elapsedTime, Result.TimeOut, log.History);
+            var summary = new SimulationSummary(plan.TimeToGoal, Result.TimeOut, log.History);
             Simulation.StoreResult(track, realVehicleModel, summary, "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
-
-            Console.WriteLine($"Path length: {length / (realVehicleModel.Width / 1.85)}m");
-            Console.WriteLine($"Time to finish: {elapsedTime.TotalSeconds}s");
+            Console.WriteLine($"Time to finish: {plan.TimeToGoal.TotalSeconds}s");
 
             flush();
         }
@@ -129,7 +119,8 @@ namespace Racing.Agents
 
             public InitialState(ICircuit circuit)
             {
-                var startDirection = circuit.WayPoints.Skip(1).First() - circuit.WayPoints.Last();
+                var startDirection = 
+                    circuit.WayPoints.Skip(1).First().Position - circuit.WayPoints.Last().Position;
 
                 Position = circuit.Start;
                 HeadingAngle = startDirection.Direction();

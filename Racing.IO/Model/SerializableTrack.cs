@@ -24,7 +24,7 @@ namespace Racing.IO.Model
             return new SerializableTrack
             {
                 TileSize = tileSize,
-                Circuit = new SerializableCircuit { Goal = circuit.Goal, Radius = circuit.Radius, Start = circuit.Start, WayPoints = circuit.WayPoints },
+                Circuit = new SerializableCircuit { Radius = circuit.Radius, Start = circuit.Start, WayPoints = circuit.WayPoints.Select(goal => goal.Position).ToList() },
                 OccupancyGrid = occupancyGridLines.ToArray()
             };
         }
@@ -48,7 +48,12 @@ namespace Racing.IO.Model
             }
 
             return new RaceTrack(
-                new DeserialziedCircuit { Goal = Circuit.Goal, Start = Circuit.Start, Radius = Circuit.Radius, WayPoints = Circuit.WayPoints },
+                new DeserialziedCircuit
+                {
+                    Start = Circuit.Start,
+                    Radius = Circuit.Radius,
+                    WayPoints = Circuit.WayPoints.Select(point => new RadialGoal(point, Circuit.Radius)).ToList<IGoal>()
+                },
                 occupancyGrid,
                 TileSize);
         }
@@ -57,8 +62,7 @@ namespace Racing.IO.Model
         {
             public double Radius { get; set; }
             public Point Start { get; set; }
-            public Point Goal { get; set; }
-            public IList<Point> WayPoints { get; set; } = new List<Point>();
+            public IList<IGoal> WayPoints { get; set; } = new List<IGoal>();
         }
     }
 }

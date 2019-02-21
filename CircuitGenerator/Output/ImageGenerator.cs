@@ -63,7 +63,7 @@ namespace Racing.CircuitGenerator.Output
             var n = 1;
             foreach (var waypoint in circuit.WayPoints.Skip(1))
             {
-                builder.AppendLine(printWaypoint(waypoint, n++, radius: 0.6 * circuit.Radius));
+                builder.AppendLine(printWaypoint(waypoint.Position, n++, radius: 0.6 * circuit.Radius));
             }
         }
 

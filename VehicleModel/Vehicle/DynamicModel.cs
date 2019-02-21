@@ -18,16 +18,81 @@ namespace Racing.Model.Vehicle
             this.minimumSimulationTime = minimumSimulationTime;
         }
 
-        public IState CalculateNextState(IState state, IAction action, TimeSpan time, IGoal? goal = null)
+        public IState CalculateNextState(
+            IState state,
+            IAction action,
+            TimeSpan simulationTime,
+            out bool collided)
         {
-            while (time > TimeSpan.Zero)
+            return calculateNextState(state, action, simulationTime, null, out collided, out _);
+        }
+
+        public IState CalculateNextState(
+            IState state,
+            IAction action,
+            TimeSpan simulationTime,
+            IGoal goal,
+            out bool collided,
+            out bool reachedGoal)
+        {
+            return calculateNextState(state, action, simulationTime, goal, out collided, out reachedGoal);
+        }
+        private IState calculateNextState(
+            IState state,
+            IAction action,
+            TimeSpan simulationTime,
+            IGoal? goal,
+            out bool collided,
+            out bool reachedGoal)
+        {
+            collided = false;
+            reachedGoal = false;
+
+            var elapsedTime = TimeSpan.Zero;
+            while (elapsedTime < simulationTime)
             {
-                var step = time < minimumSimulationTime ? time : minimumSimulationTime;
-                time -= minimumSimulationTime;
+                var step = (simulationTime - elapsedTime) < minimumSimulationTime
+                    ? simulationTime - elapsedTime
+                    : minimumSimulationTime;
+
+                elapsedTime += step;
 
                 state = calculateNextState(state, action, step);
 
-                if (collisionDetector.IsCollision(state) || (goal?.ReachedGoal(state.Position) ?? false))
+                if (collisionDetector.IsCollision(state))
+                {
+                    collided = true;
+                    reachedGoal = false;
+                }
+
+                if (!collided && goal != null && goal.ReachedGoal(state.Position))
+                {
+                    reachedGoal = true;
+                }
+            }
+
+            return state;
+        }
+
+        private IState simulateUntil(
+            Predicate<IState> terminationPredicate,
+            IState state,
+            IAction action,
+            TimeSpan maxSimulationTime,
+            out TimeSpan simulationTime)
+        {
+            simulationTime = TimeSpan.Zero;
+            while (simulationTime < maxSimulationTime)
+            {
+                var step = (maxSimulationTime - simulationTime) < minimumSimulationTime
+                    ? maxSimulationTime - simulationTime
+                    : minimumSimulationTime;
+
+                simulationTime += step;
+
+                state = calculateNextState(state, action, step);
+
+                if (terminationPredicate(state))
                 {
                     break;
                 }

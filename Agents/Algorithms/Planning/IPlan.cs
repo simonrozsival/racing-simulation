@@ -7,7 +7,6 @@ namespace Racing.Agents.Algorithms.Planning
     public interface IPlan
     {
         TimeSpan TimeToGoal { get; }
-        IList<IState> States { get; }
-        IList<IAction> Actions { get; }
+        IList<IActionTrajectory> Trajectory { get; }
     }
 }

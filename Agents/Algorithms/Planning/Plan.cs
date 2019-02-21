@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using Racing.Model;
 
 namespace Racing.Agents.Algorithms.Planning
 {
     internal sealed class Plan : IPlan
     {
-        public Plan(TimeSpan timeToGoal, IList<IState> states, IList<IAction> actions)
+        public Plan(TimeSpan timeToGoal, IList<IActionTrajectory> trajectory)
         {
             TimeToGoal = timeToGoal;
-            States = states;
-            Actions = actions;
+            Trajectory = trajectory;
         }
 
         public TimeSpan TimeToGoal { get; }
-        public IList<IState> States { get; }
-        public IList<IAction> Actions { get; }
+        public IList<IActionTrajectory> Trajectory { get; }
     }
 }

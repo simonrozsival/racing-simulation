@@ -2,6 +2,7 @@
 using Racing.Model;
 using Racing.Model.Vehicle;
 using System;
+using System.Collections.Generic;
 using static System.Math;
 
 namespace Racing.Agents.Algorithms.Planning.RRT
@@ -11,21 +12,24 @@ namespace Racing.Agents.Algorithms.Planning.RRT
         private readonly Random random;
         private readonly ITrack track;
         private readonly IVehicleModel vehicleModel;
-        private readonly IGoal goal;
+        private readonly IReadOnlyList<IGoal> wayPoints;
         private readonly double goalBias;
 
-        public Sampler(Random random, ITrack track, IVehicleModel vehicleModel, IGoal goal, double goalBias)
+        public Sampler(Random random, ITrack track, IVehicleModel vehicleModel, IReadOnlyList<IGoal> wayPoints, double goalBias)
         {
             this.random = random;
             this.track = track;
             this.vehicleModel = vehicleModel;
-            this.goal = goal;
+            this.wayPoints = wayPoints;
             this.goalBias = goalBias;
         }
 
-        public IState RandomSampleOfFreeRegion()
+        public IState RandomSampleOfFreeRegion(int currentGoal)
         {
-            var freePosition = random.NextDouble() > goalBias ? goal.Position : randomFrePosition();
+            var freePosition = random.NextDouble() > goalBias
+                ? wayPoints[currentGoal].Position
+                : randomFreePosition();
+
             return selectRandomSample(freePosition);
         }
 
@@ -38,7 +42,7 @@ namespace Racing.Agents.Algorithms.Planning.RRT
                 speed: random.NextDoubleBetween(vehicleModel.MinSpeed, vehicleModel.MaxSpeed));
         }
 
-        private Point randomFrePosition()
+        private Point randomFreePosition()
         {
             Point position;
             do

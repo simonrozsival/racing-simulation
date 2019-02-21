@@ -33,7 +33,10 @@ namespace Racing.Simulation
 
             var assumedVehicleModel =
                 VehicleModelFactory.ForwardDrivingOnlyWhichFitsOnto(track);
-            var assumedMotionModel = new DynamicModel(assumedVehicleModel, simulationStep);
+            var realVehicleModel = assumedVehicleModel;
+            var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel);
+
+            var assumedMotionModel = new DynamicModel(assumedVehicleModel, collisionDetector, simulationStep);
 
             //var realVehicleModel = new InaccuratelyMeasuredVehicleModel(
             //    assumedVehicleModel,
@@ -41,11 +44,9 @@ namespace Racing.Simulation
             //    random: random);
             //var realMotionModel = new UnpredictableMotionModel(assumedMotionModel, 0.08, random);
 
-            var realVehicleModel = assumedVehicleModel;
             var realMotionModel = assumedMotionModel;
 
-            var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel);
-            var goal = new RadialGoal(track.Circuit.Goal, track.Circuit.Radius);
+            var goal = track.Circuit.WayPoints.Last();
             var stateClassificator = new StateClassificator(collisionDetector, goal);
 
             var results = new List<ISummary>(options.NumberOfRepetitions);

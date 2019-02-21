@@ -30,7 +30,9 @@ namespace Racing.Simulation
             this.track = track;
             this.stateClassificator = stateClassificator;
             this.motionModel = motionModel;
-            this.log = new Log();
+            
+            
+            log = new Log();
 
             Events = log.Events;
         }
@@ -40,13 +42,12 @@ namespace Racing.Simulation
             IState vehicleState = new InitialState(track.Circuit);
             IAction nextAction = new NoOpAction();
 
-            var wayPointsQueue = new Queue<IGoal>(track.Circuit.WayPoints.Select(wp => new RadialGoal(wp, track.Circuit.Radius)));
-            wayPointsQueue.Enqueue(new RadialGoal(track.Circuit.Goal, track.Circuit.Radius));
+            var wayPointsQueue = new Queue<IGoal>(track.Circuit.WayPoints);
 
             var elapsedTime = TimeSpan.Zero;
             var timeToNextPerception = TimeSpan.Zero;
 
-            while (wayPointsQueue.Count > 0 && stateClassificator.Classify(vehicleState) != StateType.Collision && elapsedTime < maximumSimulationTime)
+            while (wayPointsQueue.Count > 0 && elapsedTime < maximumSimulationTime)
             {
                 timeToNextPerception -= simulationStep;
                 if (timeToNextPerception < TimeSpan.Zero)
@@ -61,10 +62,15 @@ namespace Racing.Simulation
                     log.ActionSelected(nextAction);
                 }
 
-                vehicleState = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep);
+                vehicleState = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep, wayPointsQueue.Peek(), out var collided, out var reachedGoal);
                 log.StateUpdated(vehicleState);
 
-                if (wayPointsQueue.Peek().ReachedGoal(vehicleState.Position))
+                if (collided)
+                {
+                    break;
+                }
+
+                if (reachedGoal)
                 {
                     Console.WriteLine($"Reached next way point, {wayPointsQueue.Count} to go.");
                     wayPointsQueue.Dequeue();
@@ -91,7 +97,8 @@ namespace Racing.Simulation
 
             public InitialState(ICircuit circuit)
             {
-                var startDirection = circuit.WayPoints.Skip(1).First() - circuit.WayPoints.Last();
+                var startDirection =
+                    circuit.WayPoints.Skip(1).First().Position - circuit.WayPoints.Last().Position;
 
                 Position = circuit.Start;
                 HeadingAngle = startDirection.Direction();

@@ -14,6 +14,7 @@ namespace Racing.Agents.Algorithms.Planning.RRT
         public IAction? ActionFromParent { get; }
         public TimeSpan CostToCome { get; }
         public bool CanBeExpanded { get; private set; }
+        public int WayPointsReached { get; }
 
         public TreeNode(IState state)
         {
@@ -22,15 +23,22 @@ namespace Racing.Agents.Algorithms.Planning.RRT
             ActionFromParent = null;
             CostToCome = TimeSpan.Zero;
             CanBeExpanded = true;
+            WayPointsReached = 0;
         }
 
-        public TreeNode(TreeNode parent, IState state, IAction actionFromParent, TimeSpan costOfAction)
+        public TreeNode(
+            TreeNode parent,
+            IState state,
+            IAction actionFromParent,
+            TimeSpan costOfAction,
+            int wayPointsReached)
         {
             Parent = parent;
             State = state;
             ActionFromParent = actionFromParent;
             CostToCome = (Parent?.CostToCome ?? TimeSpan.Zero) + costOfAction;
             CanBeExpanded = true;
+            WayPointsReached = wayPointsReached;
         }
 
         public IEnumerable<IAction> SelectAvailableActionsFrom(IEnumerable<IAction> allActions)
@@ -38,23 +46,21 @@ namespace Racing.Agents.Algorithms.Planning.RRT
 
         public IPlan ReconstructPlanFromRoot()
         {
-            var actions = new List<IAction>();
-            var states = new List<IState>();
-            var timeToGoal = CostToCome;
-
+            var trajectory = new List<IActionTrajectory>();
             TreeNode? node = this;
-            while (node != null)
-            {
-                states.Insert(0, node.State);
-                if (node.ActionFromParent != null)
-                {
-                    actions.Insert(0, node.ActionFromParent);
-                }
 
+            trajectory.Add(new ActionTrajectory(node.CostToCome, State, null));
+
+            while (node.Parent != null)
+            {
+                trajectory.Add(
+                    new ActionTrajectory(node.CostToCome, node.Parent.State, node.ActionFromParent));
                 node = node.Parent;
             }
 
-            return new Plan(timeToGoal, states, actions);
+            trajectory.Reverse();
+
+            return new Plan(CostToCome, trajectory);
         }
 
         public void DisableAction(IAction action)

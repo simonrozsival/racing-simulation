@@ -18,10 +18,11 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar
             this.headingAngleCellSize = headingAngleCellSize;
         }
 
-        public DiscreteState Discretize(IState state)
+        public DiscreteState Discretize(IState state, int remainingWayPointsCount)
             => new DiscreteState(
                 x: (int)(state.Position.X / positionXCellSize),
                 y: (int)(state.Position.Y / positionYCellSize),
-                headingAngle: (int)(state.HeadingAngle.Radians / headingAngleCellSize));
+                headingAngle: (int)(state.HeadingAngle.Radians / headingAngleCellSize),
+                remainingWayPointsCount);
     }
 }

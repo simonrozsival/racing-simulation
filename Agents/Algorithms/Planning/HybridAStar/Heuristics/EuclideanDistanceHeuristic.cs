@@ -18,11 +18,8 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
         public TimeSpan EstimateTimeToGoal(IState state)
         {
-            var distance = distanceToGoal(state);
+            var distance = (state.Position - goal).CalculateLength();
             return TimeSpan.FromSeconds(distance / maxVelocity);
         }
-
-        private double distanceToGoal(IState state)
-            => (state.Position - goal).CalculateLength();
     }
 }
