@@ -38,7 +38,11 @@ namespace Racing.Agents
             var assumedMotionModel = new DynamicModel(assumedVehicleModel, collisionDetector, simulationStep);
             var realMotionModel = assumedMotionModel;
 
-            var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();
+            var allWayPoints = track.Circuit.WayPoints.ToList();
+            var wayPoints = allWayPoints.Count > 4
+                ? new[] { allWayPoints[0], allWayPoints.ElementAt(allWayPoints.Count / 3), allWayPoints.ElementAt(2 * allWayPoints.Count / 3), allWayPoints.Last() }.ToList()
+                : allWayPoints;
+
             var stateClassificator = new StateClassificator(collisionDetector, wayPoints.Last());
 
             var initialState = new InitialState(track.Circuit) as IState;
@@ -51,7 +55,8 @@ namespace Racing.Agents
                 track,
                 actions,
                 wayPoints,
-                collisionDetector);
+                collisionDetector,
+                greedy: false);
 
             //var planner = new WayPointFollowingRRTPlannerRRTPlanner(
             //    goalBias: 0.3,

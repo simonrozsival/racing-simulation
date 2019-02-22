@@ -20,6 +20,7 @@ namespace Racing.Agents.Algorithms.Planning
         private readonly IActionSet actions;
         private readonly IReadOnlyList<IGoal> wayPoints;
         private readonly ICollisionDetector collisionDetector;
+        private readonly bool greedy;
 
         private readonly StateDiscretizer discretizer;
         private readonly ISubject<IState> exploredStates = new Subject<IState>();
@@ -33,7 +34,8 @@ namespace Racing.Agents.Algorithms.Planning
             ITrack track,
             IActionSet actions,
             IReadOnlyList<IGoal> wayPoints,
-            ICollisionDetector collisionDetector)
+            ICollisionDetector collisionDetector,
+            bool greedy = false)
         {
             this.timeStep = timeStep;
             this.vehicleModel = vehicleModel;
@@ -42,11 +44,12 @@ namespace Racing.Agents.Algorithms.Planning
             this.actions = actions;
             this.wayPoints = wayPoints;
             this.collisionDetector = collisionDetector;
+            this.greedy = greedy;
 
             discretizer = new StateDiscretizer(
-                positionXCellSize: vehicleModel.Width / 2,
-                positionYCellSize: vehicleModel.Width / 2,
-                headingAngleCellSize: 2 * Math.PI / 12);
+                positionXCellSize: vehicleModel.Width / 20,
+                positionYCellSize: vehicleModel.Width / 20,
+                headingAngleCellSize: 2 * Math.PI / 24);
 
             ExploredStates = exploredStates;
         }
@@ -59,7 +62,6 @@ namespace Racing.Agents.Algorithms.Planning
 
             var open = new BinaryHeapOpenSet<DiscreteState, SearchNode>();
             var closed = new ClosedSet<DiscreteState>();
-            var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();
 
             open.Add(
                 new SearchNode(
@@ -138,6 +140,11 @@ namespace Racing.Agents.Algorithms.Planning
                         costToCome: costToCome,
                         estimatedTotalCost: costToCome + costToGo,
                         remainingWayPoints);
+
+                    if (greedy && remainingWayPoints.Count == 0)
+                    {
+                        return discoveredNode.ReconstructPlan();
+                    }
 
                     if (!open.Contains(discoveredNode.Key))
                     {
