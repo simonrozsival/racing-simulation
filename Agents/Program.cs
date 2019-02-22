@@ -29,7 +29,7 @@ namespace Racing.Agents
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
 
             var assumedVehicleModel =
-                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
+                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 5);
             var realVehicleModel = assumedVehicleModel;
 
             var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel, safetyMargin: realVehicleModel.Width * 0.5);
@@ -70,6 +70,7 @@ namespace Racing.Agents
             //    realVehicleModel,
             //    realMotionModel,
             //    track,
+            //    collisionDetector,
             //    new Random(),
             //    perceptionPeriod,
             //    actions,
@@ -86,7 +87,15 @@ namespace Racing.Agents
                 File.WriteAllText("C:/Users/simon/Projects/racer-experiment/simulator/src/progress.json", data);
             }
 
-            planner.ExploredStates.Subscribe(exploredStates.Add);
+            int n = 0;
+            planner.ExploredStates.Subscribe(state =>
+            {
+                exploredStates.Add(state);
+                if (n++ % 2000 == 0)
+                {
+                    flush();
+                }
+            });
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Restart();
@@ -96,7 +105,7 @@ namespace Racing.Agents
             if (plan == null)
             {
                 Console.WriteLine("Couldn't find any plan.");
-                Console.WriteLine(exploredStates.Count);
+                Console.WriteLine($"Explored states: {exploredStates.Count}");
                 flush();
                 return;
             }
