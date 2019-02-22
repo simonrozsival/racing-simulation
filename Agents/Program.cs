@@ -41,24 +41,35 @@ namespace Racing.Agents
             var initialState = new InitialState(track.Circuit) as IState;
             var actions = new SteeringInputs(throttleSteps: 5, steeringSteps: 15);
 
-            //var planner = new HybridAStarPlanner(
-            //    perceptionPeriod,
-            //    realVehicleModel,
-            //    realMotionModel,
-            //    track,
-            //    actions,
-            //    wayPoints);
-
-            var planner = new RRTPlanner(
-                goalBias: 0.15,
-                maximumNumberOfIterations: 100000,
+            var planner = new HybridAStarPlanner(
+                perceptionPeriod,
                 realVehicleModel,
                 realMotionModel,
                 track,
-                new Random(),
-                perceptionPeriod,
                 actions,
                 wayPoints);
+
+            //var planner = new WayPointFollowingRRTPlannerRRTPlanner(
+            //    goalBias: 0.3,
+            //    maximumNumberOfIterations: 100000,
+            //    realVehicleModel,
+            //    realMotionModel,
+            //    track,
+            //    new Random(),
+            //    perceptionPeriod,
+            //    actions,
+            //    wayPoints);
+
+            //var planner = new RRTPlanner(
+            //    goalBias: 0.3,
+            //    maximumNumberOfIterations: 100000,
+            //    realVehicleModel,
+            //    realMotionModel,
+            //    track,
+            //    new Random(),
+            //    perceptionPeriod,
+            //    actions,
+            //    wayPoints.Last());
 
             var exploredStates = new List<IState>();
             void flush()

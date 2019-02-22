@@ -12,22 +12,20 @@ namespace Racing.Agents.Algorithms.Planning.RRT
         private readonly Random random;
         private readonly ITrack track;
         private readonly IVehicleModel vehicleModel;
-        private readonly IReadOnlyList<IGoal> wayPoints;
         private readonly double goalBias;
 
-        public Sampler(Random random, ITrack track, IVehicleModel vehicleModel, IReadOnlyList<IGoal> wayPoints, double goalBias)
+        public Sampler(Random random, ITrack track, IVehicleModel vehicleModel, double goalBias)
         {
             this.random = random;
             this.track = track;
             this.vehicleModel = vehicleModel;
-            this.wayPoints = wayPoints;
             this.goalBias = goalBias;
         }
 
-        public IState RandomSampleOfFreeRegion(int currentGoal)
+        public IState RandomSampleOfFreeRegion(IGoal goal)
         {
             var freePosition = random.NextDouble() > goalBias
-                ? wayPoints[currentGoal].Position
+                ? goal.Position
                 : randomFreePosition();
 
             return selectRandomSample(freePosition);

@@ -19,10 +19,8 @@ namespace Racing.Agents.Algorithms.Planning
         private readonly TimeSpan timeStep;
         private readonly ISubject<IState> exploredStates = new Subject<IState>();
         private readonly IActionSet actions;
-        private readonly IReadOnlyList<IGoal> wayPoints;
+        private readonly IGoal goal;
         private readonly DistanceMeasurement distances;
-
-        private int wayPointsReached;
 
         public IObservable<IState> ExploredStates { get; }
 
@@ -35,7 +33,7 @@ namespace Racing.Agents.Algorithms.Planning
             Random random,
             TimeSpan timeStep,
             IActionSet actions,
-            IReadOnlyList<IGoal> wayPoints)
+            IGoal goal)
         {
             if (goalBias > 0.5)
             {
@@ -49,25 +47,24 @@ namespace Racing.Agents.Algorithms.Planning
             this.track = track;
             this.random = random;
             this.timeStep = timeStep;
-            this.wayPoints = wayPoints;
+            this.goal = goal;
             this.actions = actions;
 
             distances = new DistanceMeasurement(track.Width, track.Height);
-            wayPointsReached = 0;
 
             ExploredStates = exploredStates;
         }
 
         public IPlan? FindOptimalPlanFor(IState initialState)
         {
-            var sampler = new Sampler(random, track, vehicleModel, wayPoints, goalBias);
+            var sampler = new Sampler(random, track, vehicleModel, goalBias);
 
             var nodes = new List<TreeNode>();
             nodes.Add(new TreeNode(initialState));
 
             for (int i = 0; i < maximumNumberOfIterations; i++)
             {
-                var sampleState = sampler.RandomSampleOfFreeRegion(wayPointsReached);
+                var sampleState = sampler.RandomSampleOfFreeRegion(goal);
                 var nearestNode = nearest(nodes, sampleState);
 
                 if (nearestNode == null)
@@ -77,26 +74,17 @@ namespace Racing.Agents.Algorithms.Planning
                     return null;
                 }
 
-                var (newState, selectedAction, reachedBreakPoint) = steer(nearestNode, sampleState, distances);
+                var (newState, selectedAction) = steer(nearestNode, sampleState, distances, out var reachedGoal);
 
                 if (newState == null)
                 {
                     continue;
                 }
 
-                var reachedWayPoints = reachedBreakPoint
-                    ? nearestNode.WayPointsReached + 1
-                    : nearestNode.WayPointsReached;
-
-                if (reachedWayPoints > wayPointsReached)
-                {
-                    wayPointsReached = reachedWayPoints;
-                }
-
-                var newNode = new TreeNode(nearestNode, newState, selectedAction, timeStep, reachedWayPoints);
+                var newNode = new TreeNode(nearestNode, newState, selectedAction, timeStep, 0);
                 exploredStates.OnNext(newState);
 
-                if (reachedWayPoints == wayPoints.Count)
+                if (reachedGoal)
                 {
                     return newNode.ReconstructPlanFromRoot();
                 }
@@ -128,11 +116,11 @@ namespace Racing.Agents.Algorithms.Planning
             return best;
         }
 
-        private (IState?, IAction?, bool) steer(TreeNode from, IState to, DistanceMeasurement distances)
+        private (IState?, IAction?) steer(TreeNode from, IState to, DistanceMeasurement distances, out bool reachedGoal)
         {
             IState? state = null;
             IAction? bestAction = null;
-            bool reachedWayPoint = false;
+            reachedGoal = false;
             var shortestDistance = double.MaxValue;
 
             // todo what if there are no available actions?
@@ -144,7 +132,7 @@ namespace Racing.Agents.Algorithms.Planning
                     from.State,
                     action,
                     timeStep,
-                    wayPoints[from.WayPointsReached],
+                    goal,
                     out bool collided,
                     out bool hitGoal);
 
@@ -156,11 +144,11 @@ namespace Racing.Agents.Algorithms.Planning
                 }
 
                 var currentDistance = distances.DistanceBetween(to, resultState);
-                if ((!reachedWayPoint || hitGoal) && currentDistance < shortestDistance)
+                if ((!reachedGoal || hitGoal) && currentDistance < shortestDistance)
                 {
                     state = resultState;
                     bestAction = action;
-                    reachedWayPoint = hitGoal;
+                    reachedGoal = hitGoal;
                 }
             }
 
@@ -175,7 +163,7 @@ namespace Racing.Agents.Algorithms.Planning
                 from.DisableFutureExpansions();
             }
 
-            return (state, bestAction, reachedWayPoint);
+            return (state, bestAction);
         }
     }
 }
