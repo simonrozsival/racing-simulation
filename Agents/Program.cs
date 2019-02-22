@@ -47,7 +47,8 @@ namespace Racing.Agents
                 realMotionModel,
                 track,
                 actions,
-                wayPoints);
+                wayPoints,
+                collisionDetector);
 
             //var planner = new WayPointFollowingRRTPlannerRRTPlanner(
             //    goalBias: 0.3,

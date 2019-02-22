@@ -1,5 +1,6 @@
 ﻿using Racing.Agents.Algorithms.Planning.RRT;
 using Racing.Model;
+using Racing.Model.CollisionDetection;
 using Racing.Model.Vehicle;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Racing.Agents.Algorithms.Planning
         private readonly IVehicleModel vehicleModel;
         private readonly IMotionModel motionModel;
         private readonly ITrack track;
+        private readonly ICollisionDetector collisionDetector;
         private readonly Random random;
         private readonly TimeSpan timeStep;
         private readonly ISubject<IState> exploredStates = new Subject<IState>();
@@ -140,13 +142,28 @@ namespace Racing.Agents.Algorithms.Planning
             var remainingAvailableActions = availableActions.Length;
             foreach (var action in availableActions)
             {
-                var resultState = motionModel.CalculateNextState(
-                    from.State,
-                    action,
-                    timeStep,
-                    wayPoints[from.WayPointsReached],
-                    out bool collided,
-                    out bool hitGoal);
+                var predictedStates = motionModel.CalculateNextState(from.State, action, timeStep).ToList();
+                var elapsedTime = predictedStates.Last().relativeTime;
+                var resultState = predictedStates.Last().state;
+                var passedGoal = false;
+                var collided = false;
+
+                foreach (var (simulationTime, intermediateState) in predictedStates)
+                {
+                    if (collisionDetector.IsCollision(intermediateState))
+                    {
+                        elapsedTime = simulationTime;
+                        resultState = intermediateState;
+                        passedGoal = false;
+                        collided = true;
+                        break;
+                    }
+
+                    if (wayPoints[wayPointsReached].ReachedGoal(intermediateState.Position))
+                    {
+                        passedGoal = true;
+                    }
+                }
 
                 if (collided)
                 {
@@ -156,11 +173,11 @@ namespace Racing.Agents.Algorithms.Planning
                 }
 
                 var currentDistance = distances.DistanceBetween(to, resultState);
-                if ((!reachedWayPoint || hitGoal) && currentDistance < shortestDistance)
+                if ((!reachedWayPoint || passedGoal) && currentDistance < shortestDistance)
                 {
                     state = resultState;
                     bestAction = action;
-                    reachedWayPoint = hitGoal;
+                    reachedWayPoint = passedGoal;
                 }
             }
 

@@ -100,8 +100,8 @@ namespace Racing.Agents
         {
             for (int i = 0; i < 3; i++)
             {
-                state = motionModel.CalculateNextState(state, action, perceptionPeriod, out var collided);
-                if (collided)
+                state = motionModel.CalculateNextState(state, action, perceptionPeriod).Last().state;
+                if (collisionDetector.IsCollision(state))
                 {
                     return true;
                 }
@@ -113,7 +113,7 @@ namespace Racing.Agents
         private Queue<IAction>? createNewPlan(IState state)
         {
             var wayPoints = nextGoals(lookahead: 2);
-            var planner = new HybridAStarPlanner(perceptionPeriod, vehicleModel, motionModel, track, actions, wayPoints);
+            var planner = new HybridAStarPlanner(perceptionPeriod, vehicleModel, motionModel, track, actions, wayPoints, collisionDetector);
             planner.ExploredStates.Subscribe(x => ExploredStates.OnNext(x));
             var newPlan = planner.FindOptimalPlanFor(state);
 

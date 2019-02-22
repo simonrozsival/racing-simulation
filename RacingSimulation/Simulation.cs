@@ -62,8 +62,32 @@ namespace Racing.Simulation
                     log.ActionSelected(nextAction);
                 }
 
-                vehicleState = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep, wayPointsQueue.Peek(), out var collided, out var reachedGoal);
-                log.StateUpdated(vehicleState);
+                var predictedStates = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep).ToList();
+                vehicleState = predictedStates.Last().state;
+                var reachedGoal = false;
+                var collided = false;
+
+                foreach (var (time, state) in predictedStates)
+                {
+                    elapsedTime += time;
+                    log.SimulationTimeChanged(elapsedTime);
+                    log.StateUpdated(vehicleState);
+
+                    var type = stateClassificator.Classify(state);
+                    if (type == StateType.Collision)
+                    {
+                        elapsedTime = time;
+                        vehicleState = state;
+                        reachedGoal = false;
+                        collided = true;
+                        break;
+                    }
+
+                    if (type == StateType.Goal)
+                    {
+                        reachedGoal = true;
+                    }
+                }
 
                 if (collided)
                 {
@@ -75,9 +99,6 @@ namespace Racing.Simulation
                     Console.WriteLine($"Reached next way point, {wayPointsQueue.Count} to go.");
                     wayPointsQueue.Dequeue();
                 }
-
-                elapsedTime += simulationStep;
-                log.SimulationTimeChanged(elapsedTime);
             }
 
             var timeouted = elapsedTime >= maximumSimulationTime;

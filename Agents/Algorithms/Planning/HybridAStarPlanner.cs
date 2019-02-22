@@ -19,6 +19,7 @@ namespace Racing.Agents.Algorithms.Planning
         private readonly ITrack track;
         private readonly IActionSet actions;
         private readonly IReadOnlyList<IGoal> wayPoints;
+        private readonly ICollisionDetector collisionDetector;
 
         private readonly StateDiscretizer discretizer;
         private readonly ISubject<IState> exploredStates = new Subject<IState>();
@@ -31,7 +32,8 @@ namespace Racing.Agents.Algorithms.Planning
             IMotionModel motionModel,
             ITrack track,
             IActionSet actions,
-            IReadOnlyList<IGoal> wayPoints)
+            IReadOnlyList<IGoal> wayPoints,
+            ICollisionDetector collisionDetector)
         {
             this.timeStep = timeStep;
             this.vehicleModel = vehicleModel;
@@ -39,6 +41,7 @@ namespace Racing.Agents.Algorithms.Planning
             this.track = track;
             this.actions = actions;
             this.wayPoints = wayPoints;
+            this.collisionDetector = collisionDetector;
 
             discretizer = new StateDiscretizer(
                 positionXCellSize: vehicleModel.Width / 2,
@@ -82,16 +85,32 @@ namespace Racing.Agents.Algorithms.Planning
 
                 foreach (var action in actions.AllPossibleActions)
                 {
-                    var nextVehicleState = motionModel.CalculateNextState(
-                        expandedNode.State, action,
-                        timeStep,
-                        expandedNode.RemainingWayPoints[0],
-                        out var collided,
-                        out var reachedGoal);
+                    var predictedStates = motionModel.CalculateNextState(expandedNode.State, action, timeStep).ToList();
+                    var elapsedTime = predictedStates.Last().relativeTime;
+                    var nextVehicleState = predictedStates.Last().state;
+                    var reachedGoal = false;
+                    var collided = false;
+
+                    foreach (var (simulationTime, state) in predictedStates)
+                    {
+                        if (collisionDetector.IsCollision(state))
+                        {
+                            elapsedTime = simulationTime;
+                            nextVehicleState = state;
+                            reachedGoal = false;
+                            collided = true;
+                            break;
+                        }
+
+                        if (expandedNode.RemainingWayPoints[0].ReachedGoal(state.Position))
+                        {
+                            reachedGoal = true;
+                        }
+                    }
 
                     var remainingWayPoints = reachedGoal
-                            ? expandedNode.RemainingWayPoints.Skip(1).ToList()
-                            : expandedNode.RemainingWayPoints;
+                        ? expandedNode.RemainingWayPoints.Skip(1).ToList()
+                        : expandedNode.RemainingWayPoints;
 
                     var nextDiscreteState = discretizer.Discretize(nextVehicleState, remainingWayPoints.Count);
                     if (closed.Contains(nextDiscreteState))
