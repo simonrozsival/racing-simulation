@@ -23,13 +23,13 @@ namespace Racing.Agents
             var circuitName = "generated-at-1550822778155";
             var circuitPath = Path.GetFullPath($"../../../../tracks/{circuitName}");
 
-            var perceptionPeriod = TimeSpan.FromSeconds(0.4);
-            var simulationStep = perceptionPeriod / 4;
+            var perceptionPeriod = TimeSpan.FromSeconds(0.1);
+            var simulationStep = perceptionPeriod / 2;
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
 
             var assumedVehicleModel =
-                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 5);
+                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
             var realVehicleModel = assumedVehicleModel;
 
             var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel, safetyMargin: realVehicleModel.Width * 0.5);
@@ -79,11 +79,13 @@ namespace Racing.Agents
             //    new Random(),
             //    perceptionPeriod,
             //    actions,
-            //    wayPoints.Last());
+            //    wayPoints.SkipLast(1).Last());
 
             var exploredStates = new List<IState>();
+            var lastFlush = DateTimeOffset.Now;
             void flush()
             {
+                lastFlush = DateTimeOffset.Now;
                 var data = JsonConvert.SerializeObject(exploredStates, new JsonSerializerSettings
                 {
                     Formatting = Formatting.Indented,
@@ -92,11 +94,12 @@ namespace Racing.Agents
                 File.WriteAllText("C:/Users/simon/Projects/racer-experiment/simulator/src/progress.json", data);
             }
 
-            int n = 0;
+            flush();
+
             planner.ExploredStates.Subscribe(state =>
             {
                 exploredStates.Add(state);
-                if (n++ % 2000 == 0)
+                if (DateTimeOffset.Now - lastFlush > TimeSpan.FromSeconds(10))
                 {
                     flush();
                 }
@@ -148,8 +151,7 @@ namespace Racing.Agents
 
             public InitialState(ICircuit circuit)
             {
-                var startDirection = 
-                    circuit.WayPoints.Skip(1).First().Position - circuit.WayPoints.Last().Position;
+                var startDirection = circuit.WayPoints.First().Position - circuit.Start;
 
                 Position = circuit.Start;
                 HeadingAngle = startDirection.Direction();
