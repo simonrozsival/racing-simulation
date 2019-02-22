@@ -14,7 +14,7 @@ namespace Racing.IO
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 FileName = "svgexport",
-                Arguments = $"{svgPath} {pngPath}",
+                Arguments = $"\"{svgPath}\" \"{pngPath}\"",
                 UseShellExecute = true
             };
 

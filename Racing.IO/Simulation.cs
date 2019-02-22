@@ -10,7 +10,7 @@ namespace Racing.IO
 {
     public static class Simulation
     {
-        public static void StoreResult(ITrack track, IVehicleModel vehicle, ISummary summary, string fileName)
+        public static void StoreResult(ITrack track, IVehicleModel vehicle, ISummary summary, string imageFilePath, string fileName)
         {
             var serializableSummary = new SerialzableSimulationResult
             {
@@ -18,7 +18,8 @@ namespace Racing.IO
                 Result = summary.Result,
                 Log = summary.Log.Select(SerializableEventFactory.From),
                 Track = SerializableTrack.From(track.TileSize, track.Circuit, track.OccupancyGrid),
-                VehicleModel = vehicle
+                VehicleModel = vehicle,
+                TrackImageFilePath = imageFilePath
             };
 
             var json = JsonConvert.SerializeObject(serializableSummary, CustomJsonSerializationSettings.Default);

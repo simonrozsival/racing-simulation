@@ -20,10 +20,13 @@ namespace Racing.Agents
     {
         public static void Main(string[] args)
         {
+            var circuitName = "generated-at-1550822778155";
+            var circuitPath = Path.GetFullPath($"../../../../tracks/{circuitName}");
+
             var perceptionPeriod = TimeSpan.FromSeconds(0.4);
             var simulationStep = perceptionPeriod / 4;
 
-            var track = Track.Load("../../../../tracks/simple-circuit/circuit_definition.json");
+            var track = Track.Load($"{circuitPath}/circuit_definition.json");
 
             var assumedVehicleModel =
                 new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
@@ -116,7 +119,7 @@ namespace Racing.Agents
             }
 
             var summary = new SimulationSummary(plan.TimeToGoal, Result.TimeOut, log.History);
-            Simulation.StoreResult(track, realVehicleModel, summary, "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
+            Simulation.StoreResult(track, realVehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
             Console.WriteLine($"Time to finish: {plan.TimeToGoal.TotalSeconds}s");
 
             flush();

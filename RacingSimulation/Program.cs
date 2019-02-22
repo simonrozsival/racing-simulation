@@ -25,11 +25,13 @@ namespace Racing.Simulation
 
         private static void run(Options options)
         {
+            var circuitPath = Path.GetFullPath(options.Input);
+
             var random = new Random(Seed: 123);
             var perceptionPeriod = TimeSpan.FromSeconds(0.4);
             var simulationStep = TimeSpan.FromSeconds(1 / 60.0);
 
-            var track = Track.Load(options.Input);
+            var track = Track.Load($"{circuitPath}/circuit_definition.json");
 
             var assumedVehicleModel =
                 VehicleModelFactory.ForwardDrivingOnlyWhichFitsOnto(track);
@@ -88,7 +90,7 @@ namespace Racing.Simulation
 
                 // var fileName = $"{options.Output.TrimEnd('/')}/run-{i}.json";
                 var fileName = "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json";
-                IO.Simulation.StoreResult(track, realVehicleModel, summary, fileName);
+                IO.Simulation.StoreResult(track, realVehicleModel, summary, $"{circuitPath}/visualization.svg", fileName);
                 Console.WriteLine($"Storing  result into: {fileName}");
                 Console.WriteLine($"=====================");
 

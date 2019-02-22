@@ -18,5 +18,7 @@ namespace Racing.IO.Model
         public SerializableTrack? Track { get; set; }
 
         public IVehicleModel? VehicleModel { get; set; }
+
+        public string TrackImageFilePath { get; set; }
     }
 }

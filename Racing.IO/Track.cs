@@ -17,6 +17,7 @@ namespace Racing.IO
 
             // png
             var pngFileName = $"{path}/rasterized_visualization.png";
+
             Images.Convert(svgFileName, pngFileName);
 
             // occupancy grid
