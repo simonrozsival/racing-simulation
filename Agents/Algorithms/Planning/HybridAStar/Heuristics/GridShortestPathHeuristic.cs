@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 {
-    internal sealed class GridShortestPathHeuristic : IHeuristic
+    internal sealed class GridShortestPathHeuristic // : IHeuristic
     {
         private readonly ShortestPathNode shortestPathStart;
         private readonly ITrack raceTrack;
@@ -36,15 +36,10 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             shortestPathStart = simplifyPath(path);
         }
 
-        public TimeSpan EstimateTimeToGoal(IState state)
+        public TimeSpan EstimateTimeToGoal(IState state, int targetWayPoint)
         {
             // find next directly visible node on the track
-            var node = furthestNodeDirectlyVisibleFrom(state.Position);
-
-            // solution: only go through the REMAINING nodes ?? :-/
-            // ... although it should work, I wasn't successful in implementing
-            // it so far
-
+            var node = furthestNodeDirectlyVisibleFrom(state.Position, targetWayPoint);
             if (node == null)
             {
                 // noooo! can this even happen?! I don't think so.
@@ -66,7 +61,13 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
             open.Add(
                 new GridSearchNode(
-                    new GridKey(start, wayPoints.Count), start, null, 0.0, 0.0, wayPoints));
+                    key: new GridKey(start, wayPoints.Count),
+                    start,
+                    previous: null,
+                    distanceFromStart: 0.0,
+                    estimatedCost: 0.0,
+                    wayPoints,
+                    targetWayPoint: 0));
 
             while (!open.IsEmpty)
             {
@@ -74,11 +75,14 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
                 if (nodeToExpand.RemainingWayPoints.Count == 0)
                 {
-                    var head = new ShortestPathNode(nodeToExpand.Position);
+                    var head = new ShortestPathNode(
+                        wayPoints.Last().Position, // use the goal position directly
+                        targetWayPoint: wayPoints.Count - 1); // the goal way point should be kept here
+
                     var backtrackingNode = nodeToExpand.Previous;
                     while (backtrackingNode != null)
                     {
-                        var node = new ShortestPathNode(backtrackingNode.Position);
+                        var node = new ShortestPathNode(backtrackingNode.Position, backtrackingNode.TargetWayPoint);
                         node.CostToNext = TimeSpan.FromSeconds((node.Position - head.Position).CalculateLength() / maxSpeed);
                         node.Next = head;
                         head = node;
@@ -100,9 +104,12 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                             nodeToExpand.Position.X + dx * stepSize,
                             nodeToExpand.Position.Y + dy * stepSize);
 
-                        var remainingWayPoints = nodeToExpand.RemainingWayPoints[0].ReachedGoal(nextPoint)
+                        var reachedWayPoint = nodeToExpand.RemainingWayPoints[0].ReachedGoal(nextPoint);
+                        var remainingWayPoints = reachedWayPoint
                             ? nodeToExpand.RemainingWayPoints.Skip(1).ToList().AsReadOnly()
                             : nodeToExpand.RemainingWayPoints;
+
+                        var targetWayPoint = wayPoints.Count - nodeToExpand.RemainingWayPoints.Count; // I want to keep the ID of the waypoint in the node which reaches the waypoint and only increase it for its childer
 
                         var key = new GridKey(nextPoint, remainingWayPoints.Count);
                         if (closed.Contains(key))
@@ -117,7 +124,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                         }
 
                         var distance = nodeToExpand.DistanceFromStart + (nextPoint - nodeToExpand.Position).CalculateLength();
-                        var node = new GridSearchNode(key, nextPoint, nodeToExpand, distance, distance, remainingWayPoints);
+                        var node = new GridSearchNode(key, nextPoint, nodeToExpand, distance, distance, remainingWayPoints, targetWayPoint);
                         if (open.Contains(node.Key))
                         {
                             if (node.DistanceFromStart < open.Get(node.Key).DistanceFromStart)
@@ -140,15 +147,16 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
         {
             var start = head;
             var node = head.Next;
-            var accumulatedWayPoints = new HashSet<IGoal>();
+            Console.WriteLine($"{start.Position},");
 
             while (node != null)
             {
-                if (node.IsGoal || node.Next != null && !areInLineOfSight(start.Position, node.Next.Position))
+                if (node.IsGoal || node.Next != null && (!areInLineOfSight(start.Position, node.Next.Position) || start.TargetWayPoint != node.TargetWayPoint))
                 {
                     start.Next = node;
                     start.CostToNext = TimeSpan.FromSeconds((start.Position - node.Position).CalculateLength() / maxSpeed);
                     start = node;
+                    Console.WriteLine($"{start.Position},");
                 }
 
                 node = node.Next;
@@ -157,13 +165,19 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return head;
         }
 
-        private ShortestPathNode? furthestNodeDirectlyVisibleFrom(Point position)
+        private ShortestPathNode? furthestNodeDirectlyVisibleFrom(Point position, int targetWayPoint)
         {
             ShortestPathNode? furthestNodeSoFar = null;
             var candidate = shortestPathStart;
 
             while (candidate.Next != null)
             {
+                if (candidate.TargetWayPoint < targetWayPoint)
+                {
+                    candidate = candidate.Next;
+                    continue;
+                }
+
                 if (areInLineOfSight(candidate.Position, position))
                 {
                     furthestNodeSoFar = candidate;
@@ -176,7 +190,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                 candidate = candidate.Next;
             }
 
-            return candidate;
+            return candidate; // the goal
         }
 
         private bool areInLineOfSight(Point a, Point b)
@@ -228,6 +242,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             public GridSearchNode? Previous { get; }
             public Point Position { get; }
             public IReadOnlyList<IGoal> RemainingWayPoints { get; }
+            public int TargetWayPoint { get; }
 
             public GridSearchNode(
                 GridKey key,
@@ -235,7 +250,8 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                 GridSearchNode? previous,
                 double distanceFromStart,
                 double estimatedCost,
-                IReadOnlyList<IGoal> remainingWayPoints)
+                IReadOnlyList<IGoal> remainingWayPoints,
+                int targetWayPoint)
             {
                 Key = key;
                 Position = position;
@@ -243,6 +259,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                 DistanceFromStart = distanceFromStart;
                 EstimatedTotalCost = estimatedCost;
                 RemainingWayPoints = remainingWayPoints;
+                TargetWayPoint = targetWayPoint;
             }
 
             public int CompareTo(GridSearchNode other)
@@ -278,6 +295,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             public Point Position { get; }
             public ShortestPathNode? Next { get; set; }
             public TimeSpan CostToNext { get; set; }
+            public int TargetWayPoint { get; }
             public TimeSpan CostToTheGoal
             {
                 get
@@ -294,10 +312,11 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
             private TimeSpan? costToGoalCache;
 
-            public ShortestPathNode(Point position)
+            public ShortestPathNode(Point position, int targetWayPoint)
             {
                 Position = position;
                 Next = null;
+                TargetWayPoint = targetWayPoint;
             }
         }
     }

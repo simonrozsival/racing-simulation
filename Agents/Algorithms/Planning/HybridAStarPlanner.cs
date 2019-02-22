@@ -124,11 +124,10 @@ namespace Racing.Agents.Algorithms.Planning
                         continue;
                     }
 
-                    // time can be different from one whole "step" because the simulation could have broken at some sub-step
-                    // if it reached a goal somewhere in the middle of the time step.
+                    int targetWayPoint = wayPoints.Count - remainingWayPoints.Count;
                     var costToCome = expandedNode.CostToCome + timeStep.TotalSeconds;
                     var costToGo = remainingWayPoints.Count > 0
-                        ? heuristic.EstimateTimeToGoal(nextVehicleState).TotalSeconds
+                        ? heuristic.EstimateTimeToGoal(nextVehicleState, targetWayPoint).TotalSeconds
                         : 0;
 
                     var discoveredNode = new SearchNode(
@@ -154,7 +153,7 @@ namespace Racing.Agents.Algorithms.Planning
             return null;
         }
 
-        private IHeuristic createShortestPathHeuristic(IState initialState)
+        private GridShortestPathHeuristic createShortestPathHeuristic(IState initialState)
         {
             var heuristic = new GridShortestPathHeuristic(
                 initialState.Position,
