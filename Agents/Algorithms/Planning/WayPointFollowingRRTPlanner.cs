@@ -34,6 +34,7 @@ namespace Racing.Agents.Algorithms.Planning
             IVehicleModel vehicleModel,
             IMotionModel motionModel,
             ITrack track,
+            ICollisionDetector collisionDetector,
             Random random,
             TimeSpan timeStep,
             IActionSet actions,
@@ -49,6 +50,7 @@ namespace Racing.Agents.Algorithms.Planning
             this.vehicleModel = vehicleModel;
             this.motionModel = motionModel;
             this.track = track;
+            this.collisionDetector = collisionDetector;
             this.random = random;
             this.timeStep = timeStep;
             this.wayPoints = wayPoints;
