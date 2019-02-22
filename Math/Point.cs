@@ -51,7 +51,7 @@ namespace Racing.Mathematics
             => X * other.X + Y * other.Y;
 
         public Angle Direction()
-            => Sin(Y);
+            => Atan(Y / X);
 
         public static Point operator +(Point a, Point b)
             => new Point(a.X + b.X, a.Y + b.Y);
