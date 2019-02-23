@@ -8,6 +8,7 @@ namespace Racing.Mathematics
         public double Radians { get; }
 
         public static Angle Zero { get; } = new Angle(0);
+        public static Angle FullCircle { get; } = new Angle(360);
 
         private Angle(double radians)
         {
@@ -40,6 +41,8 @@ namespace Racing.Mathematics
 
         public static Angle operator *(double scale, Angle a)
             => new Angle(scale * a.Radians);
+        public static Angle operator *(Length scale, Angle a)
+            => new Angle(scale.Meters * a.Radians);
 
         public static Angle operator *(Angle a, double scale)
             => new Angle(scale * a.Radians);
@@ -52,6 +55,18 @@ namespace Racing.Mathematics
 
         public static bool operator !=(Angle a, Angle b)
             => a.Radians != b.Radians;
+
+        public static bool operator <=(Angle a, Angle b)
+            => a.Radians <= b.Radians;
+
+        public static bool operator >=(Angle a, Angle b)
+            => a.Radians >= b.Radians;
+
+        public static bool operator <(Angle a, Angle b)
+            => a.Radians < b.Radians;
+
+        public static bool operator >(Angle a, Angle b)
+            => a.Radians > b.Radians;
 
         public static implicit operator Angle(double radians)
             => new Angle(radians);

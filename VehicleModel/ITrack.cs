@@ -4,11 +4,12 @@ namespace Racing.Model
 {
     public interface ITrack
     {
-        Distance Width { get; }
-        Distance Height { get; }
-        Distance TileSize { get; }
+        Length Width { get; }
+        Length Height { get; }
+        Length TileSize { get; }
         ICircuit Circuit { get; }
         bool[,] OccupancyGrid { get; }
-        bool IsOccupied(double x, double y);
+        bool IsOccupied(Length x, Length y);
+        bool IsOccupied(Vector position);
     }
 }

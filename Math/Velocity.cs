@@ -31,7 +31,7 @@ namespace Racing.Mathematics
         public static Velocity operator -(Velocity a, Velocity b)
             => new Velocity(a.MetersPerSecond - b.MetersPerSecond);
 
-        public static TimeSpan operator /(Distance a, Velocity b)
+        public static TimeSpan operator /(Length a, Velocity b)
             => TimeSpan.FromSeconds(a.Meters / b.MetersPerSecond);
 
         public static bool operator ==(Velocity a, Velocity b)

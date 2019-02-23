@@ -20,7 +20,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             IReadOnlyList<IGoal> wayPoints,
             ITrack raceTrack,
             BoundingSphereCollisionDetector collisionDetector,
-            Distance stepSize,
+            Length stepSize,
             Velocity maxSpeed)
         {
             this.raceTrack = raceTrack;
@@ -54,7 +54,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return minCostToNextNode + node.CostToTheGoal;
         }
 
-        private ShortestPathNode? findShortestPath(Vector start, IReadOnlyList<IGoal> wayPoints, Distance stepSize)
+        private ShortestPathNode? findShortestPath(Vector start, IReadOnlyList<IGoal> wayPoints, Length stepSize)
         {
             var open = new BinaryHeapOpenSet<GridKey, GridSearchNode>();
             var closed = new ClosedSet<GridKey>();
@@ -83,7 +83,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                     while (backtrackingNode != null)
                     {
                         var node = new ShortestPathNode(backtrackingNode.Position, backtrackingNode.TargetWayPoint);
-                        node.CostToNext = Distance.Between(node.Position, head.Position) / maxSpeed;
+                        node.CostToNext = Length.Between(node.Position, head.Position) / maxSpeed;
                         node.Next = head;
                         head = node;
                         backtrackingNode = backtrackingNode.Previous;
@@ -154,7 +154,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                 if (node.IsGoal || node.Next != null && (!areInLineOfSight(start.Position, node.Next.Position) || start.TargetWayPoint != node.TargetWayPoint))
                 {
                     start.Next = node;
-                    start.CostToNext = Distance.Between(start.Position, node.Position) / maxSpeed;
+                    start.CostToNext = Length.Between(start.Position, node.Position) / maxSpeed;
                     start = node;
                     Console.WriteLine($"{start.Position},");
                 }

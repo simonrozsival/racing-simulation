@@ -4,16 +4,16 @@ namespace Racing.Model
 {
     public sealed class RaceTrack : ITrack
     {
-        public Distance TileSize { get; }
+        public Length TileSize { get; }
         public ICircuit Circuit { get; }
         public bool[,] OccupancyGrid { get; }
-        public Distance Width { get; }
-        public Distance Height { get; }
+        public Length Width { get; }
+        public Length Height { get; }
 
         public RaceTrack(
             ICircuit circuit,
             bool[,] occupancyGrid,
-            Distance tileSize)
+            Length tileSize)
         {
             Circuit = circuit;
             OccupancyGrid = occupancyGrid;
@@ -22,15 +22,18 @@ namespace Racing.Model
             Height = OccupancyGrid.GetLength(1) * tileSize;
         }
 
-        public bool IsOccupied(double x, double y)
+        public bool IsOccupied(Vector position)
+            => IsOccupied(position.X, position.Y);
+
+        public bool IsOccupied(Length x, Length y)
         {
             if (x < 0 || y < 0 || x >= Width || y >= Height)
             {
                 return true;
             }
 
-            var tileX = (int)(x / TileSize.Meters);
-            var tileY = (int)(y / TileSize.Meters);
+            var tileX = (int)(x / TileSize).Meters;
+            var tileY = (int)(y / TileSize).Meters;
             return !OccupancyGrid[tileX, tileY];
         }
     }

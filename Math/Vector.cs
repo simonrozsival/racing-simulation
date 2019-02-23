@@ -1,14 +1,14 @@
 ﻿using System;
-using static System.Math;
+using static Racing.Mathematics.CustomMath;
 
 namespace Racing.Mathematics
 {
     public readonly struct Vector : IEquatable<Vector>
     {
-        public double X { get; }
-        public double Y { get; }
+        public Length X { get; }
+        public Length Y { get; }
 
-        public Vector(double x, double y)
+        public Vector(Length x, Length y)
         {
             X = x;
             Y = y;
@@ -26,28 +26,28 @@ namespace Racing.Mathematics
             return (1 / length) * this;
         }
 
-        public double CalculateLength()
-            => Sqrt(X * X + Y * Y);
+        public Length CalculateLength()
+            => Sqrt(X.Squared() + Y.Squared());
 
         public Vector Rotate(Angle angle)
             => new Vector(
-                x: X * Cos(angle.Radians) - Y * Sin(angle.Radians),
-                y: X * Sin(angle.Radians) + Y * Cos(angle.Radians));
+                x: X * Cos(angle) - Y * Sin(angle),
+                y: X * Sin(angle) + Y * Cos(angle));
 
         public Vector Rotate(Vector center, Angle angle)
             => (this - center).Rotate(angle) + center;
 
-        public double DistanceSq(Vector other)
+        public Length DistanceSq(Vector other)
         {
             var dx = X - other.X;
             var dy = Y - other.Y;
             return dx * dx + dy * dy;
         }
 
-        public double Cross(Vector other)
+        public Length Cross(Vector other)
             => X * other.Y - Y * other.X;
 
-        public double Dot(Vector other)
+        public Length Dot(Vector other)
             => X * other.X + Y * other.Y;
 
         public Angle Direction()
@@ -61,6 +61,9 @@ namespace Racing.Mathematics
 
         public static Vector operator *(double scale, Vector a)
             => new Vector(scale * a.X, scale * a.Y);
+
+        public static Vector operator *(Length scale, Vector a)
+            => new Vector(scale.Meters * a.X, scale.Meters * a.Y);
 
         public override string ToString()
             => FormattableString.Invariant($"Point[{X}, {Y}]");
@@ -79,5 +82,10 @@ namespace Racing.Mathematics
 
         public override int GetHashCode()
             => HashCode.Combine(X, Y);
+
+        public static Vector From(Length d, Angle a)
+            => new Vector(
+                x: d.Meters * Cos(a.Radians),
+                y: d.Meters * Sin(a.Radians));
     }
 }
