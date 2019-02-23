@@ -61,7 +61,7 @@ namespace Racing.IO.Model
         private sealed class DeserialziedCircuit : ICircuit
         {
             public double Radius { get; set; }
-            public Point Start { get; set; }
+            public Vector Start { get; set; }
             public IList<IGoal> WayPoints { get; set; } = new List<IGoal>();
         }
     }

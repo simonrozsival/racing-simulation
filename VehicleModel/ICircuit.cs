@@ -6,7 +6,7 @@ namespace Racing.Model
     public interface ICircuit
     {
         double Radius { get; }
-        Point Start { get; }
+        Vector Start { get; }
         IList<IGoal> WayPoints { get; }
     }
 }

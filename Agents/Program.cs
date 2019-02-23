@@ -23,13 +23,13 @@ namespace Racing.Agents
             var circuitName = "generated-at-1550822778155";
             var circuitPath = Path.GetFullPath($"../../../../tracks/{circuitName}");
 
-            var perceptionPeriod = TimeSpan.FromSeconds(0.1);
-            var simulationStep = perceptionPeriod / 2;
+            var perceptionPeriod = TimeSpan.FromSeconds(0.4);
+            var simulationStep = perceptionPeriod / 8;
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
 
             var assumedVehicleModel =
-                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
+                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 5);
             var realVehicleModel = assumedVehicleModel;
 
             var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel, safetyMargin: realVehicleModel.Width * 0.5);
@@ -144,7 +144,7 @@ namespace Racing.Agents
 
         private sealed class InitialState : IState
         {
-            public Point Position { get; }
+            public Vector Position { get; }
             public Angle HeadingAngle { get; }
             public Angle SteeringAngle => 0;
             public double Speed => 0;

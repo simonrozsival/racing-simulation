@@ -78,14 +78,14 @@ namespace Racing.CircuitGenerator.Output
             return $"{background}\n{dashedLine}";
         }
 
-        private string printStartLine(Point start, Point end)
+        private string printStartLine(Vector start, Vector end)
             => pathSvg(start, end, whiteColor, width: 6);
 
-        private string printWaypoint(Point position, int n, double radius)
+        private string printWaypoint(Vector position, int n, double radius)
             => circleSvg(position, radius, color: blueColor)
                 + textSvg(position, n.ToString(), color: whiteColor, size: radius);
 
-        private static string pathSvg(Point start, Point end, string color, double width, int? dash = null)
+        private static string pathSvg(Vector start, Vector end, string color, double width, int? dash = null)
             => paghSvg($"M{start.X},{start.Y} L{end.X},{end.Y}", color, width, dash);
 
         private static string pathSvg(BezierCurve curve, string color, double width, int? dash = null)
@@ -97,10 +97,10 @@ namespace Racing.CircuitGenerator.Output
             return $"<path fill=\"none\" stroke=\"{color}\" d=\"{operations}\" stroke-width=\"{width}\" {dashPattern} />";
         }
 
-        private static string circleSvg(Point position, double radius, string color)
+        private static string circleSvg(Vector position, double radius, string color)
             => $"<circle r=\"{radius}\" cx=\"{position.X}\" cy=\"{position.Y}\" fill=\"{color}\" />";
 
-        private static string textSvg(Point position, string text, string color, double size)
+        private static string textSvg(Vector position, string text, string color, double size)
             => $"<text x=\"{position.X}\" y=\"{position.Y}\" text-anchor=\"middle\" fill=\"{color}\" font-size=\"{size}\" font-family=\"Arial\" dy=\".35em\">{text}</text>";
 
         private static string printPathOperations(BezierCurve curve)

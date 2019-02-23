@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace Racing.Mathematics
 {
-    public struct Rectangle : IEnumerable<Point>
+    public struct Rectangle : IEnumerable<Vector>
     {
-        public Point A { get; }
-        public Point B { get; }
-        public Point C { get; }
-        public Point D { get; }
+        public Vector A { get; }
+        public Vector B { get; }
+        public Vector C { get; }
+        public Vector D { get; }
 
-        public Rectangle(Point a, Point b, Point c, Point d)
+        public Rectangle(Vector a, Vector b, Vector c, Vector d)
         {
             A = a;
             B = b;
@@ -18,14 +18,14 @@ namespace Racing.Mathematics
             D = d;
         }
 
-        public Rectangle Rotate(Point center, Angle angle)
+        public Rectangle Rotate(Vector center, Angle angle)
             => new Rectangle(
                 A.Rotate(center, angle),
                 B.Rotate(center, angle),
                 C.Rotate(center, angle),
                 D.Rotate(center, angle));
 
-        public IEnumerator<Point> GetEnumerator()
+        public IEnumerator<Vector> GetEnumerator()
         {
             yield return A;
             yield return B;

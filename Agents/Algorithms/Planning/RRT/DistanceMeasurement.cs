@@ -20,7 +20,7 @@ namespace Racing.Agents.Algorithms.Planning.RRT
             return euklideanDistance * euklideanDistance + angleDifference * angleDifference;
         }
 
-        public double DistanceBetween(Point a, Point b)
+        public double DistanceBetween(Vector a, Vector b)
             => a.DistanceSq(b) / maximumDistance;
 
         public double DistanceBetween(Angle a, Angle b)

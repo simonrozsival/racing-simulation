@@ -111,7 +111,7 @@ namespace Racing.Simulation
 
         private sealed class InitialState : IState
         {
-            public Point Position { get; }
+            public Vector Position { get; }
             public Angle HeadingAngle { get; }
             public Angle SteeringAngle => 0;
             public double Speed => 0;

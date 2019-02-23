@@ -3,24 +3,24 @@ using static System.Math;
 
 namespace Racing.Mathematics
 {
-    public readonly struct Point : IEquatable<Point>
+    public readonly struct Vector : IEquatable<Vector>
     {
         public double X { get; }
         public double Y { get; }
 
-        public Point(double x, double y)
+        public Vector(double x, double y)
         {
             X = x;
             Y = y;
         }
 
-        public Point CalculateNormal()
+        public Vector CalculateNormal()
         {
             var normalized = Normalize();
-            return new Point(-normalized.Y, normalized.X);
+            return new Vector(-normalized.Y, normalized.X);
         }
 
-        public Point Normalize()
+        public Vector Normalize()
         {
             var length = CalculateLength();
             return (1 / length) * this;
@@ -29,52 +29,52 @@ namespace Racing.Mathematics
         public double CalculateLength()
             => Sqrt(X * X + Y * Y);
 
-        public Point Rotate(Angle angle)
-            => new Point(
+        public Vector Rotate(Angle angle)
+            => new Vector(
                 x: X * Cos(angle.Radians) - Y * Sin(angle.Radians),
                 y: X * Sin(angle.Radians) + Y * Cos(angle.Radians));
 
-        public Point Rotate(Point center, Angle angle)
+        public Vector Rotate(Vector center, Angle angle)
             => (this - center).Rotate(angle) + center;
 
-        public double DistanceSq(Point other)
+        public double DistanceSq(Vector other)
         {
             var dx = X - other.X;
             var dy = Y - other.Y;
             return dx * dx + dy * dy;
         }
 
-        public double Cross(Point other)
+        public double Cross(Vector other)
             => X * other.Y - Y * other.X;
 
-        public double Dot(Point other)
+        public double Dot(Vector other)
             => X * other.X + Y * other.Y;
 
         public Angle Direction()
             => Atan(Y / X);
 
-        public static Point operator +(Point a, Point b)
-            => new Point(a.X + b.X, a.Y + b.Y);
+        public static Vector operator +(Vector a, Vector b)
+            => new Vector(a.X + b.X, a.Y + b.Y);
 
-        public static Point operator -(Point a, Point b)
-            => new Point(a.X - b.X, a.Y - b.Y);
+        public static Vector operator -(Vector a, Vector b)
+            => new Vector(a.X - b.X, a.Y - b.Y);
 
-        public static Point operator *(double scale, Point a)
-            => new Point(scale * a.X, scale * a.Y);
+        public static Vector operator *(double scale, Vector a)
+            => new Vector(scale * a.X, scale * a.Y);
 
         public override string ToString()
             => FormattableString.Invariant($"Point[{X}, {Y}]");
 
-        public static bool operator ==(Point a, Point b)
+        public static bool operator ==(Vector a, Vector b)
             => a.Equals(b);
 
-        public static bool operator !=(Point a, Point b)
+        public static bool operator !=(Vector a, Vector b)
             => !(a == b);
 
         public override bool Equals(object obj)
-            => (obj is Point other) && Equals(other);
+            => (obj is Vector other) && Equals(other);
 
-        public bool Equals(Point other)
+        public bool Equals(Vector other)
             => (X, Y) == (other.X, other.Y);
 
         public override int GetHashCode()

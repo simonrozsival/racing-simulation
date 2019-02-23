@@ -9,10 +9,10 @@ namespace Racing.CircuitGenerator
     internal sealed class Circuit : ICircuit
     {
         public double Radius { get; }
-        public Point Start => WayPoints.First().Position;
+        public Vector Start => WayPoints.First().Position;
         public IList<IGoal> WayPoints { get; }
 
-        public Circuit(IList<Point> waypoints, double trackWidth)
+        public Circuit(IList<Vector> waypoints, double trackWidth)
         {
             Radius = trackWidth / 2;
             WayPoints = waypoints.Select(point => new RadialGoal(point, Radius)).ToList<IGoal>();
@@ -21,13 +21,13 @@ namespace Racing.CircuitGenerator
         public BezierCurve CenterLine()
             => new CatmullRomSpline(WayPoints.Select(goal => goal.Position)).ToBezierCurve();
 
-        public Point[] StartLine()
+        public Vector[] StartLine()
             => perpendicularLineTo(0);
 
-        public IEnumerable<Point[]> WayPointLines()
+        public IEnumerable<Vector[]> WayPointLines()
             => Enumerable.Range(1, WayPoints.Count - 1).Select(perpendicularLineTo);
 
-        private Point[] perpendicularLineTo(int i)
+        private Vector[] perpendicularLineTo(int i)
         {
             var point = WayPoints[i].Position;
             var next = WayPoints[(i + 1) % WayPoints.Count].Position;

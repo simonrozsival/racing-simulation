@@ -47,9 +47,9 @@ namespace Racing.Agents.Algorithms.Planning
             this.greedy = greedy;
 
             discretizer = new StateDiscretizer(
-                positionXCellSize: vehicleModel.Width / 20,
-                positionYCellSize: vehicleModel.Width / 20,
-                headingAngleCellSize: 2 * Math.PI / 24);
+                positionXCellSize: vehicleModel.Width / 2,
+                positionYCellSize: vehicleModel.Width / 2,
+                headingAngleCellSize: 2 * Math.PI / 12);
 
             ExploredStates = exploredStates;
         }

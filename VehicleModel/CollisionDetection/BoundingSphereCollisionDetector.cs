@@ -25,7 +25,7 @@ namespace Racing.Model.CollisionDetection
         public bool IsCollision(IState state)
             => IsCollision(state.Position);
 
-        public bool IsCollision(Point position)
+        public bool IsCollision(Vector position)
         {
             for (var dx = -1; dx <= 1; dx++)
             {

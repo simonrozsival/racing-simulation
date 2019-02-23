@@ -31,7 +31,7 @@ namespace Racing.Agents.Algorithms.Planning.RRT
             return selectRandomSample(freePosition);
         }
 
-        public IState selectRandomSample(Point position)
+        public IState selectRandomSample(Vector position)
         {
             return new RandomState(
                 position,
@@ -40,12 +40,12 @@ namespace Racing.Agents.Algorithms.Planning.RRT
                 speed: random.NextDoubleBetween(vehicleModel.MinSpeed, vehicleModel.MaxSpeed));
         }
 
-        private Point randomFreePosition()
+        private Vector randomFreePosition()
         {
-            Point position;
+            Vector position;
             do
             {
-                position = new Point(random.NextDoubleBetween(0, track.Width), random.NextDoubleBetween(0, track.Height));
+                position = new Vector(random.NextDoubleBetween(0, track.Width), random.NextDoubleBetween(0, track.Height));
             } while (track.IsOccupied(position.X, position.Y));
 
             return position;

@@ -7,7 +7,7 @@ namespace Racing.IO.Model
     internal sealed class SerializableCircuit
     {
         public double Radius { get; set; }
-        public Point Start { get; set; }
-        public IList<Point> WayPoints { get; set; } = new List<Point>();
+        public Vector Start { get; set; }
+        public IList<Vector> WayPoints { get; set; } = new List<Vector>();
     }
 }

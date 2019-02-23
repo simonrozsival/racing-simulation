@@ -6,16 +6,16 @@ namespace Racing.Model
     {
         private readonly double minimumDistanceForReachingSquared;
 
-        public Point Position { get; }
+        public Vector Position { get; }
 
-        public RadialGoal(Point position, double minimumDistanceForReaching)
+        public RadialGoal(Vector position, double minimumDistanceForReaching)
         {
             Position = position;
 
             minimumDistanceForReachingSquared = minimumDistanceForReaching * minimumDistanceForReaching;
         }
 
-        public bool ReachedGoal(Point position)
+        public bool ReachedGoal(Vector position)
             => Position.DistanceSq(position) <= minimumDistanceForReachingSquared;
     }
 }

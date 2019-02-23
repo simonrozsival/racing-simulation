@@ -16,7 +16,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
         private readonly BoundingSphereCollisionDetector collisionDetector;
 
         public GridShortestPathHeuristic(
-            Point startPosition,
+            Vector startPosition,
             IReadOnlyList<IGoal> wayPoints,
             ITrack raceTrack,
             BoundingSphereCollisionDetector collisionDetector,
@@ -54,7 +54,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return minCostToNextNode + node.CostToTheGoal;
         }
 
-        private ShortestPathNode? findShortestPath(Point start, IReadOnlyList<IGoal> wayPoints, double stepSize)
+        private ShortestPathNode? findShortestPath(Vector start, IReadOnlyList<IGoal> wayPoints, double stepSize)
         {
             var open = new BinaryHeapOpenSet<GridKey, GridSearchNode>();
             var closed = new ClosedSet<GridKey>();
@@ -100,7 +100,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                     {
                         if (dx == 0 && dy == 0) continue;
 
-                        var nextPoint = new Point(
+                        var nextPoint = new Vector(
                             nodeToExpand.Position.X + dx * stepSize,
                             nodeToExpand.Position.Y + dy * stepSize);
 
@@ -165,7 +165,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return head;
         }
 
-        private ShortestPathNode? furthestNodeDirectlyVisibleFrom(Point position, int targetWayPoint)
+        private ShortestPathNode? furthestNodeDirectlyVisibleFrom(Vector position, int targetWayPoint)
         {
             ShortestPathNode? furthestNodeSoFar = null;
             var candidate = shortestPathStart;
@@ -193,7 +193,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             return candidate; // the goal
         }
 
-        private bool areInLineOfSight(Point a, Point b)
+        private bool areInLineOfSight(Vector a, Vector b)
         {
             // assumption: a and b are both in free spots
 
@@ -240,13 +240,13 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             public double DistanceFromStart { get; }
             public double EstimatedTotalCost { get; }
             public GridSearchNode? Previous { get; }
-            public Point Position { get; }
+            public Vector Position { get; }
             public IReadOnlyList<IGoal> RemainingWayPoints { get; }
             public int TargetWayPoint { get; }
 
             public GridSearchNode(
                 GridKey key,
-                Point position,
+                Vector position,
                 GridSearchNode? previous,
                 double distanceFromStart,
                 double estimatedCost,
@@ -271,13 +271,13 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
         private readonly struct GridKey : IEquatable<GridKey>
         {
-            public GridKey(Point position, int remainingWayPoints)
+            public GridKey(Vector position, int remainingWayPoints)
             {
                 Position = position;
                 RemainingWayPoints = remainingWayPoints;
             }
 
-            public Point Position { get; }
+            public Vector Position { get; }
             public int RemainingWayPoints { get; }
 
             public override bool Equals(object obj)
@@ -292,7 +292,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
         private sealed class ShortestPathNode
         {
-            public Point Position { get; }
+            public Vector Position { get; }
             public ShortestPathNode? Next { get; set; }
             public TimeSpan CostToNext { get; set; }
             public int TargetWayPoint { get; }
@@ -312,7 +312,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
             private TimeSpan? costToGoalCache;
 
-            public ShortestPathNode(Point position, int targetWayPoint)
+            public ShortestPathNode(Vector position, int targetWayPoint)
             {
                 Position = position;
                 Next = null;

@@ -8,7 +8,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
     internal class EuclideanDistanceHeuristic : IHeuristic
     {
         private readonly double maxVelocity;
-        private readonly Point goal;
+        private readonly Vector goal;
 
         public EuclideanDistanceHeuristic(double maxVelocity, IGoal goal)
         {

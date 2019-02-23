@@ -4,7 +4,7 @@ namespace Racing.Model
 {
     public interface IState
     {
-        Point Position { get; }
+        Vector Position { get; }
         Angle HeadingAngle { get; }
         Angle SteeringAngle { get; }
         double Speed { get; }

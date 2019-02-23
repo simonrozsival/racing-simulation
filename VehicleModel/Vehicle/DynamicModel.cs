@@ -52,7 +52,7 @@ namespace Racing.Model.Vehicle
             var da = seconds * steeringAcceleration.Radians;
             var steeringAngle = Clamp(state.SteeringAngle.Radians + da, vehicle.MinSteeringAngle.Radians, vehicle.MaxSteeringAngle.Radians);
 
-            var velocity = new Point(
+            var velocity = new Vector(
                 x: speed * Cos(steeringAngle) * Cos(state.HeadingAngle.Radians),
                 y: speed * Cos(steeringAngle) * Sin(state.HeadingAngle.Radians));
 

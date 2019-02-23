@@ -4,7 +4,7 @@ namespace Racing.Model
 {
     public interface IGoal
     {
-        Point Position { get; }
-        bool ReachedGoal(Point position);
+        Vector Position { get; }
+        bool ReachedGoal(Vector position);
     }
 }

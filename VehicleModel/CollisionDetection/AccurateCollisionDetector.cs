@@ -13,9 +13,9 @@ namespace Racing.Model.CollisionDetection
         private readonly double uy;
 
         private static readonly double discretizationStep = 0.05;
-        private readonly Dictionary<int, Point> frontLeft = new Dictionary<int, Point>();
-        private readonly Dictionary<int, Point> front = new Dictionary<int, Point>();
-        private readonly Dictionary<int, Point> frontRight = new Dictionary<int, Point>();
+        private readonly Dictionary<int, Vector> frontLeft = new Dictionary<int, Vector>();
+        private readonly Dictionary<int, Vector> front = new Dictionary<int, Vector>();
+        private readonly Dictionary<int, Vector> frontRight = new Dictionary<int, Vector>();
 
         public AccurateCollisionDetector(ITrack track, IVehicleModel vehicleModel, double safetyMargin = 0)
         {
@@ -29,9 +29,9 @@ namespace Racing.Model.CollisionDetection
             for (var i = 0; i < 2 * Math.PI  / discretizationStep; i++)
             {
                 var a = i * discretizationStep;
-                var pointA = new Point(ux, -uy).Rotate(a);
-                var pointB = new Point(ux, 0).Rotate(a);
-                var pointC = new Point(ux, uy).Rotate(a);
+                var pointA = new Vector(ux, -uy).Rotate(a);
+                var pointB = new Vector(ux, 0).Rotate(a);
+                var pointC = new Vector(ux, uy).Rotate(a);
                 frontLeft.Add(i, pointA);
                 front.Add(i, pointB);
                 frontRight.Add(i, pointC);
@@ -57,7 +57,7 @@ namespace Racing.Model.CollisionDetection
             return isCollision(pointB);
         }
 
-        private bool isCollision(Point point)
+        private bool isCollision(Vector point)
         {
             if (boundsDetector.IsOutOfBounds(point.X, point.Y))
             {

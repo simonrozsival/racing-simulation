@@ -13,16 +13,16 @@ namespace Racing.Mathematics.Splines
 
         public sealed class Segment
         {
-            public Point Start { get; }
-            public Point End { get; }
-            public Point StartControlPoint { get; }
-            public Point EndControlPoint { get; }
+            public Vector Start { get; }
+            public Vector End { get; }
+            public Vector StartControlPoint { get; }
+            public Vector EndControlPoint { get; }
 
             public Segment(
-                Point start,
-                Point startControlPoint,
-                Point end,
-                Point endControlPoint)
+                Vector start,
+                Vector startControlPoint,
+                Vector end,
+                Vector endControlPoint)
             {
                 Start = start;
                 StartControlPoint = startControlPoint;
