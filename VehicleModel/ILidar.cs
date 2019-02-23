@@ -5,7 +5,7 @@ namespace Racing.Model
     public interface ILidar
     {
         Angle AngularResolution { get; }
-        double MaximumDistance { get; }
-        double[] Readings { get; }
+        Distance MaximumDistance { get; }
+        Distance[] Readings { get; }
     }
 }

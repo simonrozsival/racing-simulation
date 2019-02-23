@@ -4,7 +4,7 @@ namespace Racing.Model
 {
     public class RadialGoal : IGoal
     {
-        private readonly double minimumDistanceForReachingSquared;
+        private readonly Distance minimumDistanceForReachingSquared;
 
         public Vector Position { get; }
 

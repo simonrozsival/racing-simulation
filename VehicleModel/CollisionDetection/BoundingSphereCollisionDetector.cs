@@ -8,14 +8,11 @@ namespace Racing.Model.CollisionDetection
     {
         private readonly ITrack track;
         private readonly double diagonal;
-        private readonly BoundsDetector boundsDetector;
 
 
         public BoundingSphereCollisionDetector(ITrack track, IVehicleModel vehicleModel)
         {
             this.track = track;
-
-            boundsDetector = new BoundsDetector(track);
 
             var u = vehicleModel.Length / 2;
             var v = vehicleModel.Width / 2;
@@ -34,7 +31,7 @@ namespace Racing.Model.CollisionDetection
                     var x = position.X + dx * diagonal;
                     var y = position.Y + dy * diagonal;
 
-                    if (collides(x, y))
+                    if (track.IsOccupied(x, y))
                     {
                         return true;
                     }
@@ -42,16 +39,6 @@ namespace Racing.Model.CollisionDetection
             }
 
             return false;
-        }
-
-        private bool collides(double x, double y)
-        {
-            if (boundsDetector.IsOutOfBounds(x, y))
-            {
-                return true;
-            }
-
-            return track.IsOccupied(x, y);
         }
     }
 

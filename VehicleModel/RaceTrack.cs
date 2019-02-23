@@ -1,17 +1,19 @@
-﻿namespace Racing.Model
+﻿using Racing.Mathematics;
+
+namespace Racing.Model
 {
     public sealed class RaceTrack : ITrack
     {
-        public double TileSize { get; }
+        public Distance TileSize { get; }
         public ICircuit Circuit { get; }
         public bool[,] OccupancyGrid { get; }
-        public double Width { get; }
-        public double Height { get; }
+        public Distance Width { get; }
+        public Distance Height { get; }
 
         public RaceTrack(
             ICircuit circuit,
             bool[,] occupancyGrid,
-            double tileSize)
+            Distance tileSize)
         {
             Circuit = circuit;
             OccupancyGrid = occupancyGrid;
@@ -22,8 +24,13 @@
 
         public bool IsOccupied(double x, double y)
         {
-            var tileX = (int)(x / TileSize);
-            var tileY = (int)(y / TileSize);
+            if (x < 0 || y < 0 || x >= Width || y >= Height)
+            {
+                return true;
+            }
+
+            var tileX = (int)(x / TileSize.Meters);
+            var tileY = (int)(y / TileSize.Meters);
             return !OccupancyGrid[tileX, tileY];
         }
     }

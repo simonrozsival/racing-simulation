@@ -8,7 +8,6 @@ namespace Racing.Model.CollisionDetection
     public sealed class AccurateCollisionDetector : ICollisionDetector
     {
         private readonly ITrack track;
-        private readonly BoundsDetector boundsDetector;
         private readonly double ux;
         private readonly double uy;
 
@@ -23,8 +22,6 @@ namespace Racing.Model.CollisionDetection
 
             ux = vehicleModel.Length / 2 + safetyMargin;
             uy = vehicleModel.Width / 2 + safetyMargin;
-
-            boundsDetector = new BoundsDetector(track);
 
             for (var i = 0; i < 2 * Math.PI  / discretizationStep; i++)
             {
@@ -42,28 +39,23 @@ namespace Racing.Model.CollisionDetection
         {
             var i = discretize(state.HeadingAngle.Radians);
             var pointA = state.Position + frontLeft[i];
-            if (isCollision(pointA))
+            if (isOccupied(pointA))
             {
                 return true;
             }
 
             var pointB = state.Position + front[i];
-            if (isCollision(pointA))
+            if (isOccupied(pointA))
             {
                 return true;
             }
 
             var pointC = state.Position + frontRight[i];
-            return isCollision(pointB);
+            return isOccupied(pointB);
         }
 
-        private bool isCollision(Vector point)
+        private bool isOccupied(Vector point)
         {
-            if (boundsDetector.IsOutOfBounds(point.X, point.Y))
-            {
-                return true;
-            }
-
             return track.IsOccupied(point.X, point.Y);
         }
 

@@ -19,6 +19,6 @@ namespace Racing.IO.Model
 
         public IVehicleModel? VehicleModel { get; set; }
 
-        public string TrackImageFilePath { get; set; }
+        public string TrackImageFilePath { get; set; } = string.Empty;
     }
 }

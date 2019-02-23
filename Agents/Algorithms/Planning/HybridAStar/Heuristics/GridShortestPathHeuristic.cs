@@ -12,7 +12,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
     {
         private readonly ShortestPathNode shortestPathStart;
         private readonly ITrack raceTrack;
-        private readonly double maxSpeed;
+        private readonly Velocity maxSpeed;
         private readonly BoundingSphereCollisionDetector collisionDetector;
 
         public GridShortestPathHeuristic(
@@ -20,8 +20,8 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             IReadOnlyList<IGoal> wayPoints,
             ITrack raceTrack,
             BoundingSphereCollisionDetector collisionDetector,
-            double stepSize,
-            double maxSpeed)
+            Distance stepSize,
+            Velocity maxSpeed)
         {
             this.raceTrack = raceTrack;
             this.maxSpeed = maxSpeed;
@@ -48,13 +48,13 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
 
             // calculate cost to the node
             var distance = (node.Position - state.Position).CalculateLength();
-            var minCostToNextNode = TimeSpan.FromSeconds(distance / maxSpeed);
+            var minCostToNextNode = distance / maxSpeed;
 
             // add that to the cost to the goal
             return minCostToNextNode + node.CostToTheGoal;
         }
 
-        private ShortestPathNode? findShortestPath(Vector start, IReadOnlyList<IGoal> wayPoints, double stepSize)
+        private ShortestPathNode? findShortestPath(Vector start, IReadOnlyList<IGoal> wayPoints, Distance stepSize)
         {
             var open = new BinaryHeapOpenSet<GridKey, GridSearchNode>();
             var closed = new ClosedSet<GridKey>();
@@ -83,7 +83,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                     while (backtrackingNode != null)
                     {
                         var node = new ShortestPathNode(backtrackingNode.Position, backtrackingNode.TargetWayPoint);
-                        node.CostToNext = TimeSpan.FromSeconds((node.Position - head.Position).CalculateLength() / maxSpeed);
+                        node.CostToNext = Distance.Between(node.Position, head.Position) / maxSpeed;
                         node.Next = head;
                         head = node;
                         backtrackingNode = backtrackingNode.Previous;
@@ -101,8 +101,8 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                         if (dx == 0 && dy == 0) continue;
 
                         var nextPoint = new Vector(
-                            nodeToExpand.Position.X + dx * stepSize,
-                            nodeToExpand.Position.Y + dy * stepSize);
+                            nodeToExpand.Position.X + dx * stepSize.Meters,
+                            nodeToExpand.Position.Y + dy * stepSize.Meters);
 
                         var reachedWayPoint = nodeToExpand.RemainingWayPoints[0].ReachedGoal(nextPoint);
                         var remainingWayPoints = reachedWayPoint
@@ -154,7 +154,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                 if (node.IsGoal || node.Next != null && (!areInLineOfSight(start.Position, node.Next.Position) || start.TargetWayPoint != node.TargetWayPoint))
                 {
                     start.Next = node;
-                    start.CostToNext = TimeSpan.FromSeconds((start.Position - node.Position).CalculateLength() / maxSpeed);
+                    start.CostToNext = Distance.Between(start.Position, node.Position) / maxSpeed;
                     start = node;
                     Console.WriteLine($"{start.Position},");
                 }
@@ -203,11 +203,11 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             var dy = b.Y - a.Y;
 
             // check all the left-right crossings
-            var firstCrossing = ((int)(a.X / raceTrack.TileSize) + 1) * raceTrack.TileSize;
-            for (var x = firstCrossing; x <= b.X; x += raceTrack.TileSize)
+            var firstCrossing = ((int)(a.X / raceTrack.TileSize.Meters) + 1) * raceTrack.TileSize.Meters;
+            for (var x = firstCrossing; x <= b.X; x += raceTrack.TileSize.Meters)
             {
-                var y = (int)(((x - a.X) / dx * dy + a.Y) / raceTrack.TileSize);
-                var right = (int)(x / raceTrack.TileSize);
+                var y = (int)(((x - a.X) / dx * dy + a.Y) / raceTrack.TileSize.Meters);
+                var right = (int)(x / raceTrack.TileSize.Meters);
                 if (!raceTrack.OccupancyGrid[right - 1, y] || !raceTrack.OccupancyGrid[right, y])
                 {
                     return false;
@@ -220,11 +220,11 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
             dy = b.Y - a.Y;
 
             // check all the left-right crossings
-            firstCrossing = ((int)(a.Y / raceTrack.TileSize) + 1) * raceTrack.TileSize;
-            for (var y = firstCrossing; y <= b.Y; y += raceTrack.TileSize)
+            firstCrossing = ((int)(a.Y / raceTrack.TileSize.Meters) + 1) * raceTrack.TileSize.Meters;
+            for (var y = firstCrossing; y <= b.Y; y += raceTrack.TileSize.Meters)
             {
-                var x = (int)(((y - a.Y) / dy * dx + a.X) / raceTrack.TileSize);
-                var top = (int)(y / raceTrack.TileSize);
+                var x = (int)(((y - a.Y) / dy * dx + a.X) / raceTrack.TileSize.Meters);
+                var top = (int)(y / raceTrack.TileSize.Meters);
                 if (!raceTrack.OccupancyGrid[x, top - 1] || !raceTrack.OccupancyGrid[x, top])
                 {
                     return false;
