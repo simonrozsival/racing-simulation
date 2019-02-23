@@ -1,12 +1,13 @@
-﻿using Racing.Model;
+﻿using Racing.Mathematics;
+using Racing.Model;
 
 namespace Racing.Agents.Algorithms.Planning.HybridAStar
 {
     internal sealed partial class StateDiscretizer
     {
-        private readonly double positionXCellSize;
-        private readonly double positionYCellSize;
-        private readonly double headingAngleCellSize;
+        private readonly Length positionXCellSize;
+        private readonly Length positionYCellSize;
+        private readonly Angle headingAngleCellSize;
 
         public StateDiscretizer(
             double positionXCellSize,
@@ -22,7 +23,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar
             => new DiscreteState(
                 x: (int)(state.Position.X / positionXCellSize),
                 y: (int)(state.Position.Y / positionYCellSize),
-                headingAngle: (int)(state.HeadingAngle.Radians / headingAngleCellSize),
+                headingAngle: (int)(state.HeadingAngle / headingAngleCellSize),
                 remainingWayPointsCount);
     }
 }

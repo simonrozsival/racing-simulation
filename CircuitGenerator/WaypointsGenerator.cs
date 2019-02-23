@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Racing.Mathematics.CustomMath;
 
 namespace Racing.CircuitGenerator
 {
@@ -148,7 +149,7 @@ namespace Racing.CircuitGenerator
 
         private static void trySelectPointOnTheLongestStraightAsStart(List<Vector> dataSet)
         {
-            var maxLength = -1.0;
+            var maxLength = Length.FromMeters(-1.0);
             var maxIndex = -1;
 
             for (int i = 0; i < dataSet.Count; i++)
@@ -162,7 +163,7 @@ namespace Racing.CircuitGenerator
 
                 var lengthA = a.CalculateLength();
                 var lengthB = b.CalculateLength();
-                var angle = Math.Acos((a.Dot(b) / (lengthA * lengthB)));
+                var angle = Acos(a.Dot(b) / (lengthA * lengthB));
 
                 if (angle < Math.PI / 6 && maxLength < lengthA + lengthB)
                 {

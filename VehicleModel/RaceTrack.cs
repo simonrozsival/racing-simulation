@@ -27,14 +27,32 @@ namespace Racing.Model
 
         public bool IsOccupied(Length x, Length y)
         {
-            if (x < 0 || y < 0 || x >= Width || y >= Height)
+            var (tileX, tileY) = tileOf(x, y);
+            return IsOccupied(tileX, tileY);
+        }
+
+        public bool IsOccupied(int x, int y)
+        {
+            if (x < 0
+                || y < 0
+                || x >= OccupancyGrid.GetLength(0)
+                || y >= OccupancyGrid.GetLength(1))
             {
                 return true;
             }
 
+            return !OccupancyGrid[x, y];
+        }
+
+        public (int x, int y) TileOf(Vector point)
+            => tileOf(point.X, point.Y);
+
+        private (int x, int y) tileOf(Length x, Length y)
+        {
             var tileX = (int)(x / TileSize).Meters;
             var tileY = (int)(y / TileSize).Meters;
-            return !OccupancyGrid[tileX, tileY];
+
+            return (tileX, tileY);
         }
     }
 }

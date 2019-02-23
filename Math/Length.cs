@@ -2,7 +2,7 @@
 
 namespace Racing.Mathematics
 {
-    public readonly struct Length : IEquatable<Length>
+    public readonly struct Length : IEquatable<Length>, IComparable<Length>
     {
         public double Meters { get; }
 
@@ -24,6 +24,9 @@ namespace Racing.Mathematics
 
         public bool Equals(Length distance)
             => Meters == distance.Meters;
+
+        public int CompareTo(Length other)
+            => Meters.CompareTo(other.Meters);
 
         public static Length operator -(Length a)
             => -a.Meters;
@@ -66,6 +69,9 @@ namespace Racing.Mathematics
 
         public static implicit operator Length(double meters)
             => new Length(meters);
+
+        public static explicit operator int(Length length)
+            => (int)length.Meters;
 
         public static Length FromMeters(double meters)
             => new Length(meters);

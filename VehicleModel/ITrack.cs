@@ -10,6 +10,8 @@ namespace Racing.Model
         ICircuit Circuit { get; }
         bool[,] OccupancyGrid { get; }
         bool IsOccupied(Length x, Length y);
+        bool IsOccupied(int tileX, int tileY);
         bool IsOccupied(Vector position);
+        (int x, int y) TileOf(Vector position);
     }
 }

@@ -22,33 +22,36 @@ namespace Racing.Mathematics
             => Radians.GetHashCode();
 
         public override string ToString()
-            => $"{Radians}rad == {Radians / Math.PI * 180}°";
+            => $"{Radians}rad == {Radians / PI * 180}°";
 
         public bool Equals(Angle other)
             => Radians.Equals(other.Radians);
 
         public Angle Clamp(double min, double max)
-            => new Angle(Min(max, Max(min, Radians)));
+            => Min(max, Max(min, Radians));
 
         public static Angle operator +(Angle a, Angle b)
-            => new Angle(a.Radians + b.Radians);
+            => a.Radians + b.Radians;
 
         public static Angle operator -(Angle a)
-            => new Angle(-a.Radians);
+            => -a.Radians;
 
         public static Angle operator -(Angle a, Angle b)
-            => new Angle(a.Radians - b.Radians);
+            => a.Radians - b.Radians;
 
         public static Angle operator *(double scale, Angle a)
-            => new Angle(scale * a.Radians);
+            => scale * a.Radians;
         public static Angle operator *(Length scale, Angle a)
-            => new Angle(scale.Meters * a.Radians);
+            => scale.Meters * a.Radians;
 
         public static Angle operator *(Angle a, double scale)
-            => new Angle(scale * a.Radians);
+            => scale * a.Radians;
+
+        public static Angle operator /(Angle a, Angle b)
+            => a.Radians / b.Radians;
 
         public static Angle operator /(Angle a, double divisor)
-            => new Angle(a.Radians / divisor);
+            => a.Radians / divisor;
 
         public static bool operator ==(Angle a, Angle b)
             => a.Radians == b.Radians;
@@ -70,6 +73,9 @@ namespace Racing.Mathematics
 
         public static implicit operator Angle(double radians)
             => new Angle(radians);
+
+        public static explicit operator int(Angle angle)
+            => (int)angle.Radians;
 
         public static Angle FromDegrees(double degrees)
             => new Angle(degrees / 180.0 * PI);

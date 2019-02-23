@@ -11,6 +11,12 @@ namespace Racing.Mathematics
         public static double Sin(Angle angle)
             => Sin(angle.Radians);
 
+        public static double Tan(Angle angle)
+            => Tan(angle.Radians);
+
+        public static Angle Acos(Length distance)
+            => Acos(distance.Meters);
+
         public static Angle Atan(Length distance)
             => Atan(distance.Meters);
 
