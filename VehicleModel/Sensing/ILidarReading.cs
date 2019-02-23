@@ -1,8 +1,8 @@
 ﻿using Racing.Mathematics;
 
-namespace Racing.Model
+namespace Racing.Model.Sensing
 {
-    public interface ILidar
+    public interface ILidarReading
     {
         Angle AngularResolution { get; }
         Length MaximumDistance { get; }
