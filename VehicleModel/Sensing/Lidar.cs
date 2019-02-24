@@ -1,7 +1,5 @@
 ﻿using Racing.Mathematics;
 using System.Collections.Generic;
-using static System.Math;
-using static Racing.Mathematics.CustomMath;
 
 namespace Racing.Model.Sensing
 {
@@ -11,20 +9,20 @@ namespace Racing.Model.Sensing
         private readonly Angle angularResolution;
         private readonly Length maximumDistance;
 
-        public Lidar(ITrack track, Angle angularResolution, Length maximumDistance)
+        public Lidar(ITrack track, int samplingFrequency, Length maximumDistance)
         {
             this.track = track;
-            this.angularResolution = angularResolution;
+            this.angularResolution = Angle.FullCircle / samplingFrequency;
             this.maximumDistance = maximumDistance;
         }
 
-        public ILidarReading Scan(Vector origin)
+        public ILidarReading Scan(Vector origin, Angle direction)
         {
             var distances = new List<Length>();
 
             for (var angle = Angle.Zero; angle < Angle.FullCircle; angle += angularResolution)
             {
-                var distance = distanceToClosestObstacle(origin, angle);
+                var distance = distanceToClosestObstacle(origin, direction + angle);
                 distances.Add(distance);
             }
 
@@ -36,67 +34,20 @@ namespace Racing.Model.Sensing
 
         private Length distanceToClosestObstacle(Vector origin, Angle angle)
         {
-            var furthestVisiblePoint = origin + Vector.From(maximumDistance, angle);
-            var rayPosition = origin;
-            var shouldContinue = true;
+            var ray = origin;
+            var direction = Vector.From(track.TileSize, angle);
 
-            while (shouldContinue)
+            while (!track.IsOccupied(ray + direction))
             {
-                rayPosition = step(origin, angle, out shouldContinue);
-
-                if (rayPosition.X >= furthestVisiblePoint.X
-                    && rayPosition.Y >= furthestVisiblePoint.Y)
+                ray += direction;
+                if (Length.Between(origin, ray) > maximumDistance)
                 {
-                    rayPosition = furthestVisiblePoint;
+                    // return Length.Infinite;
+                    return maximumDistance;
                 }
             }
 
-            return Length.Between(origin, rayPosition);
-        }
-
-        private Vector step(Vector origin, Angle angle, out bool canContinue)
-        {
-            var (tileX, tileY) = track.TileOf(origin);
-
-            var relativeX = origin.X - tileX * track.TileSize;
-            var relativeY = origin.Y - tileY * track.TileSize;
-
-            var movingUp = angle.Radians < PI;
-            var movingRight = angle.Radians < PI / 2 || angle.Radians > 3 / 2 * PI;
-
-            var remainingX = movingRight ? track.TileSize - relativeX : relativeX;
-            var remainingY = movingUp ? track.TileSize - relativeY : relativeY;
-
-            var wouldHitY = relativeY + remainingX * Tan(angle);
-            var wouldHitX = relativeX + remainingY / Tan(angle);
-
-            var exceedsHorizontally = wouldHitX < track.TileSize;
-            var exceedsVertically = wouldHitY < track.TileSize;
-
-            Vector intersection;
-
-            if (!exceedsHorizontally && !exceedsVertically)
-            {
-                // hit corner
-                tileX += (movingRight ? 1 : -1);
-                tileY += tileY + (movingUp ? -1 : 1);
-                intersection = new Vector(remainingX, remainingY);
-            }
-            else if (exceedsVertically)
-            {
-                // moved to the next cell through the top or bottom edge
-                tileY += movingUp ? -1 : 1;
-                intersection = new Vector(wouldHitX, remainingY);
-            }
-            else
-            {
-                // moved to the next cell through the left or right edge
-                tileX += movingRight ? 1 : -1;
-                intersection = new Vector(remainingX, wouldHitY);
-            }
-
-            canContinue = !track.IsOccupied(tileX, tileY);
-            return intersection;
+            return Length.Between(origin, ray);
         }
     }
 }

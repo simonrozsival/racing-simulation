@@ -124,7 +124,7 @@ namespace Racing.Agents.Algorithms.Planning.HybridAStar.Heuristics
                         }
 
                         var distance = nodeToExpand.DistanceFromStart + (nextPoint - nodeToExpand.Position).CalculateLength();
-                        var node = new GridSearchNode(key, nextPoint, nodeToExpand, distance, distance, remainingWayPoints, targetWayPoint);
+                        var node = new GridSearchNode(key, nextPoint, nodeToExpand, distance.Meters, distance.Meters + 0, remainingWayPoints, targetWayPoint);
                         if (open.Contains(node.Key))
                         {
                             if (node.DistanceFromStart < open.Get(node.Key).DistanceFromStart)

@@ -1,6 +1,5 @@
 ﻿using Racing.Mathematics;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Racing.Model.Sensing
 {
@@ -17,11 +16,17 @@ namespace Racing.Model.Sensing
         public Length MaximumDistance { get; }
         public Length[] Readings { get; }
 
-        public IEnumerable<Vector> CalculatePointCloud()
+        public IEnumerable<Vector> ToPointCloud()
         {
             for (int i = 0; i < Readings.Length; i++)
             {
-                yield return Vector.From(Readings[i], i * AngularResolution);
+                var distance = Readings[i];
+                if (distance == Length.Infinite)
+                {
+                    distance = MaximumDistance;
+                }
+
+                yield return Vector.From(distance, i * AngularResolution);
             }
         }
     }

@@ -7,8 +7,8 @@ namespace Racing.Mathematics
     {
         public double Radians { get; }
 
-        public static Angle Zero { get; } = new Angle(0);
-        public static Angle FullCircle { get; } = new Angle(360);
+        public static Angle Zero { get; } = Angle.FromDegrees(0);
+        public static Angle FullCircle { get; } = Angle.FromDegrees(360);
 
         private Angle(double radians)
         {

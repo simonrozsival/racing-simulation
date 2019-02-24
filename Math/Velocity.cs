@@ -19,6 +19,9 @@ namespace Racing.Mathematics
         public override int GetHashCode()
             => MetersPerSecond.GetHashCode();
 
+        public override string ToString()
+            => $"{MetersPerSecond}m/s";
+
         public override bool Equals(object obj)
             => (obj is Velocity other) && Equals(other);
 

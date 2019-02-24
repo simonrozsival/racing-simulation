@@ -7,6 +7,7 @@ namespace Racing.Mathematics
         public double Meters { get; }
 
         public static Length Zero { get; } = FromMeters(0);
+        public static Length Infinite { get; } = FromMeters(double.PositiveInfinity);
 
         private Length(double meters)
         {
@@ -18,6 +19,9 @@ namespace Racing.Mathematics
 
         public override int GetHashCode()
             => Meters.GetHashCode();
+
+        public override string ToString()
+            => $"{Meters}m";
 
         public override bool Equals(object obj)
             => (obj is Length other) && Equals(other);
@@ -65,7 +69,7 @@ namespace Racing.Mathematics
             => a.Meters < b.Meters;
 
         public static bool operator >(Length a, Length b)
-            => a.Meters < b.Meters;
+            => a.Meters > b.Meters;
 
         public static implicit operator Length(double meters)
             => new Length(meters);

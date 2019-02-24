@@ -66,7 +66,7 @@ namespace Racing.Mathematics
             => new Vector(scale.Meters * a.X, scale.Meters * a.Y);
 
         public override string ToString()
-            => FormattableString.Invariant($"Point[{X}, {Y}]");
+            => FormattableString.Invariant($"[{X}, {Y}]");
 
         public static bool operator ==(Vector a, Vector b)
             => a.Equals(b);
