@@ -2,6 +2,6 @@
 {
     public interface IAgent
     {
-        IAction ReactTo(IState state);
+        IAction ReactTo(IState state, int waypoint);
     }
 }

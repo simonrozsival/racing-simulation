@@ -4,10 +4,8 @@ using Racing.Planning.Algorithms.Domain;
 using Racing.IO;
 using Racing.Mathematics;
 using Racing.Model;
-using Racing.Model.CollisionDetection;
 using Racing.Model.Sensing;
 using Racing.Model.Simulation;
-using Racing.Model.Vehicle;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,36 +26,10 @@ namespace Racing.Planning
             var simulationStep = perceptionPeriod / 8;
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
+            var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();
+            var world = new StandardWorld(track, simulationStep);
 
-            var assumedVehicleModel =
-                new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 5);
-            var realVehicleModel = assumedVehicleModel;
-
-            var collisionDetector = new AccurateCollisionDetector(track, realVehicleModel, safetyMargin: realVehicleModel.Width * 0.5);
-            //var collisionDetector = new BoundingSphereCollisionDetector(track, realVehicleModel);
-
-            var assumedMotionModel = new DynamicModel(assumedVehicleModel, collisionDetector, simulationStep);
-            var realMotionModel = assumedMotionModel;
-
-            var allWayPoints = track.Circuit.WayPoints.ToList();
-            var wayPoints = allWayPoints.Count > 4
-                ? new[] { allWayPoints[0], allWayPoints.ElementAt(allWayPoints.Count / 3), allWayPoints.ElementAt(2 * allWayPoints.Count / 3), allWayPoints.Last() }.ToList()
-                : allWayPoints;
-
-            var stateClassificator = new StateClassificator(collisionDetector, wayPoints.Last());
-
-            var initialState = new InitialState(track.Circuit) as IState;
-            var actions = new SteeringInputs(throttleSteps: 5, steeringSteps: 15);
-
-            var planner = new HybridAStarPlanner(
-                perceptionPeriod,
-                realVehicleModel,
-                realMotionModel,
-                track,
-                actions,
-                wayPoints,
-                collisionDetector,
-                greedy: false);
+            var planner = new HybridAStarPlanner(perceptionPeriod, world, wayPoints);
 
             //var planner = new WayPointFollowingRRTPlannerRRTPlanner(
             //    goalBias: 0.3,
@@ -108,7 +80,8 @@ namespace Racing.Planning
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Restart();
-            var plan = planner.FindOptimalPlanFor(initialState);
+
+            var plan = planner.FindOptimalPlanFor(world.InitialState);
             stopwatch.Stop();
 
             if (plan == null)
@@ -122,8 +95,8 @@ namespace Racing.Planning
             Console.WriteLine($"Found a plan in {stopwatch.ElapsedMilliseconds}ms");
 
             var log = new Log();
-            log.StateUpdated(initialState);
-            var state = initialState;
+            log.StateUpdated(world.InitialState);
+            var state = world.InitialState;
 
             var lidar = new Lidar(
                 track,
@@ -159,26 +132,10 @@ namespace Racing.Planning
             Console.WriteLine("];");
 
             var summary = new SimulationSummary(plan.TimeToGoal, Result.TimeOut, log.History);
-            Simulation.StoreResult(track, realVehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
+            Simulation.StoreResult(track, world.VehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
             Console.WriteLine($"Time to finish: {plan.TimeToGoal.TotalSeconds}s");
 
             flush();
-        }
-
-        private sealed class InitialState : IState
-        {
-            public Vector Position { get; }
-            public Angle HeadingAngle { get; }
-            public Angle SteeringAngle => 0;
-            public double Speed => 0;
-
-            public InitialState(ICircuit circuit)
-            {
-                var startDirection = circuit.WayPoints.First().Position - circuit.Start;
-
-                Position = circuit.Start;
-                HeadingAngle = startDirection.Direction();
-            }
         }
 
         private sealed class SimulationSummary : ISummary

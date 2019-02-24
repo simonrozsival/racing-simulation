@@ -1,15 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Racing.Evolution
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+            // load genome
+
+            // prepare simulation
+
+            // run simulation
+
+            // save results
+
+            Console.WriteLine("EVOLVE!");
         }
     }
 }

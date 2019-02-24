@@ -42,23 +42,27 @@ namespace Racing.Simulation
             IState vehicleState = new InitialState(track.Circuit);
             IAction nextAction = new NoOpAction();
 
-            var wayPointsQueue = new Queue<IGoal>(track.Circuit.WayPoints);
+            var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();
+            var nextWayPoint = 0;
 
             var elapsedTime = TimeSpan.Zero;
             var timeToNextPerception = TimeSpan.Zero;
 
-            while (wayPointsQueue.Count > 0 && elapsedTime < maximumSimulationTime)
+            while (nextWayPoint < wayPoints.Count && elapsedTime < maximumSimulationTime)
             {
                 timeToNextPerception -= simulationStep;
                 if (timeToNextPerception < TimeSpan.Zero)
                 {
+                    Console.Write("Thinking... ");
                     var stopwatch = new System.Diagnostics.Stopwatch();
                     stopwatch.Restart();
-                    nextAction = agent.ReactTo(vehicleState);
-                    stopwatch.Stop();
-                    Console.WriteLine($"Agent was thinking for: {stopwatch.ElapsedMilliseconds}ms");
-                    timeToNextPerception = perceptionPeriod;
 
+                    nextAction = agent.ReactTo(vehicleState, nextWayPoint);
+
+                    stopwatch.Stop();
+                    Console.WriteLine($"finished after {stopwatch.ElapsedMilliseconds}ms.");
+
+                    timeToNextPerception = perceptionPeriod;
                     log.ActionSelected(nextAction);
                 }
 
@@ -96,8 +100,8 @@ namespace Racing.Simulation
 
                 if (reachedGoal)
                 {
-                    Console.WriteLine($"Reached next way point, {wayPointsQueue.Count} to go.");
-                    wayPointsQueue.Dequeue();
+                    nextWayPoint++;
+                    Console.WriteLine($"Reached next way point, {wayPoints.Count - nextWayPoint} to go.");
                 }
             }
 

@@ -5,86 +5,61 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Racing.Planning.Algorithms.Domain;
 using Racing.Model;
-using Racing.Model.CollisionDetection;
-using Racing.Model.Vehicle;
 
 namespace Racing.Planning.Agents
 {
     public class AStarAgent : IAgent
     {
         private readonly TimeSpan perceptionPeriod;
-        private readonly TimeSpan simulationStep;
-        private readonly Queue<IGoal> pointsToGo;
-        private readonly IVehicleModel vehicleModel;
-        private readonly IMotionModel motionModel;
-        private readonly ITrack track;
-        private readonly BoundingSphereCollisionDetector collisionDetector;
-        private readonly IActionSet actions;
+        private readonly IWorldDefinition world;
+        private readonly IReadOnlyList<IGoal> wayPoints;
 
         private Queue<IAction>? plan = null;
-        private IState? previousPercievedState = null;
+        private int previousTargetWayPoint;
 
         public ISubject<IState> ExploredStates { get; } = new Subject<IState>();
 
         public AStarAgent(
-            IVehicleModel vehicleModel,
-            IMotionModel motionModel,
-            ITrack track,
-            IActionSet actions,
+            IWorldDefinition world,
             TimeSpan perceptionPeriod)
         {
-            this.vehicleModel = vehicleModel;
-            this.motionModel = motionModel;
-            this.track = track;
-            this.actions = actions;
+            this.world = world;
             this.perceptionPeriod = perceptionPeriod;
-            this.simulationStep = perceptionPeriod / 10;
 
-            collisionDetector = new BoundingSphereCollisionDetector(track, vehicleModel);
-
-            pointsToGo = new Queue<IGoal>(track.Circuit.WayPoints);
+            wayPoints = world.Track.Circuit.WayPoints.ToList().AsReadOnly();
         }
 
-        public IAction ReactTo(IState state)
+        public IAction ReactTo(IState state, int wayPoint)
         {
-            if (previousPercievedState != null && pointsToGo.Count > 0)
+            if (previousTargetWayPoint != wayPoint)
             {
-                var traveledDistance = state.Position - previousPercievedState.Position;
-                var steps = (int)Math.Floor(perceptionPeriod / simulationStep);
-                for (int i = 0; i < steps; i++)
+                if (wayPoint >= wayPoints.Count)
                 {
-                    var pointBetween = previousPercievedState.Position + (double)i / steps * traveledDistance;
-                    if (pointsToGo.Peek().ReachedGoal(pointBetween))
-                    {
-                        pointsToGo.Dequeue();
-                        plan = createNewPlan(state);
-                        break;
-                    }
+                    // no more way points to reach
+                    return world.Actions.Brake;
                 }
+
+                // the agent must have passed a way point since the last time
+                plan = createNewPlan(state, wayPoint);
             }
 
-            previousPercievedState = state;
+            previousTargetWayPoint = wayPoint;
 
-            if (pointsToGo.Count == 0)
+            if (plan == null || plan.Count == 0)
             {
-                return actions.Brake;
+                plan = createNewPlan(state, wayPoint);
             }
 
             if (plan == null || plan.Count == 0)
             {
-                plan = createNewPlan(state);
-            }
-
-            if (plan == null || plan.Count == 0)
-            {
-                return actions.Brake;
+                return world.Actions.Brake;
             }
 
             var nextAction = plan.Dequeue();
 
             if (nextAction != null && couldLeadToCrash(state, nextAction))
             {
-                plan = createNewPlan(state);
+                plan = createNewPlan(state, wayPoint);
                 if (plan != null && plan.Count != 0)
                 {
                     nextAction = plan.Dequeue();
@@ -93,15 +68,15 @@ namespace Racing.Planning.Agents
 
             // todo: is too off the planned trajectory?
 
-            return nextAction ?? actions.Brake;
+            return nextAction ?? world.Actions.Brake;
         }
 
-        private bool couldLeadToCrash(IState state, IAction action)
+        private bool couldLeadToCrash(IState state, IAction action, int lookahead = 3)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < lookahead; i++)
             {
-                state = motionModel.CalculateNextState(state, action, perceptionPeriod).Last().state;
-                if (collisionDetector.IsCollision(state))
+                state = world.MotionModel.CalculateNextState(state, action, perceptionPeriod).Last().state;
+                if (world.CollisionDetector.IsCollision(state))
                 {
                     return true;
                 }
@@ -110,10 +85,10 @@ namespace Racing.Planning.Agents
             return false;
         }
 
-        private Queue<IAction>? createNewPlan(IState state)
+        private Queue<IAction>? createNewPlan(IState state, int wayPoint)
         {
-            var wayPoints = nextGoals(lookahead: 2);
-            var planner = new HybridAStarPlanner(perceptionPeriod, vehicleModel, motionModel, track, actions, wayPoints, collisionDetector);
+            var wayPoints = nextGoals(wayPoint, lookahead: 2);
+            var planner = new HybridAStarPlanner(perceptionPeriod, world, wayPoints, greedy: true);
             planner.ExploredStates.Subscribe(x => ExploredStates.OnNext(x));
             var newPlan = planner.FindOptimalPlanFor(state);
 
@@ -134,7 +109,7 @@ namespace Racing.Planning.Agents
             return new Queue<IAction>(plannedActions);
         }
 
-        private IReadOnlyList<IGoal> nextGoals(int lookahead)
-            => pointsToGo.Take(lookahead).ToList().AsReadOnly();
+        private IReadOnlyList<IGoal> nextGoals(int wayPoint, int lookahead)
+            => wayPoints.Skip(wayPoint).Take(lookahead).ToList().AsReadOnly();
     }
 }
