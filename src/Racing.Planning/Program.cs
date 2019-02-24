@@ -22,7 +22,7 @@ namespace Racing.Planning
         public static void Main(string[] args)
         {
             var circuitName = "generated-at-1550822778155";
-            var circuitPath = Path.GetFullPath($"../../../../tracks/{circuitName}");
+            var circuitPath = Path.GetFullPath($"../../../../../assets/tracks/{circuitName}");
 
             var perceptionPeriod = TimeSpan.FromSeconds(0.4);
             var simulationStep = perceptionPeriod / 8;

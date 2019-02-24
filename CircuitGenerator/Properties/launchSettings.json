@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Racing.CircuitGenerator": {
-      "commandName": "Project",
-      "commandLineArgs": "--output \"C:\\Users\\simon\\Documents\\Visual Studio 2017\\Projects\\RacingSimulation\\tracks\" -n 1"
-    }
-  }
-}

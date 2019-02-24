@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Racing.CircuitGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "--output \"../../../../../assets/tracks\" -n 1"
+    }
+  }
+}

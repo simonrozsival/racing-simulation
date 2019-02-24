@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Math\Racing.Mathematics.csproj" />
+    <ProjectReference Include="..\Racing.Mathematics\Racing.Mathematics.csproj" />
     <ProjectReference Include="..\Racing.IO\Racing.IO.csproj" />
-    <ProjectReference Include="..\VehicleModel\Racing.Model.csproj" />
+    <ProjectReference Include="..\Racing.Model\Racing.Model.csproj" />
   </ItemGroup>
 
 </Project>
