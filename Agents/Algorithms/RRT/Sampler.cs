@@ -1,0 +1,55 @@
+﻿using Racing.Mathematics;
+using Racing.Model;
+using Racing.Model.Vehicle;
+using System;
+using static System.Math;
+
+namespace Racing.Planning.Algorithms.RRT
+{
+    internal sealed class Sampler
+    {
+        private readonly Random random;
+        private readonly ITrack track;
+        private readonly IVehicleModel vehicleModel;
+        private readonly double goalBias;
+
+        public Sampler(Random random, ITrack track, IVehicleModel vehicleModel, double goalBias)
+        {
+            this.random = random;
+            this.track = track;
+            this.vehicleModel = vehicleModel;
+            this.goalBias = goalBias;
+        }
+
+        public IState RandomSampleOfFreeRegion(IGoal goal)
+        {
+            var freePosition = random.NextDouble() > goalBias
+                ? goal.Position
+                : randomFreePosition();
+
+            return selectRandomSample(freePosition);
+        }
+
+        public IState selectRandomSample(Vector position)
+        {
+            return new RandomState(
+                position,
+                headingAngle: random.NextDoubleBetween(0, 2 * PI),
+                steeringAngle: random.NextDoubleBetween(vehicleModel.MinSteeringAngle.Radians, vehicleModel.MaxSteeringAngle.Radians),
+                speed: random.NextDoubleBetween(vehicleModel.MinSpeed, vehicleModel.MaxSpeed));
+        }
+
+        private Vector randomFreePosition()
+        {
+            Vector position;
+            do
+            {
+                position = new Vector(
+                    x: random.NextDoubleBetween(0, track.Width.Meters),
+                    y: random.NextDoubleBetween(0, track.Height.Meters));
+            } while (track.IsOccupied(position.X, position.Y));
+
+            return position;
+        }
+    }
+}

@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
+    <ApplicationIcon />
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Agents\Racing.Agents.csproj" />
+    <ProjectReference Include="..\Agents\Racing.Planning.csproj" />
     <ProjectReference Include="..\Racing.IO\Racing.IO.csproj" />
     <ProjectReference Include="..\VehicleModel\Racing.Model.csproj" />
   </ItemGroup>

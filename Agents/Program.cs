@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Racing.Agents.Algorithms.Planning;
+using Racing.Planning.Algorithms.Domain;
 using Racing.IO;
 using Racing.Mathematics;
 using Racing.Model;
 using Racing.Model.CollisionDetection;
+using Racing.Model.Sensing;
 using Racing.Model.Simulation;
 using Racing.Model.Vehicle;
 using System;
@@ -14,7 +15,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace Racing.Agents
+namespace Racing.Planning
 {
     class Program
     {
@@ -124,6 +125,13 @@ namespace Racing.Agents
             log.StateUpdated(initialState);
             var state = initialState;
 
+            var lidar = new Lidar(
+                track,
+                samplingFrequency: 11,
+                maximumDistance: Length.FromMeters(160));
+
+
+            Console.WriteLine("const lidarScans = [");
             for (int i = 0; i < plan.Trajectory.Count; i++)
             {
                 var trajectory = plan.Trajectory[i];
@@ -133,7 +141,22 @@ namespace Racing.Agents
                     log.ActionSelected(trajectory.Action);
                 }
                 log.StateUpdated(trajectory.State);
+
+                Console.WriteLine("{");
+                Console.WriteLine($"  time: {trajectory.Time.TotalSeconds},");
+                Console.WriteLine($"  origin: [{trajectory.State.Position.X.Meters}, {trajectory.State.Position.Y.Meters}],");
+                Console.WriteLine($"  points: [");
+
+                var reading = lidar.Scan(trajectory.State.Position, trajectory.State.HeadingAngle);
+                foreach (var point in reading.ToPointCloud())
+                {
+                    Console.WriteLine($"    [{point.X.Meters}, {point.Y.Meters}],");
+                }
+
+                Console.WriteLine("  ]");
+                Console.WriteLine("},");
             }
+            Console.WriteLine("];");
 
             var summary = new SimulationSummary(plan.TimeToGoal, Result.TimeOut, log.History);
             Simulation.StoreResult(track, realVehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
