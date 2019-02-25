@@ -1,5 +1,4 @@
-﻿using Racing.Mathematics;
-using Racing.Model;
+﻿using Racing.Model;
 using Racing.Model.Sensing;
 using Racing.Model.Simulation;
 using SharpNeat.Core;
@@ -23,8 +22,7 @@ namespace Racing.Evolution
             TimeSpan perceptionStep,
             TimeSpan maximumSimulationTime,
             IWorldDefinition world,
-            int inputSamplesCount,
-            Length maximumScanningDistance,
+            ILidar lidar,
             int numberOfSimulationsPerEvaluation)
         {
             this.simulationStep = simulationStep;
@@ -32,8 +30,7 @@ namespace Racing.Evolution
             this.maximumSimulationTime = maximumSimulationTime;
             this.world = world;
             this.numberOfSimulationsPerEvaluation = numberOfSimulationsPerEvaluation;
-
-            lidar = new Lidar(world.Track, inputSamplesCount, maximumScanningDistance);
+            this.lidar = lidar;
         }
 
         public ulong EvaluationCount { get; private set; } = 0;
@@ -78,50 +75,41 @@ namespace Racing.Evolution
             // time-out x crashing x nothing
             switch (summary.Result)
             {
-                case Result.TimeOut:                    
-                    break;
+                case Result.TimeOut:
+                    return 0.0;
                 case Result.Failed:
-                    fitness += 10; // still better than timing out
+                    // still better than timing out
                     break;
                 case Result.Suceeded:
-                    fitness += 500; // on top of the "distance travelled" score
+                    fitness += 100; // on top of the "distance travelled" score
                     break;
             }
 
-            //// points for staying alive long (unless it timeouted)
-            //if (summary.Result != Result.TimeOut)
-            //{
-            //    fitness += summary.SimulationTime.TotalSeconds; // this should change later to achieve fast movement
-            //}
-
             // points for every way point passed
-            fitness += summary.DistanceTravelled * 1000;
+            fitness += summary.DistanceTravelled * 100 / Math.Max(1.0, summary.SimulationTime.TotalSeconds);
 
-            //foreach (var log in summary.Log)
-            //{
-            //    // ideas:
-            //    // - proportion of time when it was going at max speed
-            //    // - minimize number of direction changes
-            //    if (log is IActionSelectedEvent selected)
-            //    {
+            var actionsInTotal = 0;
+            var actionsWithHightThrottleAndSmallSteeringAngle = 0;
 
-            //        if (selected.Action.Throttle == 1
-            //            && selected.Action.Steering == 0)
-            //        {
-            //            fitness += 10.0;
-            //        }
-            //        else if (selected.Action.Throttle == 1)
-            //        {
-            //            fitness += 2.5;
-            //        }
-            //        else if (selected.Action.Throttle > 0.5 && selected.Action.Steering == 1)
-            //        {
-            //            fitness += 2.5;
-            //        }
-            //    }
-            //}
+            foreach (var log in summary.Log)
+            {
+                // ideas:
+                // - proportion of time when it was going at max speed
+                // - minimize number of direction changes
+                if (log is IActionSelectedEvent selected)
+                {
+                    actionsInTotal++;
 
-            return fitness;
+                    if (selected.Action.Throttle > 0.75 && Math.Abs(selected.Action.Steering) < 0.2)
+                    {
+                        actionsWithHightThrottleAndSmallSteeringAngle++;
+                    }
+                }
+            }
+
+            fitness += summary.DistanceTravelled * 5 * ((double)actionsWithHightThrottleAndSmallSteeringAngle / actionsInTotal);
+
+            return Math.Max(0.0, fitness);
         }
     }
 }

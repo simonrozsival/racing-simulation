@@ -3,6 +3,7 @@ using Racing.Model;
 using Racing.Model.Simulation;
 using Racing.Model.Vehicle;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 
@@ -90,22 +91,32 @@ namespace Racing.Simulation
             var result = timeouted ? Result.TimeOut : (succeeded ? Result.Suceeded : Result.Failed);
             log.Finished(result);
 
-            var distanceBetweenWayPoints = Length.Between(
-                wayPoints[nextWayPoint].Position,
-                nextWayPoint > 0
-                    ? wayPoints[nextWayPoint - 1].Position
-                    : world.Track.Circuit.Start).Meters;
-
-            var distanceTravelledBetweenWayPoints =
-                nextWayPoint == wayPoints.Count
-                    ? distanceBetweenWayPoints / Length.Between(wayPoints[nextWayPoint].Position, vehicleState.Position).Meters
-                    : 0.0;
-
-            var distanceTravelled = nextWayPoint == wayPoints.Count
-                ? 1.0
-                : (double)nextWayPoint / wayPoints.Count + (distanceTravelledBetweenWayPoints) / wayPoints.Count;
+            var distanceTravelled = travelledDistance(vehicleState, wayPoints, nextWayPoint);
 
             return new SimulationSummary(elapsedTime, result, log.History, distanceTravelled);
+        }
+
+        private double travelledDistance(IState vehicleState, IReadOnlyList<IGoal> wayPoints, int lastTargetWayPoint)
+        {
+            var distanceBetweenWayPoints = Length.Between(
+                wayPoints[lastTargetWayPoint].Position,
+                lastTargetWayPoint > 0
+                    ? wayPoints[lastTargetWayPoint - 1].Position
+                    : world.Track.Circuit.Start).Meters;
+
+            var distanceToTheWayPoint = Length.Between(wayPoints[lastTargetWayPoint].Position, vehicleState.Position).Meters;
+
+            var distanceProportion = distanceToTheWayPoint / distanceBetweenWayPoints;
+            var distanceTravelledBetweenWayPoints =
+                lastTargetWayPoint != wayPoints.Count
+                    ? Math.Clamp(1 - distanceProportion, -1.0, 1.0)
+                    : 0.0;
+
+            var distanceTravelled = lastTargetWayPoint == wayPoints.Count
+                ? 1.0
+                : (double)lastTargetWayPoint / wayPoints.Count + distanceTravelledBetweenWayPoints / wayPoints.Count;
+
+            return distanceTravelled;
         }
     }
 }

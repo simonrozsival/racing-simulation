@@ -5,15 +5,18 @@ namespace Racing.Model.Sensing
 {
     public sealed class Lidar : ILidar
     {
-        private readonly ITrack track;
+        private readonly RangeFinder rangeFinder;
+        private readonly Angle fieldOfView;
         private readonly Angle angularResolution;
 
         public Length MaximumDistance { get; }
 
-        public Lidar(ITrack track, int samplingFrequency, Length maximumDistance)
+        public Lidar(ITrack track, int samplingFrequency, Angle fieldOfView, Length maximumDistance)
         {
-            this.track = track;
-            this.angularResolution = Angle.FullCircle / samplingFrequency;
+            this.fieldOfView = fieldOfView;
+
+            rangeFinder = new RangeFinder(track, maximumDistance);
+            angularResolution = fieldOfView / samplingFrequency;
 
             MaximumDistance = maximumDistance;
         }
@@ -21,35 +24,19 @@ namespace Racing.Model.Sensing
         public ILidarReading Scan(Vector origin, Angle direction)
         {
             var distances = new List<Length>();
+            var firstSampleDirection = direction - (fieldOfView / 2);
 
-            for (var angle = Angle.Zero; angle < Angle.FullCircle; angle += angularResolution)
+            for (var angle = angularResolution / 2; angle < fieldOfView; angle += angularResolution)
             {
-                var distance = distanceToClosestObstacle(origin, direction + angle);
+                var distance = rangeFinder.DistanceToClosestObstacle(origin, firstSampleDirection + angle);
                 distances.Add(distance);
             }
 
             return new LidarReading(
                 angularResolution,
+                firstSampleDirection,
                 MaximumDistance,
                 distances.ToArray());
-        }
-
-        private Length distanceToClosestObstacle(Vector origin, Angle angle)
-        {
-            var ray = origin;
-            var direction = Vector.From(track.TileSize, angle);
-
-            while (!track.IsOccupied(ray + direction))
-            {
-                ray += direction;
-                if (Length.Between(origin, ray) > MaximumDistance)
-                {
-                    // return Length.Infinite;
-                    return MaximumDistance;
-                }
-            }
-
-            return Length.Between(origin, ray);
         }
     }
 }

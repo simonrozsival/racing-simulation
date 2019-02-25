@@ -9,6 +9,7 @@ using SharpNeat.DistanceMetrics;
 using SharpNeat.EvolutionAlgorithms;
 using SharpNeat.EvolutionAlgorithms.ComplexityRegulation;
 using SharpNeat.Genomes.Neat;
+using SharpNeat.Network;
 using SharpNeat.Phenomes;
 using SharpNeat.SpeciationStrategies;
 using System;
@@ -27,25 +28,26 @@ namespace Racing.Evolution
             var circuitPath = Path.GetFullPath($"{assetsPath}/tracks/{circuitName}");
 
             var perceptionStep = TimeSpan.FromSeconds(0.1);
-            var simulationStep = TimeSpan.FromSeconds(0.016); // 60Hz
+            var simulationStep = TimeSpan.FromSeconds(0.05); // 20Hz
             var maximumSimulationTime = TimeSpan.FromSeconds(60);
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
             var world = new StandardWorld(track, simulationStep);
 
-            var inputSamplesCount = 12;
-            var maximumScanningDistance = Length.FromMeters(100);
+            var inputSamplesCount = 8;
+            var maximumScanningDistance = Length.FromMeters(200);
+            var lidar = new Lidar(world.Track, inputSamplesCount, Angle.FromDegrees(135), maximumScanningDistance);
 
             var settings = new EvolutionSettings
             {
-                PopulationSize = 150,
+                PopulationSize = 100,
                 SpeciesCount = 10,
-                ElitismProportion = 0.05,
+                ElitismProportion = 0.02,
                 ComplexityThreshold = 50
             };
 
             // prepare simulation
-            var parameters = new NeatEvolutionAlgorithmParameters
+            var parameters = new NeatEvolutionAlgorithmParameters   
             {
                 ElitismProportion = settings.ElitismProportion,
                 SpecieCount = settings.SpeciesCount
@@ -66,9 +68,8 @@ namespace Racing.Evolution
                 perceptionStep,
                 maximumSimulationTime,
                 world,
-                inputSamplesCount,
-                maximumScanningDistance,
-                numberOfSimulationsPerEvaluation: 3);
+                lidar,
+                numberOfSimulationsPerEvaluation: 1);
 
             var genomeDecoder = new NeatGenomeDecoder(NetworkActivationScheme.CreateAcyclicScheme());
             var genomeListEvaluator = new ParallelGenomeListEvaluator<NeatGenome, IBlackBox>(
@@ -77,9 +78,21 @@ namespace Racing.Evolution
 
             evolutionaryAlgorithm.Initialize(
                 genomeListEvaluator,
-                genomeFactory: new NeatGenomeFactory(inputNeuronCount: inputSamplesCount, outputNeuronCount: 2, new NeatGenomeParameters { FeedforwardOnly = true }),
+                genomeFactory: new NeatGenomeFactory(
+                    inputNeuronCount: inputSamplesCount,
+                    outputNeuronCount: 2,
+                    DefaultActivationFunctionLibrary.CreateLibraryNeat(new BipolarSigmoid()),
+                    new NeatGenomeParameters
+                    {
+                        FeedforwardOnly = true,
+                        AddNodeMutationProbability = 0.08,
+                        DeleteConnectionMutationProbability = 0.05,
+                        ConnectionWeightMutationProbability = 0.08,
+                        FitnessHistoryLength = 2,
+                    }),
                 settings.PopulationSize);
 
+            var lastVisualization = DateTimeOffset.Now;
             evolutionaryAlgorithm.UpdateEvent += onUpdate;
             evolutionaryAlgorithm.StartContinue();
 
@@ -102,8 +115,9 @@ namespace Racing.Evolution
                 Console.WriteLine($"- mean fitness: {evolutionaryAlgorithm.Statistics._meanFitness}");
                 Console.WriteLine();
 
-                if (evolutionaryAlgorithm.CurrentGeneration % 10 == 0)
+                if (DateTimeOffset.Now - lastVisualization > TimeSpan.FromSeconds(65))
                 {
+                    lastVisualization = DateTimeOffset.Now;
                     Console.WriteLine("Simulating currently best individual...");
                     evaluate(evolutionaryAlgorithm.CurrentChampGenome);
                 }
@@ -112,7 +126,6 @@ namespace Racing.Evolution
             void evaluate(NeatGenome genome)
             {
                 var bestIndividual = genomeDecoder.Decode(genome);
-                var lidar = new Lidar(world.Track, inputSamplesCount, maximumScanningDistance);
                 var agent = new NeuralNetworkAgent(lidar, bestIndividual);
                 var simulation = new Simulation.Simulation(agent, world);
                 var summary = simulation.Simulate(simulationStep, perceptionStep, maximumSimulationTime);

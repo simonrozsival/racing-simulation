@@ -101,6 +101,7 @@ namespace Racing.Planning
             var lidar = new Lidar(
                 track,
                 samplingFrequency: 11,
+                fieldOfView: Angle.FullCircle,
                 maximumDistance: Length.FromMeters(160));
 
 

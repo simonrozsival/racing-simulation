@@ -58,7 +58,7 @@ namespace Racing.Evolution
             public PredictedAction(double[] prediction)
             {
                 Throttle = prediction[0];
-                Steering = prediction[1];
+                Steering = (prediction[1] - 0.5) * 2;
             }
 
             public double Throttle { get; }
