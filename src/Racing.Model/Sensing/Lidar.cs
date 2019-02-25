@@ -7,13 +7,15 @@ namespace Racing.Model.Sensing
     {
         private readonly ITrack track;
         private readonly Angle angularResolution;
-        private readonly Length maximumDistance;
+
+        public Length MaximumDistance { get; }
 
         public Lidar(ITrack track, int samplingFrequency, Length maximumDistance)
         {
             this.track = track;
             this.angularResolution = Angle.FullCircle / samplingFrequency;
-            this.maximumDistance = maximumDistance;
+
+            MaximumDistance = maximumDistance;
         }
 
         public ILidarReading Scan(Vector origin, Angle direction)
@@ -28,7 +30,7 @@ namespace Racing.Model.Sensing
 
             return new LidarReading(
                 angularResolution,
-                maximumDistance,
+                MaximumDistance,
                 distances.ToArray());
         }
 
@@ -40,10 +42,10 @@ namespace Racing.Model.Sensing
             while (!track.IsOccupied(ray + direction))
             {
                 ray += direction;
-                if (Length.Between(origin, ray) > maximumDistance)
+                if (Length.Between(origin, ray) > MaximumDistance)
                 {
                     // return Length.Infinite;
-                    return maximumDistance;
+                    return MaximumDistance;
                 }
             }
 

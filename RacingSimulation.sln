@@ -17,8 +17,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racing.IO", "src\Racing.IO\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racing.Evolution", "src\Racing.Evolution\Racing.Evolution.csproj", "{757FF07B-013B-41BA-B31C-E9E80B546AFD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpNeatLib", "..\..\..\..\Projects\sharpneat\src\SharpNeatLib\SharpNeatLib.csproj", "{29505A58-7857-43B4-9D4C-60A1392CCC76}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

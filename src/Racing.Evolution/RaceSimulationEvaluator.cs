@@ -84,42 +84,42 @@ namespace Racing.Evolution
                     fitness += 10; // still better than timing out
                     break;
                 case Result.Suceeded:
-                    fitness += 100;
+                    fitness += 500; // on top of the "distance travelled" score
                     break;
             }
 
-            // points for staying alive long (unless it timeouted)
-            if (summary.Result != Result.TimeOut)
-            {
-                fitness += summary.SimulationTime.TotalSeconds; // this should change later to achieve fast movement
-            }
+            //// points for staying alive long (unless it timeouted)
+            //if (summary.Result != Result.TimeOut)
+            //{
+            //    fitness += summary.SimulationTime.TotalSeconds; // this should change later to achieve fast movement
+            //}
 
             // points for every way point passed
-            fitness += summary.DistanceTravelled * 25;
+            fitness += summary.DistanceTravelled * 1000;
 
-            foreach (var log in summary.Log)
-            {
-                // ideas:
-                // - proportion of time when it was going at max speed
-                // - minimize number of direction changes
-                if (log is IActionSelectedEvent selected)
-                {
+            //foreach (var log in summary.Log)
+            //{
+            //    // ideas:
+            //    // - proportion of time when it was going at max speed
+            //    // - minimize number of direction changes
+            //    if (log is IActionSelectedEvent selected)
+            //    {
 
-                    if (selected.Action.Throttle == 1
-                        && selected.Action.Steering == 0)
-                    {
-                        fitness += 10.0;
-                    }
-                    else if (selected.Action.Throttle == 1)
-                    {
-                        fitness += 2.5;
-                    }
-                    else if (selected.Action.Throttle > 0.5 && selected.Action.Steering == 1)
-                    {
-                        fitness += 2.5;
-                    }
-                }
-            }
+            //        if (selected.Action.Throttle == 1
+            //            && selected.Action.Steering == 0)
+            //        {
+            //            fitness += 10.0;
+            //        }
+            //        else if (selected.Action.Throttle == 1)
+            //        {
+            //            fitness += 2.5;
+            //        }
+            //        else if (selected.Action.Throttle > 0.5 && selected.Action.Steering == 1)
+            //        {
+            //            fitness += 2.5;
+            //        }
+            //    }
+            //}
 
             return fitness;
         }

@@ -11,10 +11,10 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="SharpNeatLib" Version="2.4.1.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\Projects\sharpneat\src\SharpNeatLib\SharpNeatLib.csproj" />
     <ProjectReference Include="..\Racing.Model\Racing.Model.csproj" />
     <ProjectReference Include="..\Racing.Simulation\Racing.Simulation.csproj" />
   </ItemGroup>

@@ -23,7 +23,7 @@ namespace Racing.Planning
             var circuitPath = Path.GetFullPath($"../../../../../assets/tracks/{circuitName}");
 
             var perceptionPeriod = TimeSpan.FromSeconds(0.4);
-            var simulationStep = perceptionPeriod / 8;
+            var simulationStep = TimeSpan.FromSeconds(0.016);
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
             var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();

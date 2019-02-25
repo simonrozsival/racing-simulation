@@ -40,7 +40,7 @@ namespace Racing.Evolution
             {
                 PopulationSize = 150,
                 SpeciesCount = 10,
-                ElitismProportion = 0.1,
+                ElitismProportion = 0.05,
                 ComplexityThreshold = 50
             };
 
@@ -48,6 +48,7 @@ namespace Racing.Evolution
             var parameters = new NeatEvolutionAlgorithmParameters
             {
                 ElitismProportion = settings.ElitismProportion,
+                SpecieCount = settings.SpeciesCount
             };
 
             var distanceMetric = new ManhattanDistanceMetric(1.0, 0.0, 10.0);
@@ -91,14 +92,7 @@ namespace Racing.Evolution
 
             // simulate best individual
             Console.WriteLine("Simulating best individual...");
-            var bestIndividual = genomeDecoder.Decode(evolutionaryAlgorithm.CurrentChampGenome);
-            var lidar = new Lidar(world.Track, inputSamplesCount, Length.FromMeters(30));
-            var agent = new NeuralNetworkAgent(lidar, bestIndividual);
-            var simulation = new Simulation.Simulation(agent, world);
-            var summary = simulation.Simulate(simulationStep, perceptionStep, maximumSimulationTime);
-
-            IO.Simulation.StoreResult(world.Track, world.VehicleModel, summary, "", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
-
+            evaluate(evolutionaryAlgorithm.CurrentChampGenome);
             Console.WriteLine("Done.");
 
             void onUpdate(object sender, EventArgs e)
@@ -107,6 +101,23 @@ namespace Racing.Evolution
                 Console.WriteLine($"- max fitness:  {evolutionaryAlgorithm.Statistics._maxFitness}");
                 Console.WriteLine($"- mean fitness: {evolutionaryAlgorithm.Statistics._meanFitness}");
                 Console.WriteLine();
+
+                if (evolutionaryAlgorithm.CurrentGeneration % 10 == 0)
+                {
+                    Console.WriteLine("Simulating currently best individual...");
+                    evaluate(evolutionaryAlgorithm.CurrentChampGenome);
+                }
+            }
+
+            void evaluate(NeatGenome genome)
+            {
+                var bestIndividual = genomeDecoder.Decode(genome);
+                var lidar = new Lidar(world.Track, inputSamplesCount, maximumScanningDistance);
+                var agent = new NeuralNetworkAgent(lidar, bestIndividual);
+                var simulation = new Simulation.Simulation(agent, world);
+                var summary = simulation.Simulate(simulationStep, perceptionStep, maximumSimulationTime);
+
+                IO.Simulation.StoreResult(world.Track, world.VehicleModel, summary, "", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
             }
         }
     }

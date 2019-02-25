@@ -11,9 +11,7 @@ namespace Racing.Simulation
     public sealed class Simulation : ISimulation
     {
         private readonly IAgent agent;
-        private readonly ITrack track;
-        private readonly IStateClassificator stateClassificator;
-        private readonly IMotionModel motionModel;
+        private readonly IWorldDefinition world;
         private readonly Log log;
 
         public IObservable<IEvent> Events { get; }
@@ -21,10 +19,7 @@ namespace Racing.Simulation
         public Simulation(IAgent agent, IWorldDefinition world)
         {
             this.agent = agent;
-
-            track = world.Track;
-            stateClassificator = world.StateClassificator;
-            motionModel = world.MotionModel;
+            this.world = world;
             
             log = new Log();
             Events = log.Events;
@@ -32,10 +27,10 @@ namespace Racing.Simulation
 
         public ISummary Simulate(TimeSpan simulationStep, TimeSpan perceptionPeriod, TimeSpan maximumSimulationTime)
         {
-            IState vehicleState = new InitialState(track.Circuit);
-            IAction nextAction = new NoOpAction();
+            var vehicleState = world.InitialState;
+            var nextAction = world.Actions.Brake;
 
-            var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();
+            var wayPoints = world.Track.Circuit.WayPoints.ToList().AsReadOnly();
             var nextWayPoint = 0;
 
             var elapsedTime = TimeSpan.Zero;
@@ -51,7 +46,7 @@ namespace Racing.Simulation
                     log.ActionSelected(nextAction);
                 }
 
-                var predictedStates = motionModel.CalculateNextState(vehicleState, nextAction, simulationStep).ToList();
+                var predictedStates = world.MotionModel.CalculateNextState(vehicleState, nextAction, simulationStep).ToList();
                 vehicleState = predictedStates.Last().state;
                 var reachedGoal = false;
                 var collided = false;
@@ -62,7 +57,7 @@ namespace Racing.Simulation
                     log.SimulationTimeChanged(elapsedTime);
                     log.StateUpdated(vehicleState);
 
-                    var type = stateClassificator.Classify(state);
+                    var type = world.StateClassificator.Classify(state);
                     if (type == StateType.Collision)
                     {
                         elapsedTime = time;
@@ -91,34 +86,26 @@ namespace Racing.Simulation
             }
 
             var timeouted = elapsedTime >= maximumSimulationTime;
-            var succeeded = stateClassificator.Classify(vehicleState) == StateType.Goal;
+            var succeeded = world.StateClassificator.Classify(vehicleState) == StateType.Goal;
             var result = timeouted ? Result.TimeOut : (succeeded ? Result.Suceeded : Result.Failed);
             log.Finished(result);
 
-            return new SimulationSummary(elapsedTime, result, log.History, (double)nextWayPoint / wayPoints.Count);
-        }
+            var distanceBetweenWayPoints = Length.Between(
+                wayPoints[nextWayPoint].Position,
+                nextWayPoint > 0
+                    ? wayPoints[nextWayPoint - 1].Position
+                    : world.Track.Circuit.Start).Meters;
 
-        private sealed class InitialState : IState
-        {
-            public Vector Position { get; }
-            public Angle HeadingAngle { get; }
-            public Angle SteeringAngle => 0;
-            public double Speed => 0;
+            var distanceTravelledBetweenWayPoints =
+                nextWayPoint == wayPoints.Count
+                    ? distanceBetweenWayPoints / Length.Between(wayPoints[nextWayPoint].Position, vehicleState.Position).Meters
+                    : 0.0;
 
-            public InitialState(ICircuit circuit)
-            {
-                var startDirection =
-                    circuit.WayPoints.Skip(1).First().Position - circuit.WayPoints.Last().Position;
+            var distanceTravelled = nextWayPoint == wayPoints.Count
+                ? 1.0
+                : (double)nextWayPoint / wayPoints.Count + (distanceTravelledBetweenWayPoints) / wayPoints.Count;
 
-                Position = circuit.Start;
-                HeadingAngle = startDirection.Direction();
-            }
-        }
-
-        private sealed class NoOpAction : IAction
-        {
-            public double Throttle => 0;
-            public double Steering => 0;
+            return new SimulationSummary(elapsedTime, result, log.History, distanceTravelled);
         }
     }
 }
