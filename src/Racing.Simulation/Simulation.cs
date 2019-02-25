@@ -1,16 +1,14 @@
-﻿using Racing.Planning;
-using Racing.Mathematics;
+﻿using Racing.Mathematics;
 using Racing.Model;
 using Racing.Model.Simulation;
 using Racing.Model.Vehicle;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 
 namespace Racing.Simulation
 {
-    internal sealed class Simulation : ISimulation
+    public sealed class Simulation : ISimulation
     {
         private readonly IAgent agent;
         private readonly ITrack track;
@@ -20,20 +18,15 @@ namespace Racing.Simulation
 
         public IObservable<IEvent> Events { get; }
 
-        public Simulation(
-            IAgent agent,
-            ITrack track,
-            IStateClassificator stateClassificator,
-            IMotionModel motionModel)
+        public Simulation(IAgent agent, IWorldDefinition world)
         {
             this.agent = agent;
-            this.track = track;
-            this.stateClassificator = stateClassificator;
-            this.motionModel = motionModel;
-            
+
+            track = world.Track;
+            stateClassificator = world.StateClassificator;
+            motionModel = world.MotionModel;
             
             log = new Log();
-
             Events = log.Events;
         }
 
@@ -53,15 +46,7 @@ namespace Racing.Simulation
                 timeToNextPerception -= simulationStep;
                 if (timeToNextPerception < TimeSpan.Zero)
                 {
-                    Console.Write("Thinking... ");
-                    var stopwatch = new System.Diagnostics.Stopwatch();
-                    stopwatch.Restart();
-
                     nextAction = agent.ReactTo(vehicleState, nextWayPoint);
-
-                    stopwatch.Stop();
-                    Console.WriteLine($"finished after {stopwatch.ElapsedMilliseconds}ms.");
-
                     timeToNextPerception = perceptionPeriod;
                     log.ActionSelected(nextAction);
                 }
@@ -87,7 +72,7 @@ namespace Racing.Simulation
                         break;
                     }
 
-                    if (type == StateType.Goal)
+                    if (wayPoints[nextWayPoint].ReachedGoal(vehicleState.Position))
                     {
                         reachedGoal = true;
                     }
@@ -101,7 +86,7 @@ namespace Racing.Simulation
                 if (reachedGoal)
                 {
                     nextWayPoint++;
-                    Console.WriteLine($"Reached next way point, {wayPoints.Count - nextWayPoint} to go.");
+                    // Console.WriteLine($"Reached next way point, {wayPoints.Count - nextWayPoint} to go.");
                 }
             }
 
@@ -110,7 +95,7 @@ namespace Racing.Simulation
             var result = timeouted ? Result.TimeOut : (succeeded ? Result.Suceeded : Result.Failed);
             log.Finished(result);
 
-            return new SimulationSummary(elapsedTime, result, log.History);
+            return new SimulationSummary(elapsedTime, result, log.History, (double)nextWayPoint / wayPoints.Count);
         }
 
         private sealed class InitialState : IState

@@ -131,7 +131,7 @@ namespace Racing.Planning
             }
             Console.WriteLine("];");
 
-            var summary = new SimulationSummary(plan.TimeToGoal, Result.TimeOut, log.History);
+            var summary = new SimulationSummary(plan.TimeToGoal, Result.TimeOut, log.History, wayPoints.Count);
             Simulation.StoreResult(track, world.VehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
             Console.WriteLine($"Time to finish: {plan.TimeToGoal.TotalSeconds}s");
 
@@ -140,16 +140,18 @@ namespace Racing.Planning
 
         private sealed class SimulationSummary : ISummary
         {
-            public SimulationSummary(TimeSpan simulationTime, Result result, IEnumerable<IEvent> log)
+            public SimulationSummary(TimeSpan simulationTime, Result result, IEnumerable<IEvent> log, double distanceTravelled)
             {
                 SimulationTime = simulationTime;
                 Result = result;
                 Log = log;
+                DistanceTravelled = distanceTravelled;
             }
 
             public TimeSpan SimulationTime { get; }
             public Result Result { get; }
             public IEnumerable<IEvent> Log { get; }
+            public double DistanceTravelled { get; }
         }
 
         public sealed class Log

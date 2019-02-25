@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racing.Mathematics", "src\R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racing.IO", "src\Racing.IO\Racing.IO.csproj", "{F064E96A-A555-4130-96DF-7E83E07EE8E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racing.Evolution", "src\Racing.Evolution\Racing.Evolution.csproj", "{757FF07B-013B-41BA-B31C-E9E80B546AFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racing.Evolution", "src\Racing.Evolution\Racing.Evolution.csproj", "{757FF07B-013B-41BA-B31C-E9E80B546AFD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpNeatLib", "..\..\..\..\Projects\sharpneat\src\SharpNeatLib\SharpNeatLib.csproj", "{29505A58-7857-43B4-9D4C-60A1392CCC76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
