@@ -5,6 +5,6 @@ namespace Racing.Model.Sensing
     public interface ILidar
     {
         double MaximumDistance { get; }
-        ILidarReading Scan(Vector origin, Angle direction);
+        ILidarReading Scan(Vector origin, double headingAngle);
     }
 }

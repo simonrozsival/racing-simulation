@@ -6,14 +6,14 @@ namespace Racing.Model.Vehicle
     internal readonly struct VehicleState : IState, IEquatable<VehicleState>
     {
         public Vector Position { get; }
-        public Angle HeadingAngle { get; }
-        public Angle SteeringAngle { get; }
+        public double HeadingAngle { get; }
+        public double SteeringAngle { get; }
         public double Speed { get; }
 
         public VehicleState(
             Vector position,
-            Angle headingAngle,
-            Angle steeringAngle,
+            double headingAngle,
+            double steeringAngle,
             double speed)
         {
             Position = position;

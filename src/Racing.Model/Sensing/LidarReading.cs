@@ -6,8 +6,8 @@ namespace Racing.Model.Sensing
     internal sealed class LidarReading : ILidarReading
     {
         public LidarReading(
-            Angle angularResolution, 
-            Angle startAngle,
+            double angularResolution, 
+            double startAngle,
             double maximumDistance,
             double[] readings)
         {
@@ -17,8 +17,8 @@ namespace Racing.Model.Sensing
             Readings = readings;
         }
 
-        public Angle AngularResolution { get; }
-        public Angle StartAngle { get; }
+        public double AngularResolution { get; }
+        public double StartAngle { get; }
         public double MaximumDistance { get; }
         public double[] Readings { get; }
 

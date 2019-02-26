@@ -6,8 +6,8 @@ namespace Racing.Model.Vehicle
     internal sealed class InitialState : IState
     {
         public Vector Position { get; }
-        public Angle HeadingAngle { get; }
-        public Angle SteeringAngle => 0;
+        public double HeadingAngle { get; }
+        public double SteeringAngle => 0;
         public double Speed => 0;
 
         public InitialState(ICircuit circuit)

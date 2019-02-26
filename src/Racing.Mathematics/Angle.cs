@@ -1,81 +1,13 @@
-﻿using System;
-using static System.Math;
+﻿using static System.Math;
 
 namespace Racing.Mathematics
 {
-    public readonly struct Angle : IEquatable<Angle>
+    public static class Angle
     {
-        public double Radians { get; }
+        public static double Zero = FromDegrees(0);
+        public static double FullCircle = FromDegrees(360);
 
-        public static Angle Zero { get; } = FromDegrees(0);
-        public static Angle FullCircle { get; } = FromDegrees(360);
-
-        private Angle(double radians)
-        {
-            Radians = radians;
-        }
-
-        public override bool Equals(object obj)
-            => (obj is Angle other) && Equals(other);
-
-        public override int GetHashCode()
-            => Radians.GetHashCode();
-
-        public override string ToString()
-            => $"{Radians}rad == {Radians / PI * 180}°";
-
-        public bool Equals(Angle other)
-            => Radians.Equals(other.Radians);
-
-        public Angle Clamp(double min, double max)
-            => Min(max, Max(min, Radians));
-
-        public static Angle operator +(Angle a, Angle b)
-            => a.Radians + b.Radians;
-
-        public static Angle operator -(Angle a)
-            => -a.Radians;
-
-        public static Angle operator -(Angle a, Angle b)
-            => a.Radians - b.Radians;
-
-        public static Angle operator *(double scale, Angle a)
-            => scale * a.Radians;
-
-        public static Angle operator *(Angle a, double scale)
-            => scale * a.Radians;
-
-        public static Angle operator /(Angle a, Angle b)
-            => a.Radians / b.Radians;
-
-        public static Angle operator /(Angle a, double divisor)
-            => a.Radians / divisor;
-
-        public static bool operator ==(Angle a, Angle b)
-            => a.Radians == b.Radians;
-
-        public static bool operator !=(Angle a, Angle b)
-            => a.Radians != b.Radians;
-
-        public static bool operator <=(Angle a, Angle b)
-            => a.Radians <= b.Radians;
-
-        public static bool operator >=(Angle a, Angle b)
-            => a.Radians >= b.Radians;
-
-        public static bool operator <(Angle a, Angle b)
-            => a.Radians < b.Radians;
-
-        public static bool operator >(Angle a, Angle b)
-            => a.Radians > b.Radians;
-
-        public static implicit operator Angle(double radians)
-            => new Angle(radians);
-
-        public static explicit operator int(Angle angle)
-            => (int)angle.Radians;
-
-        public static Angle FromDegrees(double degrees)
-            => new Angle(degrees / 180.0 * PI);
+        public static double FromDegrees(double degrees)
+            => degrees / 180.0 * PI;
     }
 }

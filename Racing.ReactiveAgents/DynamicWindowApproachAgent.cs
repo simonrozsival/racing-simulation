@@ -95,7 +95,7 @@ namespace Racing.ReactiveAgents
             }
 
             var clearance = Math.Clamp(collisionDetector.DistanceToClosestObstacle(nextState) / track.Circuit.Radius, 0, 1);
-            var alignment = (Math.PI - Math.Abs(headingDifference.Radians)) / Math.PI;
+            var alignment = (Math.PI - Math.Abs(headingDifference)) / Math.PI;
             var speed = nextState.Speed / vehicleModel.MaxSpeed;
 
             return clearanceWeight * clearance + alignmentWeight * alignment + speedWeight * speed;

@@ -37,7 +37,7 @@ namespace Racing.Model.CollisionDetection
 
         public bool IsCollision(IState state)
         {
-            var i = discretize(state.HeadingAngle.Radians);
+            var i = discretize(state.HeadingAngle);
             var pointA = state.Position + frontLeft[i];
             if (isOccupied(pointA))
             {

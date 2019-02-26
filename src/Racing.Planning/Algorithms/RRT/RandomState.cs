@@ -5,7 +5,7 @@ namespace Racing.Planning.Algorithms.RRT
 {
     internal sealed class RandomState : IState
     {
-        public RandomState(Vector position, Angle headingAngle, Angle steeringAngle, double speed)
+        public RandomState(Vector position, double headingAngle, double steeringAngle, double speed)
         {
             Position = position;
             HeadingAngle = headingAngle;
@@ -14,8 +14,8 @@ namespace Racing.Planning.Algorithms.RRT
         }
 
         public Vector Position { get; }
-        public Angle HeadingAngle { get; }
-        public Angle SteeringAngle { get; }
+        public double HeadingAngle { get; }
+        public double SteeringAngle { get; }
         public double Speed { get; }
     }
 }

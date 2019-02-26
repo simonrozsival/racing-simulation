@@ -7,7 +7,7 @@ namespace Racing.Planning.Algorithms.HybridAStar
     {
         private readonly double positionXCellSize;
         private readonly double positionYCellSize;
-        private readonly Angle headingAngleCellSize;
+        private readonly double headingAngleCellSize;
 
         public StateDiscretizer(
             double positionXCellSize,

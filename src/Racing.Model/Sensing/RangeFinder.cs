@@ -13,7 +13,7 @@ namespace Racing.Model.Sensing
             this.maximumDistance = maximumDistance;
         }
 
-        public double DistanceToClosestObstacle(Vector origin, Angle angle)
+        public double DistanceToClosestObstacle(Vector origin, double angle)
         {
             var ray = origin;
             var direction = Vector.From(track.TileSize, angle);

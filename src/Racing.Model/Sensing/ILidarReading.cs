@@ -5,7 +5,7 @@ namespace Racing.Model.Sensing
 {
     public interface ILidarReading
     {
-        Angle AngularResolution { get; }
+        double AngularResolution { get; }
         double MaximumDistance { get; }
         double[] Readings { get; }
         IEnumerable<Vector> ToPointCloud();

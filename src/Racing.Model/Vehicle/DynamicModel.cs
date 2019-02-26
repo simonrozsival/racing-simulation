@@ -44,19 +44,19 @@ namespace Racing.Model.Vehicle
             var targetSteeringAngle = action.Steering * vehicle.MaxSteeringAngle;
 
             var acceleration = Min(targetSpeed - state.Speed, vehicle.Acceleration);
-            var steeringAcceleration = Min((targetSteeringAngle - state.SteeringAngle).Radians, (Sign(action.Steering) * vehicle.SteeringAcceleration).Radians);
+            var steeringAcceleration = Min((targetSteeringAngle - state.SteeringAngle), (Sign(action.Steering) * vehicle.SteeringAcceleration));
 
             var ds = seconds * acceleration;
             var speed = Clamp(state.Speed + ds, vehicle.MinSpeed, vehicle.MaxSpeed);
 
             var da = seconds * steeringAcceleration;
-            var steeringAngle = Clamp(state.SteeringAngle.Radians + da, vehicle.MinSteeringAngle.Radians, vehicle.MaxSteeringAngle.Radians);
+            var steeringAngle = Clamp(state.SteeringAngle + da, vehicle.MinSteeringAngle, vehicle.MaxSteeringAngle);
 
             var velocity = new Vector(
-                x: speed * Cos(steeringAngle) * Cos(state.HeadingAngle.Radians),
-                y: speed * Cos(steeringAngle) * Sin(state.HeadingAngle.Radians));
+                x: speed * Cos(steeringAngle) * Cos(state.HeadingAngle),
+                y: speed * Cos(steeringAngle) * Sin(state.HeadingAngle));
 
-            Angle headingAngularVelocity = (speed / vehicle.Length) * Sin(steeringAngle);
+            var headingAngularVelocity = (speed / vehicle.Length) * Sin(steeringAngle);
 
             return new VehicleState(
                 position: state.Position + seconds * velocity,

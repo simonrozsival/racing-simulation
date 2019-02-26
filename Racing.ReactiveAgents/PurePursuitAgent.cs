@@ -47,7 +47,7 @@ namespace Racing.ReactiveAgents
         {
             var currentAngle = currentState.HeadingAngle;
             var targetAngle = (target.Position - currentState.Position).Direction();
-            var difference = (targetAngle - currentAngle).Radians;
+            var difference = targetAngle - currentAngle;
             
             if (difference > Math.PI)
             {
@@ -58,7 +58,7 @@ namespace Racing.ReactiveAgents
                 difference += Math.PI;
             }
 
-            difference /= vehicleModel.MaxSteeringAngle.Radians;
+            difference /= vehicleModel.MaxSteeringAngle;
 
             var steering = steeringController.CalculateAction(target: 0, difference);
 

@@ -25,10 +25,10 @@ namespace Racing.Planning.Algorithms.RRT
         public double DistanceBetween(Vector a, Vector b)
             => (Distance.Between(a, b) / maximumDistance);
 
-        public double DistanceBetween(Angle a, Angle b)
+        public double DistanceBetween(double a, double b)
         {
-            (a, b) = a.Radians < b.Radians ? (a, b) : (b, a);
-            return Min(b.Radians - a.Radians, a.Radians + (2 * PI) - b.Radians) / (2 * PI);
+            (a, b) = a < b ? (a, b) : (b, a);
+            return Min(b - a, a + (2 * PI) - b) / (2 * PI);
         }
     }
 }

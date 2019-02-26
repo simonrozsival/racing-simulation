@@ -71,106 +71,89 @@ namespace Racing.Planning
 
             while (!open.IsEmpty)
             {
-                var expandedNode = open.DequeueMostPromissing();
+                var node = open.DequeueMostPromissing();
 
-                if (expandedNode.RemainingWayPoints.Count == 0)
+                if (node.RemainingWayPoints.Count == 0)
                 {
-                    return expandedNode.ReconstructPlan();
+                    return node.ReconstructPlan();
                 }
 
-                closed.Add(expandedNode.Key);
-                exploredStates.OnNext(expandedNode.State);
+                closed.Add(node.Key);
+                exploredStates.OnNext(node.State);
 
-                expand(expandedNode, open, closed, heuristic, out var nodeReachingGoal);
-
-                if (greedy && nodeReachingGoal != null)
+                foreach (var action in actions.AllPossibleActions)
                 {
-                    return nodeReachingGoal.ReconstructPlan();
+                    var predictedStates = motionModel.CalculateNextState(node.State, action, timeStep);
+                    var elapsedTime = predictedStates.Last().relativeTime;
+                    var nextVehicleState = predictedStates.Last().state;
+                    var reachedGoal = false;
+                    var collided = false;
+
+                    foreach (var (simulationTime, state) in predictedStates)
+                    {
+                        if (collisionDetector.IsCollision(state))
+                        {
+                            elapsedTime = simulationTime;
+                            nextVehicleState = state;
+                            reachedGoal = false;
+                            collided = true;
+                            break;
+                        }
+
+                        if (node.RemainingWayPoints[0].ReachedGoal(state.Position))
+                        {
+                            reachedGoal = true;
+                        }
+                    }
+
+                    var remainingWayPoints = reachedGoal
+                        ? node.RemainingWayPoints.Skip(1).ToList()
+                        : node.RemainingWayPoints;
+
+                    var nextDiscreteState = discretizer.Discretize(nextVehicleState, remainingWayPoints.Count);
+                    if (closed.Contains(nextDiscreteState))
+                    {
+                        continue;
+                    }
+
+                    if (collided)
+                    {
+                        closed.Add(nextDiscreteState);
+                        continue;
+                    }
+
+                    int targetWayPoint = wayPoints.Count - remainingWayPoints.Count;
+                    var costToCome = node.CostToCome + timeStep.TotalSeconds;
+                    var costToGo = remainingWayPoints.Count > 0
+                        ? heuristic.EstimateTimeToGoal(nextVehicleState, targetWayPoint).TotalSeconds
+                        : 0;
+
+                    var discoveredNode = new SearchNode(
+                        discreteState: nextDiscreteState,
+                        state: nextVehicleState,
+                        actionFromPreviousState: action,
+                        previousState: node,
+                        costToCome: costToCome,
+                        estimatedTotalCost: costToCome + costToGo,
+                        remainingWayPoints);
+
+                    if (greedy && remainingWayPoints.Count == 0)
+                    {
+                        return discoveredNode.ReconstructPlan();
+                    }
+
+                    if (!open.Contains(discoveredNode.Key))
+                    {
+                        open.Add(discoveredNode);
+                    }
+                    else if (discoveredNode.CostToCome < open.Get(discoveredNode.Key).CostToCome)
+                    {
+                        open.ReplaceExistingWithTheSameKey(discoveredNode);
+                    }
                 }
             }
 
             return null;
-        }
-
-        private void expand(
-            SearchNode node,
-            IOpenSet<DiscreteState, SearchNode> open,
-            ClosedSet<DiscreteState> closed,
-            IHeuristic heuristic,
-            out SearchNode? nodeReachingGoal)
-        {
-            nodeReachingGoal = null;
-
-            foreach (var action in actions.AllPossibleActions)
-            {
-                var predictedStates = motionModel.CalculateNextState(node.State, action, timeStep).ToList();
-                var elapsedTime = predictedStates.Last().relativeTime;
-                var nextVehicleState = predictedStates.Last().state;
-                var reachedGoal = false;
-                var collided = false;
-
-                foreach (var (simulationTime, state) in predictedStates)
-                {
-                    if (collisionDetector.IsCollision(state))
-                    {
-                        elapsedTime = simulationTime;
-                        nextVehicleState = state;
-                        reachedGoal = false;
-                        collided = true;
-                        break;
-                    }
-
-                    if (node.RemainingWayPoints[0].ReachedGoal(state.Position))
-                    {
-                        reachedGoal = true;
-                    }
-                }
-
-                var remainingWayPoints = reachedGoal
-                    ? node.RemainingWayPoints.Skip(1).ToList()
-                    : node.RemainingWayPoints;
-
-                var nextDiscreteState = discretizer.Discretize(nextVehicleState, remainingWayPoints.Count);
-                if (closed.Contains(nextDiscreteState))
-                {
-                    continue;
-                }
-
-                if (collided)
-                {
-                    closed.Add(nextDiscreteState);
-                    continue;
-                }
-
-                int targetWayPoint = wayPoints.Count - remainingWayPoints.Count;
-                var costToCome = node.CostToCome + timeStep.TotalSeconds;
-                var costToGo = remainingWayPoints.Count > 0
-                    ? heuristic.EstimateTimeToGoal(nextVehicleState, targetWayPoint).TotalSeconds
-                    : 0;
-
-                var discoveredNode = new SearchNode(
-                    discreteState: nextDiscreteState,
-                    state: nextVehicleState,
-                    actionFromPreviousState: action,
-                    previousState: node,
-                    costToCome: costToCome,
-                    estimatedTotalCost: costToCome + costToGo,
-                    remainingWayPoints);
-
-                if (remainingWayPoints.Count == 0)
-                {
-                    nodeReachingGoal = discoveredNode;
-                }
-
-                if (!open.Contains(discoveredNode.Key))
-                {
-                    open.Add(discoveredNode);
-                }
-                else if (discoveredNode.CostToCome < open.Get(discoveredNode.Key).CostToCome)
-                {
-                    open.ReplaceExistingWithTheSameKey(discoveredNode);
-                }
-            }
         }
 
         private GridShortestPathHeuristic createShortestPathHeuristic(IState initialState)

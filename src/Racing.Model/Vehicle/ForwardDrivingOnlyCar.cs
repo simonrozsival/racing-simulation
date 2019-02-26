@@ -8,10 +8,10 @@ namespace Racing.Model.Vehicle
         public double Length { get; }
         public double MinSpeed { get; }
         public double MaxSpeed { get; }
-        public Angle MinSteeringAngle { get; }
-        public Angle MaxSteeringAngle { get; }
+        public double MinSteeringAngle { get; }
+        public double MaxSteeringAngle { get; }
         public double Acceleration { get; }
-        public Angle SteeringAcceleration { get; }
+        public double SteeringAcceleration { get; }
 
         public ForwardDrivingOnlyVehicle(double width)
         {

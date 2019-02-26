@@ -18,7 +18,7 @@ namespace Racing.Mathematics
             D = d;
         }
 
-        public Rectangle Rotate(Vector center, Angle angle)
+        public Rectangle Rotate(Vector center, double angle)
             => new Rectangle(
                 A.Rotate(center, angle),
                 B.Rotate(center, angle),

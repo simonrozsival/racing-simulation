@@ -1,5 +1,5 @@
 ﻿using System;
-using static Racing.Mathematics.CustomMath;
+using static System.Math;
 
 namespace Racing.Mathematics
 {
@@ -29,12 +29,12 @@ namespace Racing.Mathematics
         public double CalculateLength()
             => Sqrt(X * X + Y * Y);
 
-        public Vector Rotate(Angle angle)
+        public Vector Rotate(double angle)
             => new Vector(
                 x: X * Cos(angle) - Y * Sin(angle),
                 y: X * Sin(angle) + Y * Cos(angle));
 
-        public Vector Rotate(Vector center, Angle angle)
+        public Vector Rotate(Vector center, double angle)
             => (this - center).Rotate(angle) + center;
 
         public double DistanceSq(Vector other)
@@ -50,7 +50,7 @@ namespace Racing.Mathematics
         public double Dot(Vector other)
             => X * other.X + Y * other.Y;
 
-        public Angle Direction()
+        public double Direction()
             => Atan(Y / X);
 
         public static Vector operator +(Vector a, Vector b)
@@ -80,9 +80,9 @@ namespace Racing.Mathematics
         public override int GetHashCode()
             => HashCode.Combine(X, Y);
 
-        public static Vector From(double d, Angle a)
+        public static Vector From(double d, double a)
             => new Vector(
-                x: d * Cos(a.Radians),
-                y: d * Sin(a.Radians));
+                x: d * Cos(a),
+                y: d * Sin(a));
     }
 }
