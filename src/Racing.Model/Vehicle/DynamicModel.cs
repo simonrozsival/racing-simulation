@@ -40,13 +40,16 @@ namespace Racing.Model.Vehicle
         {
             var seconds = time.TotalSeconds;
 
-            var acceleration = action.Throttle * vehicle.Acceleration;
-            var steeringAcceleration = action.Steering * vehicle.SteeringAcceleration;
+            var targetSpeed = action.Throttle * vehicle.MaxSpeed;
+            var targetSteeringAngle = action.Steering * vehicle.MaxSteeringAngle;
+
+            var acceleration = Min(targetSpeed - state.Speed, vehicle.Acceleration);
+            var steeringAcceleration = Min((targetSteeringAngle - state.SteeringAngle).Radians, (Sign(action.Steering) * vehicle.SteeringAcceleration).Radians);
 
             var ds = seconds * acceleration;
             var speed = Clamp(state.Speed + ds, vehicle.MinSpeed, vehicle.MaxSpeed);
 
-            var da = seconds * steeringAcceleration.Radians;
+            var da = seconds * steeringAcceleration;
             var steeringAngle = Clamp(state.SteeringAngle.Radians + da, vehicle.MinSteeringAngle.Radians, vehicle.MaxSteeringAngle.Radians);
 
             var velocity = new Vector(

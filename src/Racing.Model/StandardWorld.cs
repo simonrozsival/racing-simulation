@@ -1,6 +1,7 @@
 ﻿using Racing.Model.CollisionDetection;
 using Racing.Model.Vehicle;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Racing.Model
@@ -14,6 +15,7 @@ namespace Racing.Model
         public IStateClassificator StateClassificator { get; }
         public IState InitialState { get; }
         public IActionSet Actions { get; }
+        public IReadOnlyList<IGoal> WayPoints { get; }
 
         public StandardWorld(ITrack track, TimeSpan simulationTime)
         {
@@ -21,15 +23,17 @@ namespace Racing.Model
             VehicleModel = new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 5);
             MotionModel = new DynamicModel(VehicleModel, simulationTime);
             CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin: VehicleModel.Width * 0.2);
+            WayPoints = track.Circuit.WayPoints.Count > 4
+                ? new[]
+                {
+                    track.Circuit.WayPoints[0],
+                    track.Circuit.WayPoints.ElementAt(track.Circuit.WayPoints.Count / 3),
+                    track.Circuit.WayPoints.ElementAt(2 * track.Circuit.WayPoints.Count / 3),
+                    track.Circuit.WayPoints.Last()
+                }.ToList().AsReadOnly()
+                : track.Circuit.WayPoints.ToList().AsReadOnly();
 
-            // todo: get rid of this - the circuit way points must be defined correctly
-            var allWayPoints = track.Circuit.WayPoints.ToList();
-            var wayPoints = allWayPoints.Count > 4
-                ? new[] { allWayPoints[0], allWayPoints.ElementAt(allWayPoints.Count / 3), allWayPoints.ElementAt(2 * allWayPoints.Count / 3), allWayPoints.Last() }.ToList()
-                : allWayPoints;
-
-            StateClassificator = new StateClassificator(CollisionDetector, wayPoints.Last());
-
+            StateClassificator = new StateClassificator(CollisionDetector, WayPoints.Last());
             InitialState = new InitialState(track.Circuit);
             Actions = new SteeringInputs(throttleSteps: 5, steeringSteps: 15);
         }

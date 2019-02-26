@@ -31,8 +31,8 @@ namespace Racing.Simulation
             var vehicleState = world.InitialState;
             var nextAction = world.Actions.Brake;
 
-            var wayPoints = world.Track.Circuit.WayPoints.ToList().AsReadOnly();
             var nextWayPoint = 0;
+            var wayPoints = world.WayPoints;
 
             var elapsedTime = TimeSpan.Zero;
             var timeToNextPerception = TimeSpan.Zero;
@@ -75,7 +75,7 @@ namespace Racing.Simulation
                 }
 
                 if (collided)
-                {
+                { 
                     break;
                 }
 
@@ -98,6 +98,11 @@ namespace Racing.Simulation
 
         private double travelledDistance(IState vehicleState, IReadOnlyList<IGoal> wayPoints, int lastTargetWayPoint)
         {
+            if (lastTargetWayPoint == wayPoints.Count)
+            {
+                return 1.0;
+            }
+
             var distanceBetweenWayPoints = Length.Between(
                 wayPoints[lastTargetWayPoint].Position,
                 lastTargetWayPoint > 0
@@ -107,16 +112,9 @@ namespace Racing.Simulation
             var distanceToTheWayPoint = Length.Between(wayPoints[lastTargetWayPoint].Position, vehicleState.Position).Meters;
 
             var distanceProportion = distanceToTheWayPoint / distanceBetweenWayPoints;
-            var distanceTravelledBetweenWayPoints =
-                lastTargetWayPoint != wayPoints.Count
-                    ? Math.Clamp(1 - distanceProportion, -1.0, 1.0)
-                    : 0.0;
+            var distanceTravelledBetweenWayPoints = Math.Clamp(1 - distanceProportion, -1.0, 1.0);
 
-            var distanceTravelled = lastTargetWayPoint == wayPoints.Count
-                ? 1.0
-                : (double)lastTargetWayPoint / wayPoints.Count + distanceTravelledBetweenWayPoints / wayPoints.Count;
-
-            return distanceTravelled;
+            return (double)lastTargetWayPoint / wayPoints.Count + distanceTravelledBetweenWayPoints / wayPoints.Count;
         }
     }
 }
