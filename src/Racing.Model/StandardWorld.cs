@@ -20,9 +20,9 @@ namespace Racing.Model
         public StandardWorld(ITrack track, TimeSpan simulationTime)
         {
             Track = track;
-            VehicleModel = new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 5);
+            VehicleModel = new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
             MotionModel = new DynamicModel(VehicleModel, simulationTime);
-            CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin: VehicleModel.Width * 0.2);
+            CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin: VehicleModel.Width * 0.1);
             WayPoints = track.Circuit.WayPoints.Count > 4
                 ? new[]
                 {
