@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Racing.Planning.Algorithms.Domain;
 using Racing.IO;
 using Racing.Mathematics;
 using Racing.Model;
@@ -19,11 +18,11 @@ namespace Racing.Planning
     {
         public static void Main(string[] args)
         {
-            var circuitName = "generated-at-1550822778155";
+            var circuitName = "simple-circuit";
             var circuitPath = Path.GetFullPath($"../../../../../assets/tracks/{circuitName}");
 
             var perceptionPeriod = TimeSpan.FromSeconds(0.4);
-            var simulationStep = TimeSpan.FromSeconds(0.016);
+            var simulationStep = perceptionPeriod / 8;
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
             var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();
@@ -74,6 +73,7 @@ namespace Racing.Planning
                 exploredStates.Add(state);
                 if (DateTimeOffset.Now - lastFlush > TimeSpan.FromSeconds(10))
                 {
+                    Console.WriteLine($"Explored {exploredStates.Count} states");
                     flush();
                 }
             });
@@ -98,14 +98,6 @@ namespace Racing.Planning
             log.StateUpdated(world.InitialState);
             var state = world.InitialState;
 
-            var lidar = new Lidar(
-                track,
-                samplingFrequency: 11,
-                fieldOfView: Angle.FullCircle,
-                maximumDistance: Length.FromMeters(160));
-
-
-            Console.WriteLine("const lidarScans = [");
             for (int i = 0; i < plan.Trajectory.Count; i++)
             {
                 var trajectory = plan.Trajectory[i];
@@ -115,22 +107,7 @@ namespace Racing.Planning
                     log.ActionSelected(trajectory.Action);
                 }
                 log.StateUpdated(trajectory.State);
-
-                Console.WriteLine("{");
-                Console.WriteLine($"  time: {trajectory.Time.TotalSeconds},");
-                Console.WriteLine($"  origin: [{trajectory.State.Position.X.Meters}, {trajectory.State.Position.Y.Meters}],");
-                Console.WriteLine($"  points: [");
-
-                var reading = lidar.Scan(trajectory.State.Position, trajectory.State.HeadingAngle);
-                foreach (var point in reading.ToPointCloud())
-                {
-                    Console.WriteLine($"    [{point.X.Meters}, {point.Y.Meters}],");
-                }
-
-                Console.WriteLine("  ]");
-                Console.WriteLine("},");
             }
-            Console.WriteLine("];");
 
             var summary = new SimulationSummary(plan.TimeToGoal, Result.TimeOut, log.History, wayPoints.Count);
             Simulation.StoreResult(track, world.VehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
