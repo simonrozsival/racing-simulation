@@ -86,7 +86,7 @@ namespace Racing.CircuitGenerator.Output
                 + textSvg(position, n.ToString(), color: whiteColor, size: radius);
 
         private static string pathSvg(Vector start, Vector end, string color, double width, int? dash = null)
-            => paghSvg($"M{start.X},{start.Y} L{end.X},{end.Y}", color, width, dash);
+            => paghSvg($"M{start.X.Meters},{start.Y.Meters} L{end.X.Meters},{end.Y.Meters}", color, width, dash);
 
         private static string pathSvg(BezierCurve curve, string color, double width, int? dash = null)
             => paghSvg(printPathOperations(curve), color, width, dash);
@@ -98,19 +98,19 @@ namespace Racing.CircuitGenerator.Output
         }
 
         private static string circleSvg(Vector position, double radius, string color)
-            => $"<circle r=\"{radius}\" cx=\"{position.X}\" cy=\"{position.Y}\" fill=\"{color}\" />";
+            => $"<circle r=\"{radius}\" cx=\"{position.X.Meters}\" cy=\"{position.Y.Meters}\" fill=\"{color}\" />";
 
         private static string textSvg(Vector position, string text, string color, double size)
-            => $"<text x=\"{position.X}\" y=\"{position.Y}\" text-anchor=\"middle\" fill=\"{color}\" font-size=\"{size}\" font-family=\"Arial\" dy=\".35em\">{text}</text>";
+            => $"<text x=\"{position.X.Meters}\" y=\"{position.Y.Meters}\" text-anchor=\"middle\" fill=\"{color}\" font-size=\"{size}\" font-family=\"Arial\" dy=\".35em\">{text}</text>";
 
         private static string printPathOperations(BezierCurve curve)
         {
             var builder = new StringBuilder();
             var start = curve.Segments.First().Start;
-            builder.Append($"M{start.X},{start.Y} ");
+            builder.Append($"M{start.X.Meters},{start.Y.Meters} ");
             foreach (var segment in curve.Segments)
             {
-                builder.Append($"C{segment.StartControlPoint.X},{segment.StartControlPoint.Y} {segment.EndControlPoint.X},{segment.EndControlPoint.Y} {segment.End.X},{segment.End.Y} ");
+                builder.Append($"C{segment.StartControlPoint.X.Meters},{segment.StartControlPoint.Y.Meters} {segment.EndControlPoint.X.Meters},{segment.EndControlPoint.Y.Meters} {segment.End.X.Meters},{segment.End.Y.Meters} ");
             }
             builder.Append("Z");
             return builder.ToString();
