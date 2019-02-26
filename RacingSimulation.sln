@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racing.IO", "src\Racing.IO\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racing.Evolution", "src\Racing.Evolution\Racing.Evolution.csproj", "{757FF07B-013B-41BA-B31C-E9E80B546AFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racing.ReactiveAgents", "Racing.ReactiveAgents\Racing.ReactiveAgents.csproj", "{A71C422A-A9A7-48E3-B6CA-937BD070405D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -171,6 +173,26 @@ Global
 		{757FF07B-013B-41BA-B31C-E9E80B546AFD}.Release|x64.Build.0 = Release|Any CPU
 		{757FF07B-013B-41BA-B31C-E9E80B546AFD}.Release|x86.ActiveCfg = Release|Any CPU
 		{757FF07B-013B-41BA-B31C-E9E80B546AFD}.Release|x86.Build.0 = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|ARM.Build.0 = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|x64.Build.0 = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Debug|x86.Build.0 = Debug|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|ARM.ActiveCfg = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|ARM.Build.0 = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|ARM64.Build.0 = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|x64.ActiveCfg = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|x64.Build.0 = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|x86.ActiveCfg = Release|Any CPU
+		{A71C422A-A9A7-48E3-B6CA-937BD070405D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

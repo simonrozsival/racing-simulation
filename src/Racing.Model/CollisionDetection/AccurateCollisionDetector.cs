@@ -65,5 +65,8 @@ namespace Racing.Model.CollisionDetection
             while (angle >= 2 * Math.PI) angle -= 2 * Math.PI;
             return (int)(angle / discretizationStep);
         }
+
+        public Length DistanceToClosestObstacle(IState state)
+            => track.DistanceToClosestObstacle(state.Position) - Math.Max(ux, uy);
     }
 }

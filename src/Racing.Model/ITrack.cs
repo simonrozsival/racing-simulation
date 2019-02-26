@@ -13,5 +13,6 @@ namespace Racing.Model
         bool IsOccupied(int tileX, int tileY);
         bool IsOccupied(Vector position);
         (int x, int y) TileOf(Vector position);
+        Length DistanceToClosestObstacle(Vector position);
     }
 }

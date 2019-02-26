@@ -10,9 +10,9 @@ using Racing.Planning.Domain;
 using Racing.Planning.Algorithms.HybridAStar.DataStructures;
 using Racing.Planning.Algorithms.HybridAStar.Heuristics;
 
-namespace Racing.Planning.Algorithms.Domain
+namespace Racing.Planning
 {
-    internal class HybridAStarPlanner : IPlanner
+    public class HybridAStarPlanner : IPlanner
     {
         private readonly TimeSpan timeStep;
         private readonly IVehicleModel vehicleModel;
@@ -55,8 +55,6 @@ namespace Racing.Planning.Algorithms.Domain
         public IPlan? FindOptimalPlanFor(IState initialState)
         {
             var heuristic = createShortestPathHeuristic(initialState);
-            // var heuristic = new EuclideanDistanceHeuristic(vehicleModel.MaxSpeed, problem.Goal);
-            // var heuristic = new DijkstraAkaNoHeuristic();
 
             var open = new BinaryHeapOpenSet<DiscreteState, SearchNode>();
             var closed = new ClosedSet<DiscreteState>();

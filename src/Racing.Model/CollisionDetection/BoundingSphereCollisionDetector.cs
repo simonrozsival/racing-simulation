@@ -19,6 +19,9 @@ namespace Racing.Model.CollisionDetection
             diagonal = Math.Sqrt(u * u + v * v);
         }
 
+        public Length DistanceToClosestObstacle(IState state)
+            => track.DistanceToClosestObstacle(state.Position) - diagonal;
+
         public bool IsCollision(IState state)
             => IsCollision(state.Position);
 

@@ -1,4 +1,6 @@
 ﻿using Racing.Mathematics;
+using System;
+using System.Collections.Generic;
 
 namespace Racing.Model
 {
@@ -53,6 +55,56 @@ namespace Racing.Model
             var tileY = (int)(y / TileSize).Meters;
 
             return (tileX, tileY);
+        }
+
+        public Length DistanceToClosestObstacle(Vector position)
+        {
+            var distances = new int[OccupancyGrid.GetLength(0), OccupancyGrid.GetLength(1)];
+            for (var i = 0; i < distances.GetLength(0); i++)
+            {
+                for (var j = 0; j < distances.GetLength(1); j++)
+                {
+                    distances[i, j] = int.MinValue;
+                }
+            }
+
+            var stack = new Stack<(int x, int y)>();
+
+            var startTile = TileOf(position);
+            stack.Push(startTile);
+            distances[startTile.x, startTile.y] = 0;
+
+            while (stack.Count > 0)
+            {
+                var tile = stack.Pop();
+                var distance = distances[tile.x, tile.y] + 1;
+
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        var x = tile.x + j;
+                        var y = tile.y + j;
+                        if (x < 0 || y < 0 || x >= distances.GetLength(0) || y >= distances.GetLength(1))
+                        {
+                            return distance;
+                        }
+
+                        if (distances[x, y] == int.MinValue)
+                        {
+                            if (IsOccupied(x, y))
+                            {
+                                return distance;
+                            }
+
+                            distances[x, y] = distance;
+                            stack.Push((x, y));
+                        }
+                    }
+                }
+            }
+
+            throw new Exception($"This cannot happen.");
         }
     }
 }
