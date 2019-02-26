@@ -92,7 +92,7 @@ namespace Racing.Evolution
             var actionsWithHightThrottleAndSmallSteeringAngle = 0;
 
             var totalDistanceTravelled = 0.0;
-            IState previous = null;
+            IState? previous = null;
 
             foreach (var log in summary.Log)
             {
@@ -112,7 +112,7 @@ namespace Racing.Evolution
                 {
                     if (previous != null)
                     {
-                        totalDistanceTravelled += Length.Between(updated.State.Position, previous.Position).Meters;
+                        totalDistanceTravelled += Distance.Between(updated.State.Position, previous.Position);
                     }
 
                     previous = updated.State;

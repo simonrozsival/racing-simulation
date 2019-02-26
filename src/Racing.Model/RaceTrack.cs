@@ -6,16 +6,16 @@ namespace Racing.Model
 {
     public sealed class RaceTrack : ITrack
     {
-        public Length TileSize { get; }
+        public double TileSize { get; }
         public ICircuit Circuit { get; }
         public bool[,] OccupancyGrid { get; }
-        public Length Width { get; }
-        public Length Height { get; }
+        public double Width { get; }
+        public double Height { get; }
 
         public RaceTrack(
             ICircuit circuit,
             bool[,] occupancyGrid,
-            Length tileSize)
+            double tileSize)
         {
             Circuit = circuit;
             OccupancyGrid = occupancyGrid;
@@ -27,7 +27,7 @@ namespace Racing.Model
         public bool IsOccupied(Vector position)
             => IsOccupied(position.X, position.Y);
 
-        public bool IsOccupied(Length x, Length y)
+        public bool IsOccupied(double x, double y)
         {
             var (tileX, tileY) = tileOf(x, y);
             return IsOccupied(tileX, tileY);
@@ -49,15 +49,15 @@ namespace Racing.Model
         public (int x, int y) TileOf(Vector point)
             => tileOf(point.X, point.Y);
 
-        private (int x, int y) tileOf(Length x, Length y)
+        private (int x, int y) tileOf(double x, double y)
         {
-            var tileX = (int)(x / TileSize).Meters;
-            var tileY = (int)(y / TileSize).Meters;
+            var tileX = (int)(x / TileSize);
+            var tileY = (int)(y / TileSize);
 
             return (tileX, tileY);
         }
 
-        public Length DistanceToClosestObstacle(Vector position)
+        public double DistanceToClosestObstacle(Vector position)
         {
             var distances = new int[OccupancyGrid.GetLength(0), OccupancyGrid.GetLength(1)];
             for (var i = 0; i < distances.GetLength(0); i++)

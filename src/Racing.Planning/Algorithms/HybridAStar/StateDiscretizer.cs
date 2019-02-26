@@ -5,8 +5,8 @@ namespace Racing.Planning.Algorithms.HybridAStar
 {
     internal sealed partial class StateDiscretizer
     {
-        private readonly Length positionXCellSize;
-        private readonly Length positionYCellSize;
+        private readonly double positionXCellSize;
+        private readonly double positionYCellSize;
         private readonly Angle headingAngleCellSize;
 
         public StateDiscretizer(

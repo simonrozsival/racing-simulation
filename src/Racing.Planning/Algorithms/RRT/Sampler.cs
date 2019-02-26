@@ -45,8 +45,8 @@ namespace Racing.Planning.Algorithms.RRT
             do
             {
                 position = new Vector(
-                    x: random.NextDoubleBetween(0, track.Width.Meters),
-                    y: random.NextDoubleBetween(0, track.Height.Meters));
+                    x: random.NextDoubleBetween(0, track.Width),
+                    y: random.NextDoubleBetween(0, track.Height));
             } while (track.IsOccupied(position.X, position.Y));
 
             return position;

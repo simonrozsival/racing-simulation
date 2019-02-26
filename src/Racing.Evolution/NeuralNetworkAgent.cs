@@ -33,7 +33,7 @@ namespace Racing.Evolution
             }
 
             var everyNth = distances.Count / brain.InputCount;
-            var readings = distances.Where((_, i) => i % everyNth == 0).Select(distance => distance.Meters / lidar.MaximumDistance.Meters).ToArray();
+            var readings = distances.Where((_, i) => i % everyNth == 0).Select(distance => distance / lidar.MaximumDistance).ToArray();
 
             var prediction = predict(readings);
 

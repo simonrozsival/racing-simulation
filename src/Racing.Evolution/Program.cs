@@ -37,7 +37,7 @@ namespace Racing.Evolution
             var worlds = tracks.Select(track => new StandardWorld(track, simulationStep)).ToArray();
 
             var inputSamplesCount = 3;
-            var maximumScanningDistance = Length.FromMeters(200);
+            var maximumScanningDistance = 200;
             ILidar createLidarFor(ITrack track)
                 => new Lidar(track, inputSamplesCount, Angle.FromDegrees(135), maximumScanningDistance);
 

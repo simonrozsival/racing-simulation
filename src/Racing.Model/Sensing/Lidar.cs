@@ -9,9 +9,9 @@ namespace Racing.Model.Sensing
         private readonly Angle fieldOfView;
         private readonly Angle angularResolution;
 
-        public Length MaximumDistance { get; }
+        public double MaximumDistance { get; }
 
-        public Lidar(ITrack track, int samplingFrequency, Angle fieldOfView, Length maximumDistance)
+        public Lidar(ITrack track, int samplingFrequency, Angle fieldOfView, double maximumDistance)
         {
             this.fieldOfView = fieldOfView;
 
@@ -23,7 +23,7 @@ namespace Racing.Model.Sensing
 
         public ILidarReading Scan(Vector origin, Angle direction)
         {
-            var distances = new List<Length>();
+            var distances = new List<double>();
             var firstSampleDirection = direction - (fieldOfView / 2);
 
             for (var angle = angularResolution / 2; angle < fieldOfView; angle += angularResolution)

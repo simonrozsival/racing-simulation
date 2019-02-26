@@ -6,12 +6,12 @@ namespace Racing.Planning.Algorithms.RRT
 {
     internal sealed class DistanceMeasurement
     {
-        private Length maximumDistance;
+        private double maximumDistance;
 
-        public DistanceMeasurement(Length width, Length height)
+        public DistanceMeasurement(double width, double height)
         {
-            var w = width.Meters;
-            var h = height.Meters;
+            var w = width;
+            var h = height;
             maximumDistance = Sqrt(w * w + h * h);
         }
 
@@ -23,7 +23,7 @@ namespace Racing.Planning.Algorithms.RRT
         }
 
         public double DistanceBetween(Vector a, Vector b)
-            => (Length.Between(a, b) / maximumDistance).Meters;
+            => (Distance.Between(a, b) / maximumDistance);
 
         public double DistanceBetween(Angle a, Angle b)
         {

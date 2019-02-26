@@ -6,8 +6,8 @@ namespace Racing.Model.Sensing
     public interface ILidarReading
     {
         Angle AngularResolution { get; }
-        Length MaximumDistance { get; }
-        Length[] Readings { get; }
+        double MaximumDistance { get; }
+        double[] Readings { get; }
         IEnumerable<Vector> ToPointCloud();
     }
 }

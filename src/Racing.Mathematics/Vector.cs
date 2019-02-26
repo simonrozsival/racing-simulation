@@ -5,10 +5,10 @@ namespace Racing.Mathematics
 {
     public readonly struct Vector : IEquatable<Vector>
     {
-        public Length X { get; }
-        public Length Y { get; }
+        public double X { get; }
+        public double Y { get; }
 
-        public Vector(Length x, Length y)
+        public Vector(double x, double y)
         {
             X = x;
             Y = y;
@@ -26,8 +26,8 @@ namespace Racing.Mathematics
             return (1 / length) * this;
         }
 
-        public Length CalculateLength()
-            => Sqrt(X.Squared() + Y.Squared());
+        public double CalculateLength()
+            => Sqrt(X * X + Y * Y);
 
         public Vector Rotate(Angle angle)
             => new Vector(
@@ -37,17 +37,17 @@ namespace Racing.Mathematics
         public Vector Rotate(Vector center, Angle angle)
             => (this - center).Rotate(angle) + center;
 
-        public Length DistanceSq(Vector other)
+        public double DistanceSq(Vector other)
         {
             var dx = X - other.X;
             var dy = Y - other.Y;
             return dx * dx + dy * dy;
         }
 
-        public Length Cross(Vector other)
+        public double Cross(Vector other)
             => X * other.Y - Y * other.X;
 
-        public Length Dot(Vector other)
+        public double Dot(Vector other)
             => X * other.X + Y * other.Y;
 
         public Angle Direction()
@@ -61,9 +61,6 @@ namespace Racing.Mathematics
 
         public static Vector operator *(double scale, Vector a)
             => new Vector(scale * a.X, scale * a.Y);
-
-        public static Vector operator *(Length scale, Vector a)
-            => new Vector(scale.Meters * a.X, scale.Meters * a.Y);
 
         public override string ToString()
             => FormattableString.Invariant($"[{X}, {Y}]");
@@ -83,9 +80,9 @@ namespace Racing.Mathematics
         public override int GetHashCode()
             => HashCode.Combine(X, Y);
 
-        public static Vector From(Length d, Angle a)
+        public static Vector From(double d, Angle a)
             => new Vector(
-                x: d.Meters * Cos(a.Radians),
-                y: d.Meters * Sin(a.Radians));
+                x: d * Cos(a.Radians),
+                y: d * Sin(a.Radians));
     }
 }

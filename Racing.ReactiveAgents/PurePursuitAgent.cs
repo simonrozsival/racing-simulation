@@ -9,10 +9,10 @@ namespace Racing.ReactiveAgents
     {
         private readonly IState[] path;
         private readonly IVehicleModel vehicleModel;
-        private readonly Length pursuitRadius;
+        private readonly double pursuitRadius;
         private readonly PIDController steeringController;
 
-        public PurePursuitAgent(IState[] path, IVehicleModel vehicleModel, Length pursuitRadius)
+        public PurePursuitAgent(IState[] path, IVehicleModel vehicleModel, double pursuitRadius)
         {
             this.path = path;
             this.vehicleModel = vehicleModel;
@@ -34,7 +34,7 @@ namespace Racing.ReactiveAgents
         {
             for (int i = path.Length; i >= 0; i++)
             {
-                if (Length.Between(currentState.Position, path[i].Position) < pursuitRadius)
+                if (Distance.Between(currentState.Position, path[i].Position) < pursuitRadius)
                 {
                     return path[i];
                 }

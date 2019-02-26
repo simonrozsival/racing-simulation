@@ -8,8 +8,8 @@ namespace Racing.Model.Sensing
         public LidarReading(
             Angle angularResolution, 
             Angle startAngle,
-            Length maximumDistance,
-            Length[] readings)
+            double maximumDistance,
+            double[] readings)
         {
             AngularResolution = angularResolution;
             StartAngle = startAngle;
@@ -19,15 +19,15 @@ namespace Racing.Model.Sensing
 
         public Angle AngularResolution { get; }
         public Angle StartAngle { get; }
-        public Length MaximumDistance { get; }
-        public Length[] Readings { get; }
+        public double MaximumDistance { get; }
+        public double[] Readings { get; }
 
         public IEnumerable<Vector> ToPointCloud()
         {
             for (int i = 0; i < Readings.Length; i++)
             {
                 var distance = Readings[i];
-                if (distance == Length.Infinite)
+                if (distance == double.MaxValue)
                 {
                     distance = MaximumDistance;
                 }

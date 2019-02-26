@@ -7,8 +7,8 @@ namespace Racing.Mathematics
     {
         public double Radians { get; }
 
-        public static Angle Zero { get; } = Angle.FromDegrees(0);
-        public static Angle FullCircle { get; } = Angle.FromDegrees(360);
+        public static Angle Zero { get; } = FromDegrees(0);
+        public static Angle FullCircle { get; } = FromDegrees(360);
 
         private Angle(double radians)
         {
@@ -41,8 +41,6 @@ namespace Racing.Mathematics
 
         public static Angle operator *(double scale, Angle a)
             => scale * a.Radians;
-        public static Angle operator *(Length scale, Angle a)
-            => scale.Meters * a.Radians;
 
         public static Angle operator *(Angle a, double scale)
             => scale * a.Radians;

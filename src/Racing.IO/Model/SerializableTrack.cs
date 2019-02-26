@@ -24,7 +24,7 @@ namespace Racing.IO.Model
             return new SerializableTrack
             {
                 TileSize = tileSize,
-                Circuit = new SerializableCircuit { Radius = circuit.Radius, Start = circuit.Start, WayPoints = circuit.WayPoints.Skip(1).Select(goal => (SerializableVector)goal.Position).ToList() },
+                Circuit = new SerializableCircuit { Radius = circuit.Radius, Start = circuit.Start, WayPoints = circuit.WayPoints.Skip(1).Select(goal => goal.Position).ToList() },
                 OccupancyGrid = occupancyGridLines.ToArray()
             };
         }

@@ -13,13 +13,13 @@ namespace Racing.Mathematics
         public static double Tan(Angle angle)
             => Math.Tan(angle.Radians);
 
-        public static Angle Acos(Length distance)
-            => Math.Acos(distance.Meters);
+        public static Angle Acos(double distance)
+            => Math.Acos(distance);
 
-        public static Angle Atan(Length distance)
-            => Math.Atan(distance.Meters);
+        public static Angle Atan(double distance)
+            => Math.Atan(distance);
 
-        public static Length Sqrt(Length distance)
-            => Math.Sqrt(distance.Meters);
+        public static double Sqrt(double distance)
+            => Math.Sqrt(distance);
     }
 }

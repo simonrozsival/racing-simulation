@@ -17,7 +17,7 @@ namespace Racing.IO
                 SimulationTime = summary.SimulationTime.TotalSeconds,
                 Result = summary.Result,
                 Log = summary.Log.Select(SerializableEventFactory.From),
-                Track = SerializableTrack.From(track.TileSize.Meters, track.Circuit, track.OccupancyGrid),
+                Track = SerializableTrack.From(track.TileSize, track.Circuit, track.OccupancyGrid),
                 VehicleModel = vehicle,
                 TrackImageFilePath = imageFilePath
             };

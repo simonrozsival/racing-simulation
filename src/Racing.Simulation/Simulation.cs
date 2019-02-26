@@ -103,13 +103,13 @@ namespace Racing.Simulation
                 return 1.0;
             }
 
-            var distanceBetweenWayPoints = Length.Between(
+            var distanceBetweenWayPoints = Distance.Between(
                 wayPoints[lastTargetWayPoint].Position,
                 lastTargetWayPoint > 0
                     ? wayPoints[lastTargetWayPoint - 1].Position
-                    : world.Track.Circuit.Start).Meters;
+                    : world.Track.Circuit.Start);
 
-            var distanceToTheWayPoint = Length.Between(wayPoints[lastTargetWayPoint].Position, vehicleState.Position).Meters;
+            var distanceToTheWayPoint = Distance.Between(wayPoints[lastTargetWayPoint].Position, vehicleState.Position);
 
             var distanceProportion = distanceToTheWayPoint / distanceBetweenWayPoints;
             var distanceTravelledBetweenWayPoints = Math.Clamp(1 - distanceProportion, -1.0, 1.0);

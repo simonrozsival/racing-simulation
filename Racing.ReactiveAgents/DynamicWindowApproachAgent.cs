@@ -15,7 +15,7 @@ namespace Racing.ReactiveAgents
         private readonly IMotionModel motionModel;
         private readonly ICollisionDetector collisionDetector;
         private readonly IActionSet actions;
-        private readonly Length pursuitRadius;
+        private readonly double pursuitRadius;
         private readonly TimeSpan reactionTime;
 
         private readonly double alignmentWeight = 2.0;
@@ -29,7 +29,7 @@ namespace Racing.ReactiveAgents
             ICollisionDetector collisionDetector,
             IMotionModel motionModel,
             IActionSet actions,
-            Length pursuitRadius,
+            double pursuitRadius,
             TimeSpan reactionTime)
         {
             this.path = path;
@@ -66,7 +66,7 @@ namespace Racing.ReactiveAgents
         {
             for (int i = path.Length; i >= 0; i++)
             {
-                if (Length.Between(currentState.Position, path[i].Position) < pursuitRadius)
+                if (Distance.Between(currentState.Position, path[i].Position) < pursuitRadius)
                 {
                     return path[i];
                 }
@@ -94,7 +94,7 @@ namespace Racing.ReactiveAgents
                 headingDifference -= Math.PI;
             }
 
-            var clearance = Math.Clamp(collisionDetector.DistanceToClosestObstacle(nextState).Meters / track.Circuit.Radius, 0, 1);
+            var clearance = Math.Clamp(collisionDetector.DistanceToClosestObstacle(nextState) / track.Circuit.Radius, 0, 1);
             var alignment = (Math.PI - Math.Abs(headingDifference.Radians)) / Math.PI;
             var speed = nextState.Speed / vehicleModel.MaxSpeed;
 

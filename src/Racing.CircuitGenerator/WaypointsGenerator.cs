@@ -149,7 +149,7 @@ namespace Racing.CircuitGenerator
 
         private static void trySelectPointOnTheLongestStraightAsStart(List<Vector> dataSet)
         {
-            var maxLength = Length.FromMeters(-1.0);
+            var maxLength = -1.0;
             var maxIndex = -1;
 
             for (int i = 0; i < dataSet.Count; i++)

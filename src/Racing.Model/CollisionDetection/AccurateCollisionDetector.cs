@@ -66,7 +66,7 @@ namespace Racing.Model.CollisionDetection
             return (int)(angle / discretizationStep);
         }
 
-        public Length DistanceToClosestObstacle(IState state)
+        public double DistanceToClosestObstacle(IState state)
             => track.DistanceToClosestObstacle(state.Position) - Math.Max(ux, uy);
     }
 }
