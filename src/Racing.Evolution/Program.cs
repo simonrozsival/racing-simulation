@@ -13,7 +13,9 @@ using SharpNeat.Network;
 using SharpNeat.Phenomes;
 using SharpNeat.SpeciationStrategies;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Racing.Evolution
@@ -24,25 +26,26 @@ namespace Racing.Evolution
 
         public static void Main(string[] args)
         {
-            var circuitName = "generated-at-1550822778155";
-            var circuitPath = Path.GetFullPath($"{assetsPath}/tracks/{circuitName}");
+            var random = new Random();
+            var circuits = circuitsFilePaths().ToArray();
 
             var perceptionStep = TimeSpan.FromSeconds(0.1);
             var simulationStep = TimeSpan.FromSeconds(0.05); // 20Hz
             var maximumSimulationTime = TimeSpan.FromSeconds(60);
 
-            var track = Track.Load($"{circuitPath}/circuit_definition.json");
-            var world = new StandardWorld(track, simulationStep);
+            var tracks = circuits.Select(circuitPath => Track.Load($"{circuitPath}/circuit_definition.json"));
+            var worlds = tracks.Select(track => new StandardWorld(track, simulationStep)).ToArray();
 
-            var inputSamplesCount = 8;
+            var inputSamplesCount = 3;
             var maximumScanningDistance = Length.FromMeters(200);
-            var lidar = new Lidar(world.Track, inputSamplesCount, Angle.FromDegrees(135), maximumScanningDistance);
+            ILidar createLidarFor(ITrack track)
+                => new Lidar(track, inputSamplesCount, Angle.FromDegrees(135), maximumScanningDistance);
 
             var settings = new EvolutionSettings
             {
-                PopulationSize = 100,
-                SpeciesCount = 10,
-                ElitismProportion = 0.02,
+                PopulationSize = 1000,
+                SpeciesCount = 30,
+                ElitismProportion = 0,
                 ComplexityThreshold = 50
             };
 
@@ -54,7 +57,7 @@ namespace Racing.Evolution
             };
 
             var distanceMetric = new ManhattanDistanceMetric(1.0, 0.0, 10.0);
-            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
             var speciationStrategy = new ParallelKMeansClusteringStrategy<NeatGenome>(distanceMetric, parallelOptions);
             var complexityRegulationStrategy = new DefaultComplexityRegulationStrategy(ComplexityCeilingType.Absolute, settings.ComplexityThreshold);
 
@@ -64,12 +67,12 @@ namespace Racing.Evolution
                 complexityRegulationStrategy);
 
             var phenomeEvaluator = new RaceSimulationEvaluator(
+                random,
                 simulationStep,
                 perceptionStep,
                 maximumSimulationTime,
-                world,
-                lidar,
-                numberOfSimulationsPerEvaluation: 1);
+                worlds,
+                createLidarFor);
 
             var genomeDecoder = new NeatGenomeDecoder(NetworkActivationScheme.CreateAcyclicScheme());
             var genomeListEvaluator = new ParallelGenomeListEvaluator<NeatGenome, IBlackBox>(
@@ -85,10 +88,10 @@ namespace Racing.Evolution
                     new NeatGenomeParameters
                     {
                         FeedforwardOnly = true,
-                        AddNodeMutationProbability = 0.08,
+                        AddNodeMutationProbability = 0.03,
                         DeleteConnectionMutationProbability = 0.05,
                         ConnectionWeightMutationProbability = 0.08,
-                        FitnessHistoryLength = 2,
+                        FitnessHistoryLength = 10,
                     }),
                 settings.PopulationSize);
 
@@ -115,7 +118,7 @@ namespace Racing.Evolution
                 Console.WriteLine($"- mean fitness: {evolutionaryAlgorithm.Statistics._meanFitness}");
                 Console.WriteLine();
 
-                if (DateTimeOffset.Now - lastVisualization > TimeSpan.FromSeconds(65))
+                if (DateTimeOffset.Now - lastVisualization > TimeSpan.FromSeconds(35))
                 {
                     lastVisualization = DateTimeOffset.Now;
                     Console.WriteLine("Simulating currently best individual...");
@@ -125,13 +128,25 @@ namespace Racing.Evolution
 
             void evaluate(NeatGenome genome)
             {
+                var worldId = random.Next(0, worlds.Length - 1);
+                var world = worlds[worldId];
+
                 var bestIndividual = genomeDecoder.Decode(genome);
-                var agent = new NeuralNetworkAgent(lidar, bestIndividual);
+                var agent = new NeuralNetworkAgent(createLidarFor(world.Track), bestIndividual);
                 var simulation = new Simulation.Simulation(agent, world);
                 var summary = simulation.Simulate(simulationStep, perceptionStep, maximumSimulationTime);
 
+                File.Copy($"{circuits[worldId]}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/visualization.svg", overwrite: true);
                 IO.Simulation.StoreResult(world.Track, world.VehicleModel, summary, "", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
             }
         }
+
+        private static IEnumerable<string> circuitsFilePaths()
+            => new[]
+            {
+                "generated-at-1550822778155",
+                "generated-at-1551107001568",
+                "simple-circuit"
+            }.Select(circuitName => Path.GetFullPath($"{assetsPath}/tracks/{circuitName}"));
     }
 }

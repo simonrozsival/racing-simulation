@@ -1,4 +1,5 @@
-﻿using Racing.Model;
+﻿using Racing.Mathematics;
+using Racing.Model;
 using Racing.Model.Sensing;
 using Racing.Model.Simulation;
 using SharpNeat.Core;
@@ -12,25 +13,23 @@ namespace Racing.Evolution
         private readonly TimeSpan simulationStep;
         private readonly TimeSpan perceptionStep;
         private readonly TimeSpan maximumSimulationTime;
-        private readonly ILidar lidar;
-        private readonly IWorldDefinition world;
-        private readonly int numberOfSimulationsPerEvaluation;
+        private readonly Func<ITrack, ILidar> createLidarFor;
+        private readonly IWorldDefinition[] worlds;
         private readonly object evaluationLock = new object();
 
         public RaceSimulationEvaluator(
+            Random random,
             TimeSpan simulationStep,
             TimeSpan perceptionStep,
             TimeSpan maximumSimulationTime,
-            IWorldDefinition world,
-            ILidar lidar,
-            int numberOfSimulationsPerEvaluation)
+            IWorldDefinition[] worlds,
+            Func<ITrack, ILidar> createLidarFor)
         {
             this.simulationStep = simulationStep;
             this.perceptionStep = perceptionStep;
             this.maximumSimulationTime = maximumSimulationTime;
-            this.world = world;
-            this.numberOfSimulationsPerEvaluation = numberOfSimulationsPerEvaluation;
-            this.lidar = lidar;
+            this.worlds = worlds;
+            this.createLidarFor = createLidarFor;
         }
 
         public ulong EvaluationCount { get; private set; } = 0;
@@ -39,13 +38,14 @@ namespace Racing.Evolution
 
         public FitnessInfo Evaluate(IBlackBox phenome)
         {
-            var agent = new NeuralNetworkAgent(lidar, phenome);
-            var simulation = new Simulation.Simulation(agent, world);
-
             var fitness = 0.0;
 
-            for (var i = 0; i < numberOfSimulationsPerEvaluation; i++)
+            foreach (var world in worlds)
             {
+                var lidar = createLidarFor(world.Track);
+                var agent = new NeuralNetworkAgent(lidar, phenome);
+                var simulation = new Simulation.Simulation(agent, world);
+
                 var simulationResult = simulation.Simulate(simulationStep, perceptionStep, maximumSimulationTime);
                 fitness += fitnessOf(simulationResult);
             }
@@ -56,7 +56,7 @@ namespace Racing.Evolution
             }
 
             return new FitnessInfo(
-                fitness: fitness / numberOfSimulationsPerEvaluation,
+                fitness: fitness / worlds.Length,
                 new AuxFitnessInfo[0]);
         }
 
@@ -91,6 +91,9 @@ namespace Racing.Evolution
             var actionsInTotal = 0;
             var actionsWithHightThrottleAndSmallSteeringAngle = 0;
 
+            var totalDistanceTravelled = 0.0;
+            IState previous = null;
+
             foreach (var log in summary.Log)
             {
                 // ideas:
@@ -105,9 +108,19 @@ namespace Racing.Evolution
                         actionsWithHightThrottleAndSmallSteeringAngle++;
                     }
                 }
+                else if (log is IStateUpdatedEvent updated)
+                {
+                    if (previous != null)
+                    {
+                        totalDistanceTravelled += Length.Between(updated.State.Position, previous.Position).Meters;
+                    }
+
+                    previous = updated.State;
+                }
             }
 
-            fitness += summary.DistanceTravelled * 5 * ((double)actionsWithHightThrottleAndSmallSteeringAngle / actionsInTotal);
+            fitness += 10 * ((double)actionsWithHightThrottleAndSmallSteeringAngle / actionsInTotal);
+            fitness += 10 * summary.SimulationTime.TotalSeconds / totalDistanceTravelled;
 
             return Math.Max(0.0, fitness);
         }
