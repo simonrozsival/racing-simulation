@@ -27,13 +27,13 @@ namespace Racing.Planning
             var simulationStep = perceptionPeriod / 8;
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
-            //var numberOfLaps = 5;
-            //var singleLapWayPoints = track.Circuit.WayPoints.ToList();
-            //var wayPoints = Enumerable.Range(0, numberOfLaps).SelectMany(_ => singleLapWayPoints).ToList().AsReadOnly();
-            var wayPoints = track.Circuit.WayPoints.Take(2).ToList().AsReadOnly();
+            var numberOfLaps = 2;
+            var singleLapWayPoints = track.Circuit.WayPoints.ToList();
+            // var wayPoints = Enumerable.Range(0, numberOfLaps).SelectMany(_ => singleLapWayPoints).ToList().AsReadOnly();
+            var wayPoints = singleLapWayPoints.Take(2).ToList().AsReadOnly();
             var world = new StandardWorld(track, simulationStep);
 
-            var planner = new HybridAStarPlanner(perceptionPeriod, world, wayPoints);
+            //var planner = new HybridAStarPlanner(perceptionPeriod, world, wayPoints);
 
             //var planner = new WayPointFollowingRRTPlannerRRTPlanner(
             //    goalBias: 0.3,
@@ -46,17 +46,13 @@ namespace Racing.Planning
             //    actions,
             //    wayPoints);
 
-            //var planner = new RRTPlanner(
-            //    goalBias: 0.3,
-            //    maximumNumberOfIterations: 100000,
-            //    realVehicleModel,
-            //    realMotionModel,
-            //    track,
-            //    collisionDetector,
-            //    new Random(),
-            //    perceptionPeriod,
-            //    actions,
-            //    wayPoints.SkipLast(1).Last());
+            var planner = new RRTPlanner(
+                goalBias: 0.05,
+                maximumNumberOfIterations: 20000,
+                world,
+                new Random(),
+                perceptionPeriod,
+                wayPoints.Last());
 
             var exploredStates = new List<IState>();
             var lastFlush = DateTimeOffset.Now;

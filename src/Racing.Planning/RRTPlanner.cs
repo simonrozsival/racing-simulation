@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 
-namespace Racing.Planning.Algorithms
+namespace Racing.Planning
 {
     internal sealed class RRTPlanner : IPlanner
     {
@@ -30,13 +30,9 @@ namespace Racing.Planning.Algorithms
         public RRTPlanner(
             double goalBias,
             int maximumNumberOfIterations,
-            IVehicleModel vehicleModel,
-            IMotionModel motionModel,
-            ITrack track,
-            ICollisionDetector collisionDetector,
+            IWorldDefinition world,
             Random random,
             TimeSpan timeStep,
-            IActionSet actions,
             IGoal goal)
         {
             if (goalBias > 0.5)
@@ -46,14 +42,14 @@ namespace Racing.Planning.Algorithms
 
             this.goalBias = goalBias;
             this.maximumNumberOfIterations = maximumNumberOfIterations;
-            this.vehicleModel = vehicleModel;
-            this.motionModel = motionModel;
-            this.track = track;
-            this.collisionDetector = collisionDetector;
+            this.vehicleModel = world.VehicleModel;
+            this.motionModel = world.MotionModel;
+            this.track = world.Track;
+            this.collisionDetector = world.CollisionDetector;
             this.random = random;
             this.timeStep = timeStep;
             this.goal = goal;
-            this.actions = actions;
+            this.actions = world.Actions;
 
             distances = new DistanceMeasurement(track.Width, track.Height);
 
