@@ -12,7 +12,7 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
     {
         private readonly ShortestPathNode shortestPathStart;
         private readonly ITrack raceTrack;
-        private readonly Velocity maxSpeed;
+        private readonly double maxSpeed;
         private readonly BoundingSphereCollisionDetector collisionDetector;
 
         public GridShortestPathHeuristic(
@@ -21,7 +21,7 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
             ITrack raceTrack,
             BoundingSphereCollisionDetector collisionDetector,
             double stepSize,
-            Velocity maxSpeed)
+            double maxSpeed)
         {
             this.raceTrack = raceTrack;
             this.maxSpeed = maxSpeed;
@@ -48,7 +48,7 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
 
             // calculate cost to the node
             var distance = (node.Position - state.Position).CalculateLength();
-            var minCostToNextNode = distance / maxSpeed;
+            var minCostToNextNode = TimeSpan.FromSeconds(distance / maxSpeed);
 
             // add that to the cost to the goal
             return minCostToNextNode + node.CostToTheGoal;
@@ -83,7 +83,7 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
                     while (backtrackingNode != null)
                     {
                         var node = new ShortestPathNode(backtrackingNode.Position, backtrackingNode.TargetWayPoint);
-                        node.CostToNext = Distance.Between(node.Position, head.Position) / maxSpeed;
+                        node.CostToNext = TimeSpan.FromSeconds(Distance.Between(node.Position, head.Position) / maxSpeed);
                         node.Next = head;
                         head = node;
                         backtrackingNode = backtrackingNode.Previous;
@@ -154,7 +154,7 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
                 if (node.IsGoal || node.Next != null && (!areInLineOfSight(start.Position, node.Next.Position) || start.TargetWayPoint != node.TargetWayPoint))
                 {
                     start.Next = node;
-                    start.CostToNext = Distance.Between(start.Position, node.Position) / maxSpeed;
+                    start.CostToNext = TimeSpan.FromSeconds(Distance.Between(start.Position, node.Position) / maxSpeed);
                     start = node;
                     Console.WriteLine($"{start.Position},");
                 }

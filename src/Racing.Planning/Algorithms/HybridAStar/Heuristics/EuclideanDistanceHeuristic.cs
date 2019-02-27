@@ -7,10 +7,10 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
 {
     internal class EuclideanDistanceHeuristic : IHeuristic
     {
-        private readonly Velocity maxVelocity;
+        private readonly double maxVelocity;
         private readonly Vector goal;
 
-        public EuclideanDistanceHeuristic(Velocity maxVelocity, IGoal goal)
+        public EuclideanDistanceHeuristic(double maxVelocity, IGoal goal)
         {
             this.maxVelocity = maxVelocity;
             this.goal = goal.Position;
@@ -19,7 +19,7 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
         public TimeSpan EstimateTimeToGoal(IState state, int nextWayPoint)
         {
             var distance = (state.Position - goal).CalculateLength();
-            return distance / maxVelocity;
+            return TimeSpan.FromSeconds(distance / maxVelocity);
         }
     }
 }
