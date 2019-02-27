@@ -147,7 +147,6 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
         {
             var start = head;
             var node = head.Next;
-            Console.WriteLine($"{start.Position},");
 
             while (node != null)
             {
@@ -156,7 +155,6 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
                     start.Next = node;
                     start.CostToNext = TimeSpan.FromSeconds(Distance.Between(start.Position, node.Position) / maxSpeed);
                     start = node;
-                    Console.WriteLine($"{start.Position},");
                 }
 
                 node = node.Next;

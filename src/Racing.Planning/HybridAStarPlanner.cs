@@ -47,7 +47,7 @@ namespace Racing.Planning
             discretizer = new StateDiscretizer(
                 positionXCellSize: vehicleModel.Width / 2,
                 positionYCellSize: vehicleModel.Width / 2,
-                headingAngleCellSize: 2 * Math.PI / 12);
+                headingAngleCellSize: 2 * Math.PI / 36);
 
             ExploredStates = exploredStates;
         }

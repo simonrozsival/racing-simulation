@@ -35,7 +35,7 @@ namespace Racing.Model
 
             StateClassificator = new StateClassificator(CollisionDetector, WayPoints.Last());
             InitialState = new InitialState(track.Circuit);
-            Actions = new SteeringInputs(throttleSteps: 5, steeringSteps: 15);
+            Actions = new SteeringInputs(throttleSteps: 7, steeringSteps: 31);
         }
     }
 }

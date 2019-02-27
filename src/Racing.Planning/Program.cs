@@ -5,6 +5,8 @@ using Racing.Mathematics;
 using Racing.Model;
 using Racing.Model.Sensing;
 using Racing.Model.Simulation;
+using Racing.Planning.Domain;
+using Racing.Simulation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +27,10 @@ namespace Racing.Planning
             var simulationStep = perceptionPeriod / 8;
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
-            var wayPoints = track.Circuit.WayPoints.ToList().AsReadOnly();
+            //var numberOfLaps = 5;
+            //var singleLapWayPoints = track.Circuit.WayPoints.ToList();
+            //var wayPoints = Enumerable.Range(0, numberOfLaps).SelectMany(_ => singleLapWayPoints).ToList().AsReadOnly();
+            var wayPoints = track.Circuit.WayPoints.Take(2).ToList().AsReadOnly();
             var world = new StandardWorld(track, simulationStep);
 
             var planner = new HybridAStarPlanner(perceptionPeriod, world, wayPoints);
@@ -57,6 +62,7 @@ namespace Racing.Planning
             var lastFlush = DateTimeOffset.Now;
             void flush()
             {
+                Console.WriteLine($"Explored {exploredStates.Count} states");
                 lastFlush = DateTimeOffset.Now;
                 var data = JsonConvert.SerializeObject(exploredStates, new JsonSerializerSettings
                 {
@@ -73,7 +79,6 @@ namespace Racing.Planning
                 exploredStates.Add(state);
                 if (DateTimeOffset.Now - lastFlush > TimeSpan.FromSeconds(10))
                 {
-                    Console.WriteLine($"Explored {exploredStates.Count} states");
                     flush();
                 }
             });
@@ -84,131 +89,59 @@ namespace Racing.Planning
             var plan = planner.FindOptimalPlanFor(world.InitialState);
             stopwatch.Stop();
 
+            flush();
+
             if (plan == null)
             {
                 Console.WriteLine("Couldn't find any plan.");
-                Console.WriteLine($"Explored states: {exploredStates.Count}");
-                flush();
                 return;
             }
 
             Console.WriteLine($"Found a plan in {stopwatch.ElapsedMilliseconds}ms");
 
+            // store the result in a file so it can be replayed
+            var summary = simulate(plan, world);
+            //File.Copy($"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/visualization.svg", overwrite: true);
+            IO.Simulation.StoreResult(track, world.VehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
+            Console.WriteLine($"Time to finish: {plan.TimeToGoal.TotalSeconds}s");
+        }
+
+        private static ISummary simulate(IPlan plan, IWorldDefinition world)
+        {
             var log = new Log();
-            log.StateUpdated(world.InitialState);
-            var state = world.InitialState;
+            var distance = 0.0;
 
             for (int i = 0; i < plan.Trajectory.Count; i++)
             {
                 var trajectory = plan.Trajectory[i];
+                var state = trajectory.State;
+                var action = trajectory.Action;
+
                 log.SimulationTimeChanged(trajectory.Time);
-                if (trajectory.Action != null)
+
+                if (action != null)
                 {
-                    log.ActionSelected(trajectory.Action);
+                    log.ActionSelected(action);
+
+                    var nextTrajectorySegmentTime = i < plan.Trajectory.Count - 1
+                        ? plan.Trajectory[i + 1].Time
+                        : plan.TimeToGoal;
+                    var timeStep = nextTrajectorySegmentTime - trajectory.Time;
+
+                    var predictions = world.MotionModel.CalculateNextState(state, action, timeStep);
+                    var previousState = trajectory.State;
+                    foreach (var (time, predictedState) in predictions)
+                    {
+                        log.SimulationTimeChanged(trajectory.Time + time);
+                        log.StateUpdated(predictedState);
+
+                        distance += Distance.Between(previousState.Position, predictedState.Position);
+                        previousState = predictedState;
+                    }
                 }
-                log.StateUpdated(trajectory.State);
             }
 
-            var summary = new SimulationSummary(plan.TimeToGoal, Result.TimeOut, log.History, wayPoints.Count);
-            Simulation.StoreResult(track, world.VehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
-            Console.WriteLine($"Time to finish: {plan.TimeToGoal.TotalSeconds}s");
-
-            flush();
-        }
-
-        private sealed class SimulationSummary : ISummary
-        {
-            public SimulationSummary(TimeSpan simulationTime, Result result, IEnumerable<IEvent> log, double distanceTravelled)
-            {
-                SimulationTime = simulationTime;
-                Result = result;
-                Log = log;
-                DistanceTravelled = distanceTravelled;
-            }
-
-            public TimeSpan SimulationTime { get; }
-            public Result Result { get; }
-            public IEnumerable<IEvent> Log { get; }
-            public double DistanceTravelled { get; }
-        }
-
-        public sealed class Log
-        {
-            private readonly List<IEvent> history = new List<IEvent>();
-            private readonly ISubject<IEvent> events = new Subject<IEvent>();
-
-            private TimeSpan simulationTime = TimeSpan.Zero;
-
-            public IEnumerable<IEvent> History => history;
-            public IObservable<IEvent> Events => events.AsObservable();
-
-            public void SimulationTimeChanged(TimeSpan time)
-            {
-                simulationTime = time;
-            }
-
-            public void ActionSelected(IAction action)
-            {
-                log(new ActionSelectedEvent(action, simulationTime));
-            }
-
-            public void StateUpdated(IState state)
-            {
-                log(new StateUpdatedEvent(state, simulationTime));
-            }
-
-            public void Finished(Result result)
-            {
-                log(new SimulationEndedEvent(result, simulationTime));
-                events.OnCompleted();
-            }
-
-            private void log(IEvent loggedEvent)
-            {
-                events.OnNext(loggedEvent);
-                history.Add(loggedEvent);
-            }
-
-            private sealed class ActionSelectedEvent : IActionSelectedEvent
-            {
-                public ActionSelectedEvent(IAction action, TimeSpan time)
-                {
-                    Action = action;
-                    Time = time;
-                }
-
-                public IAction Action { get; }
-
-                public TimeSpan Time { get; }
-            }
-
-            private sealed class SimulationEndedEvent : ISimulationEndedEvent
-            {
-                public SimulationEndedEvent(Result result, TimeSpan time)
-                {
-                    Result = result;
-                    Time = time;
-                }
-
-                public Result Result { get; }
-
-                public TimeSpan Time { get; }
-            }
-
-
-            private sealed class StateUpdatedEvent : IStateUpdatedEvent
-            {
-                public StateUpdatedEvent(IState state, TimeSpan time)
-                {
-                    State = state;
-                    Time = time;
-                }
-
-                public IState State { get; }
-
-                public TimeSpan Time { get; }
-            }
-
+            return new SimulationSummary(plan.TimeToGoal, Result.Suceeded, log.History, distance);
         }
     }
 }

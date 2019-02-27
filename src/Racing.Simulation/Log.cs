@@ -83,6 +83,5 @@ namespace Racing.Simulation
 
             public TimeSpan Time { get; }
         }
-
     }
 }

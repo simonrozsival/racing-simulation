@@ -8,9 +8,9 @@ namespace Racing.Model.Vehicle
         double Length { get; }
         double MinSpeed { get; }
         double MaxSpeed { get; }
-        double MinSteeringAngle { get; }
         double MaxSteeringAngle { get; }
         double Acceleration { get; }
         double SteeringAcceleration { get; }
+        double BrakingDeceleration { get; }
     }
 }

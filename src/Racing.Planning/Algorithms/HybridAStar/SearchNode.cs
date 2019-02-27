@@ -44,13 +44,13 @@ namespace Racing.Planning.Algorithms.HybridAStar
         {
             var trajectory = new List<IActionTrajectory>();
             SearchNode? node = this;
+            IAction? action = ActionFromPreviousState;
 
-            trajectory.Add(new ActionTrajectory(TimeSpan.FromSeconds(node.CostToCome), State, null));
-
-            while (node.PreviousNode != null)
+            while (node != null)
             {
                 trajectory.Add(
-                    new ActionTrajectory(TimeSpan.FromSeconds(node.CostToCome), node.PreviousNode.State, node.ActionFromPreviousState));
+                    new ActionTrajectory(TimeSpan.FromSeconds(node.CostToCome), node.State, action));
+                action = node.ActionFromPreviousState;
                 node = node.PreviousNode;
             }
 

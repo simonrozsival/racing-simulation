@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Racing.Simulation
 {
-    internal sealed class SimulationSummary : ISummary
+    public sealed class SimulationSummary : ISummary
     {
         public SimulationSummary(
             TimeSpan simulationTime,
