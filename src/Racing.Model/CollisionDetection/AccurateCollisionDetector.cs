@@ -20,8 +20,8 @@ namespace Racing.Model.CollisionDetection
         {
             this.track = track;
 
-            ux = vehicleModel.Length / 2 + safetyMargin;
-            uy = vehicleModel.Width / 2 + safetyMargin;
+            ux = (vehicleModel.Length / 2) * (1 + safetyMargin);
+            uy = (vehicleModel.Width / 2) * (1 + safetyMargin);
 
             for (var i = 0; i < 2 * Math.PI  / discretizationStep; i++)
             {
@@ -45,13 +45,13 @@ namespace Racing.Model.CollisionDetection
             }
 
             var pointB = state.Position + front[i];
-            if (isOccupied(pointA))
+            if (isOccupied(pointB))
             {
                 return true;
             }
 
             var pointC = state.Position + frontRight[i];
-            return isOccupied(pointB);
+            return isOccupied(pointC);
         }
 
         private bool isOccupied(Vector point)
