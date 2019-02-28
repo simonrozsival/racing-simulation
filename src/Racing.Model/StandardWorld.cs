@@ -17,12 +17,12 @@ namespace Racing.Model
         public IActionSet Actions { get; }
         public IReadOnlyList<IGoal> WayPoints { get; }
 
-        public StandardWorld(ITrack track, TimeSpan simulationTime)
+        public StandardWorld(ITrack track, TimeSpan simulationTime, double safetyMargin = 1)
         {
             Track = track;
             VehicleModel = new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
             MotionModel = new DynamicModel(VehicleModel, simulationTime);
-            CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin: 1);
+            CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin);
             WayPoints = track.Circuit.WayPoints.Count > 4
                 ? new[]
                 {

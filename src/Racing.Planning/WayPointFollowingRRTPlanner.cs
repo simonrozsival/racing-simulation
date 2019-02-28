@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
-using Racing.Planning.Domain;
 using Racing.Planning.Algorithms.RRT;
+using Racing.Model.Planning;
 
 namespace Racing.Planning.Algorithms.Domain
 {
@@ -90,8 +90,8 @@ namespace Racing.Planning.Algorithms.Domain
                 }
 
                 var reachedWayPoints = reachedBreakPoint
-                    ? nearestNode.WayPointsReached + 1
-                    : nearestNode.WayPointsReached;
+                    ? nearestNode.TargetWayPoint + 1
+                    : nearestNode.TargetWayPoint;
 
                 if (reachedWayPoints > wayPointsReached)
                 {

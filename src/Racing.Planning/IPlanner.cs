@@ -1,7 +1,8 @@
 ﻿using Racing.Model;
+using Racing.Model.Planning;
 using System;
 
-namespace Racing.Planning.Domain
+namespace Racing.Planning
 {
     internal interface IPlanner
     {

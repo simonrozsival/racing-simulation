@@ -1,6 +1,5 @@
 ﻿using Racing.Model;
-using Racing.Planning.Algorithms.Domain;
-using Racing.Planning.Domain;
+using Racing.Model.Planning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace Racing.Planning.Algorithms.RRT
         public IAction? ActionFromParent { get; }
         public TimeSpan CostToCome { get; }
         public bool CanBeExpanded { get; private set; }
-        public int WayPointsReached { get; }
+        public int TargetWayPoint { get; }
 
         public TreeNode(IState state)
         {
@@ -25,7 +24,7 @@ namespace Racing.Planning.Algorithms.RRT
             ActionFromParent = null;
             CostToCome = TimeSpan.Zero;
             CanBeExpanded = true;
-            WayPointsReached = 0;
+            TargetWayPoint = 0;
         }
 
         public TreeNode(
@@ -33,14 +32,14 @@ namespace Racing.Planning.Algorithms.RRT
             IState state,
             IAction actionFromParent,
             TimeSpan costOfAction,
-            int wayPointsReached)
+            int targetWayPoint)
         {
             Parent = parent;
             State = state;
             ActionFromParent = actionFromParent;
             CostToCome = (Parent?.CostToCome ?? TimeSpan.Zero) + costOfAction;
             CanBeExpanded = true;
-            WayPointsReached = wayPointsReached;
+            TargetWayPoint = targetWayPoint;
         }
 
         public IEnumerable<IAction> SelectAvailableActionsFrom(IEnumerable<IAction> allActions)
@@ -51,12 +50,12 @@ namespace Racing.Planning.Algorithms.RRT
             var trajectory = new List<IActionTrajectory>();
             TreeNode? node = this;
 
-            trajectory.Add(new ActionTrajectory(node.CostToCome, State, null));
+            trajectory.Add(new ActionTrajectory(node.CostToCome, State, null, node.TargetWayPoint));
 
             while (node.Parent != null)
             {
                 trajectory.Add(
-                    new ActionTrajectory(node.CostToCome, node.Parent.State, node.ActionFromParent));
+                    new ActionTrajectory(node.CostToCome, node.Parent.State, node.ActionFromParent, node.TargetWayPoint));
                 node = node.Parent;
             }
 

@@ -1,6 +1,6 @@
 ﻿using Racing.Model;
+using Racing.Model.Planning;
 using Racing.Planning.Algorithms.HybridAStar.DataStructures;
-using Racing.Planning.Domain;
 using System;
 using System.Collections.Generic;
 
@@ -14,7 +14,7 @@ namespace Racing.Planning.Algorithms.HybridAStar
         public SearchNode? PreviousNode { get; }
         public double CostToCome { get; }
         public double EstimatedTotalCost { get; }
-        public IReadOnlyList<IGoal> RemainingWayPoints { get; }
+        public int TargetWayPoint { get; }
 
         public SearchNode(
             DiscreteState discreteState,
@@ -23,7 +23,7 @@ namespace Racing.Planning.Algorithms.HybridAStar
             SearchNode? previousState,
             double costToCome,
             double estimatedTotalCost,
-            IReadOnlyList<IGoal> remainingWayPoints)
+            int targetWayPoint)
         {
             Key = discreteState;
             State = state;
@@ -31,7 +31,7 @@ namespace Racing.Planning.Algorithms.HybridAStar
             PreviousNode = previousState;
             CostToCome = costToCome;
             EstimatedTotalCost = estimatedTotalCost;
-            RemainingWayPoints = remainingWayPoints;
+            TargetWayPoint = targetWayPoint;
         }
 
         public int CompareTo(SearchNode other)
@@ -49,7 +49,7 @@ namespace Racing.Planning.Algorithms.HybridAStar
             while (node != null)
             {
                 trajectory.Add(
-                    new ActionTrajectory(TimeSpan.FromSeconds(node.CostToCome), node.State, action));
+                    new ActionTrajectory(TimeSpan.FromSeconds(node.CostToCome), node.State, action, node.TargetWayPoint));
                 action = node.ActionFromPreviousState;
                 node = node.PreviousNode;
             }

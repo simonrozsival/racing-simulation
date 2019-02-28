@@ -1,5 +1,6 @@
 ﻿using Racing.Model;
 using Racing.Model.Simulation;
+using Racing.Model.Visualization;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
@@ -30,6 +31,11 @@ namespace Racing.Simulation
         public void StateUpdated(IState state)
         {
             log(new StateUpdatedEvent(state, simulationTime));
+        }
+
+        public void Visualize(IVisualization visualization)
+        {
+            log(new VisualizationEvent(visualization, simulationTime));
         }
 
         public void Finished(Result result)
@@ -80,6 +86,19 @@ namespace Racing.Simulation
             }
 
             public IState State { get; }
+
+            public TimeSpan Time { get; }
+        }
+
+        private sealed class VisualizationEvent : IVisualizationEvent
+        {
+            public VisualizationEvent(IVisualization visualization, TimeSpan time)
+            {
+                Visualization = visualization;
+                Time = time;
+            }
+
+            public IVisualization Visualization { get; }
 
             public TimeSpan Time { get; }
         }

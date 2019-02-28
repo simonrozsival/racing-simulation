@@ -1,8 +1,10 @@
 ﻿using Racing.Model;
 using Racing.Model.Sensing;
+using Racing.Model.Visualization;
 using SharpNeat.Phenomes;
 using System;
 using System.Linq;
+using System.Reactive.Linq;
 
 namespace Racing.Evolution
 {
@@ -10,6 +12,8 @@ namespace Racing.Evolution
     {
         private readonly ILidar lidar;
         private readonly IBlackBox brain;
+
+        public IObservable<IVisualization> Visualization { get; } = Observable.Never<IVisualization>();
 
         public NeuralNetworkAgent(ILidar lidar, IBlackBox brain)
         {

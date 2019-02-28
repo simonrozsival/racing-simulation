@@ -1,8 +1,8 @@
 ﻿using Racing.Model;
 using Racing.Model.CollisionDetection;
+using Racing.Model.Planning;
 using Racing.Model.Vehicle;
 using Racing.Planning.Algorithms.RRT;
-using Racing.Planning.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;

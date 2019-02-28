@@ -37,6 +37,8 @@ namespace Racing.Simulation
             var elapsedTime = TimeSpan.Zero;
             var timeToNextPerception = TimeSpan.Zero;
 
+            var visualizationSubscription = agent.Visualization.Subscribe(log.Visualize);
+
             while (nextWayPoint < wayPoints.Count && elapsedTime < maximumSimulationTime)
             {
                 timeToNextPerception -= simulationStep;

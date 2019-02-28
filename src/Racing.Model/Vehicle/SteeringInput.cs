@@ -34,10 +34,11 @@ namespace Racing.Model.Vehicle
             yield return brake;
 
             var steeringShift = steeringSteps / 2;
-            for (int t = 0; t < throttleSteps; t++)
+            for (int s = 0; s < steeringSteps; s++)
             {
-                for (int s = 0; s < steeringSteps; s++)
-                {
+                var steering = (double)(s - steeringShift) / steeringShift;
+                for (int t = 0; t < throttleSteps; t++)
+            {
                     if (t == throttleSteps - 1 && s == steeringShift)
                     {
                         continue; // full thrust forward
@@ -45,7 +46,14 @@ namespace Racing.Model.Vehicle
 
                     yield return new SteeringInput(
                         throttle: (double)t / (throttleSteps - 1),
-                        steering: (double)(s - steeringShift) / steeringShift);
+                        steering);
+                }
+
+                if (steering != 0)
+                {
+                    yield return new SteeringInput(
+                        throttle: -1,
+                        steering);
                 }
             }
         }

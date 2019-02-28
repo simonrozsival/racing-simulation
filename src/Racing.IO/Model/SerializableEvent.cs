@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Converters;
 using Racing.Model;
 using Racing.Model.Simulation;
+using Racing.Model.Visualization;
 using System;
 
 namespace Racing.IO.Model
@@ -20,6 +21,9 @@ namespace Racing.IO.Model
 
                 case ISimulationEndedEvent ended:
                     return new SimulationEndedEvent(ended);
+
+                case IVisualizationEvent visualization:
+                    return new VisualizationEvent(visualization);
 
                 default:
                     throw new NotSupportedException($"{logEvent.GetType().FullName} is not supported and can't be serialized.");
@@ -68,6 +72,24 @@ namespace Racing.IO.Model
 
             [JsonConverter(typeof(StringEnumConverter))]
             public Result Result => original.Result;
+        }
+
+        internal sealed class VisualizationEvent : ISerializableEvent
+        {
+            private readonly IVisualizationEvent original;
+
+            public VisualizationEvent(IVisualizationEvent original)
+            {
+                this.original = original;
+            }
+
+            public string Type => "visualization";
+
+            public double Time => original.Time.TotalSeconds;
+
+            public IVisualization Visualization => original.Visualization;
+
+            public string VisualizationType => original.Visualization.GetType().Name;
         }
     }
 }

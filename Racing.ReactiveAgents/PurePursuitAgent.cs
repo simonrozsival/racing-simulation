@@ -1,7 +1,9 @@
 ﻿using Racing.Mathematics;
 using Racing.Model;
 using Racing.Model.Vehicle;
+using Racing.Model.Visualization;
 using System;
+using System.Reactive.Linq;
 
 namespace Racing.ReactiveAgents
 {
@@ -11,6 +13,8 @@ namespace Racing.ReactiveAgents
         private readonly IVehicleModel vehicleModel;
         private readonly double pursuitRadius;
         private readonly PIDController steeringController;
+
+        public IObservable<IVisualization> Visualization { get; } = Observable.Never<IVisualization>();
 
         public PurePursuitAgent(IState[] path, IVehicleModel vehicleModel, double pursuitRadius)
         {

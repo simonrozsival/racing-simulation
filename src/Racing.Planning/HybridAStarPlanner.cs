@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
-using Racing.Planning.Domain;
 using Racing.Planning.Algorithms.HybridAStar.DataStructures;
 using Racing.Planning.Algorithms.HybridAStar.Heuristics;
+using Racing.Model.Planning;
 
 namespace Racing.Planning
 {
@@ -67,13 +67,13 @@ namespace Racing.Planning
                     previousState: null,
                     costToCome: 0,
                     estimatedTotalCost: 0, // we don't need estimate for the initial node
-                    wayPoints));
+                    targetWayPoint: 0));
 
             while (!open.IsEmpty)
             {
                 var node = open.DequeueMostPromissing();
 
-                if (node.RemainingWayPoints.Count == 0)
+                if (node.TargetWayPoint == wayPoints.Count)
                 {
                     return node.ReconstructPlan();
                 }
@@ -86,7 +86,7 @@ namespace Racing.Planning
                     var predictedStates = motionModel.CalculateNextState(node.State, action, timeStep);
                     var elapsedTime = predictedStates.Last().relativeTime;
                     var nextVehicleState = predictedStates.Last().state;
-                    var reachedGoal = false;
+                    var reachedWayPoint = false;
                     var collided = false;
 
                     foreach (var (simulationTime, state) in predictedStates)
@@ -95,22 +95,22 @@ namespace Racing.Planning
                         {
                             elapsedTime = simulationTime;
                             nextVehicleState = state;
-                            reachedGoal = false;
+                            reachedWayPoint = false;
                             collided = true;
                             break;
                         }
 
-                        if (node.RemainingWayPoints[0].ReachedGoal(state.Position))
+                        if (wayPoints[node.TargetWayPoint].ReachedGoal(state.Position))
                         {
-                            reachedGoal = true;
+                            reachedWayPoint = true;
                         }
                     }
 
-                    var remainingWayPoints = reachedGoal
-                        ? node.RemainingWayPoints.Skip(1).ToList()
-                        : node.RemainingWayPoints;
+                    var nextTargetWayPoint = reachedWayPoint
+                        ? node.TargetWayPoint + 1
+                        : node.TargetWayPoint;
 
-                    var nextDiscreteState = discretizer.Discretize(nextVehicleState, remainingWayPoints.Count);
+                    var nextDiscreteState = discretizer.Discretize(nextVehicleState, nextTargetWayPoint);
                     if (closed.Contains(nextDiscreteState))
                     {
                         continue;
@@ -122,10 +122,10 @@ namespace Racing.Planning
                         continue;
                     }
 
-                    int targetWayPoint = wayPoints.Count - remainingWayPoints.Count;
                     var costToCome = node.CostToCome + timeStep.TotalSeconds;
-                    var costToGo = remainingWayPoints.Count > 0
-                        ? heuristic.EstimateTimeToGoal(nextVehicleState, targetWayPoint).TotalSeconds
+                    var reachedLastWayPoint = nextTargetWayPoint != wayPoints.Count;
+                    var costToGo = reachedLastWayPoint
+                        ? heuristic.EstimateTimeToGoal(nextVehicleState, nextTargetWayPoint).TotalSeconds
                         : 0;
 
                     var discoveredNode = new SearchNode(
@@ -135,9 +135,9 @@ namespace Racing.Planning
                         previousState: node,
                         costToCome: costToCome,
                         estimatedTotalCost: costToCome + costToGo,
-                        remainingWayPoints);
+                        nextTargetWayPoint);
 
-                    if (greedy && remainingWayPoints.Count == 0)
+                    if (greedy && reachedLastWayPoint)
                     {
                         return discoveredNode.ReconstructPlan();
                     }

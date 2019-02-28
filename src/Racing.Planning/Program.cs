@@ -3,37 +3,33 @@ using Newtonsoft.Json.Serialization;
 using Racing.IO;
 using Racing.Mathematics;
 using Racing.Model;
-using Racing.Model.Sensing;
+using Racing.Model.Planning;
 using Racing.Model.Simulation;
-using Racing.Planning.Domain;
 using Racing.Simulation;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 
 namespace Racing.Planning
 {
     class Program
     {
+        private const string assetsDirectoryPath = "../../../../../assets";
+
         public static void Main(string[] args)
         {
             var circuitName = "simple-circuit";
-            var circuitPath = Path.GetFullPath($"../../../../../assets/tracks/{circuitName}");
+            var circuitPath = Path.GetFullPath($"{assetsDirectoryPath}/tracks/{circuitName}");
 
             var perceptionPeriod = TimeSpan.FromSeconds(0.4);
             var simulationStep = perceptionPeriod / 8;
 
             var track = Track.Load($"{circuitPath}/circuit_definition.json");
-            var numberOfLaps = 2;
-            var singleLapWayPoints = track.Circuit.WayPoints.ToList();
-            // var wayPoints = Enumerable.Range(0, numberOfLaps).SelectMany(_ => singleLapWayPoints).ToList().AsReadOnly();
-            var wayPoints = singleLapWayPoints.Take(2).ToList().AsReadOnly();
             var world = new StandardWorld(track, simulationStep);
 
-            //var planner = new HybridAStarPlanner(perceptionPeriod, world, wayPoints);
+            var planner = new HybridAStarPlanner(perceptionPeriod, world, world.WayPoints);
 
             //var planner = new WayPointFollowingRRTPlannerRRTPlanner(
             //    goalBias: 0.3,
@@ -46,13 +42,13 @@ namespace Racing.Planning
             //    actions,
             //    wayPoints);
 
-            var planner = new RRTPlanner(
-                goalBias: 0.05,
-                maximumNumberOfIterations: 20000,
-                world,
-                new Random(),
-                perceptionPeriod,
-                wayPoints.Last());
+            //var planner = new RRTPlanner(
+            //    goalBias: 0.05,
+            //    maximumNumberOfIterations: 20000,
+            //    world,
+            //    new Random(),
+            //    perceptionPeriod,
+            //    wayPoints.Last());
 
             var exploredStates = new List<IState>();
             var lastFlush = DateTimeOffset.Now;
@@ -95,46 +91,39 @@ namespace Racing.Planning
 
             Console.WriteLine($"Found a plan in {stopwatch.ElapsedMilliseconds}ms");
 
+            var detailedPlan = plan.ToDetailedPlan(world);
+
+            Plans.Store(detailedPlan, $"{assetsDirectoryPath}/plans/plan-{planner.GetType().Name}-{DateTimeOffset.Now.ToUnixTimeSeconds()}-{detailedPlan.TimeToGoal.TotalMilliseconds}.json");
+
             // store the result in a file so it can be replayed
-            var summary = simulate(plan, world);
+            var summary = log(detailedPlan);
             //File.Copy($"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/visualization.svg", overwrite: true);
             IO.Simulation.StoreResult(track, world.VehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
-            Console.WriteLine($"Time to finish: {plan.TimeToGoal.TotalSeconds}s");
+            Console.WriteLine($"Time to finish: {detailedPlan.TimeToGoal.TotalSeconds}s");
         }
 
-        private static ISummary simulate(IPlan plan, IWorldDefinition world)
+        private static ISummary log(IPlan plan)
         {
             var log = new Log();
+            var previousState = plan.Trajectory.First().State;
             var distance = 0.0;
 
-            for (int i = 0; i < plan.Trajectory.Count; i++)
+            foreach (var trajectory in plan.Trajectory)
             {
-                var trajectory = plan.Trajectory[i];
                 var state = trajectory.State;
                 var action = trajectory.Action;
-
                 log.SimulationTimeChanged(trajectory.Time);
 
                 if (action != null)
                 {
                     log.ActionSelected(action);
-
-                    var nextTrajectorySegmentTime = i < plan.Trajectory.Count - 1
-                        ? plan.Trajectory[i + 1].Time
-                        : plan.TimeToGoal;
-                    var timeStep = nextTrajectorySegmentTime - trajectory.Time;
-
-                    var predictions = world.MotionModel.CalculateNextState(state, action, timeStep);
-                    var previousState = trajectory.State;
-                    foreach (var (time, predictedState) in predictions)
-                    {
-                        log.SimulationTimeChanged(trajectory.Time + time);
-                        log.StateUpdated(predictedState);
-
-                        distance += Distance.Between(previousState.Position, predictedState.Position);
-                        previousState = predictedState;
-                    }
                 }
+
+                log.StateUpdated(state);
+
+                distance += Distance.Between(previousState.Position, state.Position);
+
+                previousState = state;
             }
 
             return new SimulationSummary(plan.TimeToGoal, Result.Suceeded, log.History, distance);

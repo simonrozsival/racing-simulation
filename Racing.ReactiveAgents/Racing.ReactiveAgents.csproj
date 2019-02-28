@@ -10,7 +10,6 @@
   <ItemGroup>
     <ProjectReference Include="..\src\Racing.Mathematics\Racing.Mathematics.csproj" />
     <ProjectReference Include="..\src\Racing.Model\Racing.Model.csproj" />
-    <ProjectReference Include="..\src\Racing.Planning\Racing.Planning.csproj" />
     <ProjectReference Include="..\src\Racing.Simulation\Racing.Simulation.csproj" />
   </ItemGroup>
 
