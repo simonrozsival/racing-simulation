@@ -25,19 +25,21 @@ namespace Racing.ReactiveAgents
             Console.WriteLine($"Loading plan {planName}");
             var plan = Plans.Load($"{assetsDirectoryPath}/plans/{planName}");
 
-            var agent = new DynamcWindowApproachAgent(
-                plan.Trajectory,
-                world.VehicleModel,
-                world.Track,
-                world.CollisionDetector,
-                world.MotionModel,
-                world.Actions,
-                4 * world.VehicleModel.Length,
-                perceptionPeriod);
+            //var agent = new DynamcWindowApproachAgent(
+            //    plan.Trajectory,
+            //    world.VehicleModel,
+            //    world.Track,
+            //    world.CollisionDetector,
+            //    world.MotionModel,
+            //    world.Actions,
+            //    4 * world.VehicleModel.Length,
+            //    perceptionPeriod);
+
+            var agent = new PIDAgent(plan.Trajectory, world.MotionModel, perceptionPeriod);
 
             Console.WriteLine($"Simulating agent {agent.GetType().Name}");
             var simulation = new Simulation.Simulation(agent, world);
-            var summary = simulation.Simulate(simulationStep, perceptionPeriod, TimeSpan.FromSeconds(30));
+            var summary = simulation.Simulate(simulationStep, perceptionPeriod, TimeSpan.FromSeconds(60));
 
             IO.Simulation.StoreResult(track, world.VehicleModel, summary, $"{circuitPath}/visualization.svg", "C:/Users/simon/Projects/racer-experiment/simulator/src/report.json");
             Console.WriteLine($"Time to finish: {summary.SimulationTime.TotalSeconds}s");

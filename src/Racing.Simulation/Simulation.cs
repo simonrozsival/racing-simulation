@@ -63,7 +63,6 @@ namespace Racing.Simulation
                     var type = world.StateClassificator.Classify(state);
                     if (type == StateType.Collision)
                     {
-                        elapsedTime = time;
                         vehicleState = state;
                         reachedGoal = false;
                         collided = true;
@@ -84,7 +83,6 @@ namespace Racing.Simulation
                 if (reachedGoal)
                 {
                     nextWayPoint++;
-                    // Console.WriteLine($"Reached next way point, {wayPoints.Count - nextWayPoint} to go.");
                 }
             }
 

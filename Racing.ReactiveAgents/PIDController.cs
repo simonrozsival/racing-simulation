@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Racing.ReactiveAgents
 {
@@ -20,7 +18,7 @@ namespace Racing.ReactiveAgents
             this.kd = kd;
         }
 
-        public double CalculateAction(double target, double currentValue)
+        public double Calculate(double target, double currentValue)
         {
             var error = target - currentValue;
             var errorChange = previousError - error;
@@ -28,7 +26,7 @@ namespace Racing.ReactiveAgents
             accumulatedError += error; // ??? this can become a huge number!
 
             // virtually zero error - reset the accumulated error
-            if (error < Math.Abs(0.01))
+            if (Math.Abs(error) < 1)
             {
                 accumulatedError = 0.0;
             }
