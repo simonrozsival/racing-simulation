@@ -16,8 +16,8 @@ namespace Racing.Model.Vehicle
             this.minimumSimulationTime = minimumSimulationTime;
         }
 
-        public IEnumerable<(TimeSpan, IState)> CalculateNextState(
-            IState state,
+        public IEnumerable<(TimeSpan, VehicleState)> CalculateNextState(
+            VehicleState state,
             IAction action,
             TimeSpan simulationTime)
         {
@@ -36,7 +36,7 @@ namespace Racing.Model.Vehicle
             }
         }
 
-        private IState calculateNextState(IState state, IAction action, TimeSpan time)
+        private VehicleState calculateNextState(VehicleState state, IAction action, TimeSpan time)
         {
             var seconds = time.TotalSeconds;
 

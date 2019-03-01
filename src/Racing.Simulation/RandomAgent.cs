@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Linq;
 using Racing.Model;
+using Racing.Model.Vehicle;
 using Racing.Model.Visualization;
 
 namespace Racing.Planning
@@ -18,7 +19,7 @@ namespace Racing.Planning
             this.actions = actions;
         }
 
-        public IAction ReactTo(IState state, int wayPoint)
+        public IAction ReactTo(VehicleState state, int wayPoint)
             => actions.AllPossibleActions[random.Next(0, actions.AllPossibleActions.Count - 1)];
     }
 }

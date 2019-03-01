@@ -1,5 +1,6 @@
 ﻿using Racing.Model;
 using Racing.Model.Sensing;
+using Racing.Model.Vehicle;
 using Racing.Model.Visualization;
 using SharpNeat.Phenomes;
 using System;
@@ -26,7 +27,7 @@ namespace Racing.Evolution
             this.brain = brain;
         }
 
-        public IAction ReactTo(IState state, int nextWayPoint)
+        public IAction ReactTo(VehicleState state, int nextWayPoint)
         {
             var scan = lidar.Scan(state.Position, state.HeadingAngle);
             var distances = scan.Readings.ToList();

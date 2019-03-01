@@ -1,5 +1,6 @@
 ﻿using Racing.Model;
 using Racing.Model.Planning;
+using Racing.Model.Vehicle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,13 @@ namespace Racing.Planning.Algorithms.RRT
         private readonly HashSet<IAction> forbinnedActions = new HashSet<IAction>();
 
         public TreeNode? Parent { get; }
-        public IState State { get; }
+        public VehicleState State { get; }
         public IAction? ActionFromParent { get; }
         public TimeSpan CostToCome { get; }
         public bool CanBeExpanded { get; private set; }
         public int TargetWayPoint { get; }
 
-        public TreeNode(IState state)
+        public TreeNode(VehicleState state)
         {
             Parent = null;
             State = state;
@@ -29,7 +30,7 @@ namespace Racing.Planning.Algorithms.RRT
 
         public TreeNode(
             TreeNode parent,
-            IState state,
+            VehicleState state,
             IAction actionFromParent,
             TimeSpan costOfAction,
             int targetWayPoint)

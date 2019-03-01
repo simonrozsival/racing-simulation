@@ -1,5 +1,6 @@
 ﻿using Racing.Model;
 using Racing.Model.Planning;
+using Racing.Model.Vehicle;
 using Racing.Planning.Algorithms.HybridAStar.DataStructures;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace Racing.Planning.Algorithms.HybridAStar
     internal sealed class SearchNode : ISearchNode<DiscreteState>, IComparable<SearchNode>
     {
         public DiscreteState Key { get; }
-        public IState State { get; }
+        public VehicleState State { get; }
         public IAction? ActionFromPreviousState { get; }
         public SearchNode? PreviousNode { get; }
         public double CostToCome { get; }
@@ -18,7 +19,7 @@ namespace Racing.Planning.Algorithms.HybridAStar
 
         public SearchNode(
             DiscreteState discreteState,
-            IState state,
+            VehicleState state,
             IAction? actionFromPreviousState,
             SearchNode? previousState,
             double costToCome,

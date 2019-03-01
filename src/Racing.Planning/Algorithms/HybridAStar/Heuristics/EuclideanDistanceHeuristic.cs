@@ -1,6 +1,7 @@
 ﻿
 using Racing.Mathematics;
 using Racing.Model;
+using Racing.Model.Vehicle;
 using System;
 
 namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
@@ -16,7 +17,7 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
             this.goal = goal.Position;
         }
 
-        public TimeSpan EstimateTimeToGoal(IState state, int nextWayPoint)
+        public TimeSpan EstimateTimeToGoal(VehicleState state, int nextWayPoint)
         {
             var distance = (state.Position - goal).CalculateLength();
             return TimeSpan.FromSeconds(distance / maxVelocity);

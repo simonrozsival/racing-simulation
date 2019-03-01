@@ -5,6 +5,7 @@ using Racing.Model.CollisionDetection;
 using System.Collections.Generic;
 using System.Linq;
 using Racing.Planning.Algorithms.HybridAStar.DataStructures;
+using Racing.Model.Vehicle;
 
 namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
 {
@@ -36,7 +37,7 @@ namespace Racing.Planning.Algorithms.HybridAStar.Heuristics
             shortestPathStart = simplifyPath(path);
         }
 
-        public TimeSpan EstimateTimeToGoal(IState state, int nextWayPoint)
+        public TimeSpan EstimateTimeToGoal(VehicleState state, int nextWayPoint)
         {
             // find next directly visible node on the track
             var node = furthestNodeDirectlyVisibleFrom(state.Position, nextWayPoint);

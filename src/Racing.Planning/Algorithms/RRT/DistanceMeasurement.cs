@@ -1,5 +1,6 @@
 ﻿using Racing.Mathematics;
 using Racing.Model;
+using Racing.Model.Vehicle;
 using static System.Math;
 
 namespace Racing.Planning.Algorithms.RRT
@@ -15,7 +16,7 @@ namespace Racing.Planning.Algorithms.RRT
             maximumDistance = Sqrt(w * w + h * h);
         }
 
-        public double DistanceBetween(IState a, IState b)
+        public double DistanceBetween(VehicleState a, VehicleState b)
         {
             var euklideanDistance = DistanceBetween(a.Position, b.Position);
             var angleDifference = DistanceBetween(a.HeadingAngle, b.HeadingAngle);

@@ -12,8 +12,8 @@ namespace Racing.Model
         public IVehicleModel VehicleModel { get; }
         public IMotionModel MotionModel { get; }
         public ICollisionDetector CollisionDetector { get; }
-        public IStateClassificator StateClassificator { get; }
-        public IState InitialState { get; }
+        public VehicleStateClassificator StateClassificator { get; }
+        public VehicleState InitialState { get; }
         public IActionSet Actions { get; }
         public IReadOnlyList<IGoal> WayPoints { get; }
 
@@ -35,7 +35,7 @@ namespace Racing.Model
                 : track.Circuit.WayPoints.ToList().AsReadOnly();
 
             StateClassificator = new StateClassificator(CollisionDetector, WayPoints.Last());
-            InitialState = new InitialState(track.Circuit);
+            InitialState = track.Circuit.StartingPosition;
             Actions = new SteeringInputs(throttleSteps: 7, steeringSteps: 31);
         }
     }

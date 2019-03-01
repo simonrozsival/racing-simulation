@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Converters;
 using Racing.Model;
 using Racing.Model.Simulation;
+using Racing.Model.Vehicle;
 using Racing.Model.Visualization;
 using System;
 
@@ -16,7 +17,7 @@ namespace Racing.IO.Model
                 case IActionSelectedEvent actionSelected:
                     return new ActionSelectedEvent(actionSelected);
 
-                case IStateUpdatedEvent stateUpdated:
+                case VehicleStateUpdatedEvent stateUpdated:
                     return new StateUpdatedEvent(stateUpdated);
 
                 case ISimulationEndedEvent ended:
@@ -46,16 +47,16 @@ namespace Racing.IO.Model
 
         private sealed class StateUpdatedEvent : ISerializableEvent
         {
-            private readonly IStateUpdatedEvent original;
+            private readonly VehicleStateUpdatedEvent original;
 
-            public StateUpdatedEvent(IStateUpdatedEvent original)
+            public StateUpdatedEvent(VehicleStateUpdatedEvent original)
             {
                 this.original = original;
             }
 
             public string Type => "stateUpdated";
             public double Time => original.Time.TotalSeconds;
-            public IState State => original.State;
+            public VehicleState State => original.State;
         }
 
         private sealed class SimulationEndedEvent : ISerializableEvent

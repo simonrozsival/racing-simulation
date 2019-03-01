@@ -3,7 +3,7 @@ using System;
 
 namespace Racing.Model.Vehicle
 {
-    internal readonly struct VehicleState : IState, IEquatable<VehicleState>
+    public readonly struct VehicleState : IEquatable<VehicleState>
     {
         public Vector Position { get; }
         public double HeadingAngle { get; }

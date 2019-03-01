@@ -21,19 +21,14 @@ namespace Racing.Planning.Algorithms.RRT
             this.goalBias = goalBias;
         }
 
-        public IState RandomSampleOfFreeRegion(IGoal goal)
+        public VehicleState RandomSampleOfFreeRegion(IGoal goal)
         {
             var freePosition = random.NextDouble() > goalBias
                 ? goal.Position
                 : randomFreePosition();
 
-            return selectRandomSample(freePosition);
-        }
-
-        public IState selectRandomSample(Vector position)
-        {
-            return new RandomState(
-                position,
+            return new VehicleState(
+                freePosition,
                 headingAngle: random.NextDoubleBetween(0, 2 * PI),
                 steeringAngle: random.NextDoubleBetween(-vehicleModel.MaxSteeringAngle, vehicleModel.MaxSteeringAngle),
                 speed: random.NextDoubleBetween(vehicleModel.MinSpeed, vehicleModel.MaxSpeed));

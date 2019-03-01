@@ -1,10 +1,10 @@
-﻿using Racing.Mathematics;
+﻿using Racing.Model.Vehicle;
 
 namespace Racing.Model.CollisionDetection
 {
     public interface ICollisionDetector
     {
-        bool IsCollision(IState state);
-        double DistanceToClosestObstacle(IState state);
+        bool IsCollision(VehicleState state);
+        double DistanceToClosestObstacle(VehicleState state);
     }
 }

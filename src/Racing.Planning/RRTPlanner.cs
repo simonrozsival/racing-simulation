@@ -20,12 +20,12 @@ namespace Racing.Planning
         private readonly ICollisionDetector collisionDetector;
         private readonly Random random;
         private readonly TimeSpan timeStep;
-        private readonly ISubject<IState> exploredStates = new Subject<IState>();
+        private readonly ISubject<VehicleState> exploredStates = new Subject<VehicleState>();
         private readonly IActionSet actions;
         private readonly IGoal goal;
         private readonly DistanceMeasurement distances;
 
-        public IObservable<IState> ExploredStates { get; }
+        public IObservable<VehicleState> ExploredStates { get; }
 
         public RRTPlanner(
             double goalBias,
@@ -56,7 +56,7 @@ namespace Racing.Planning
             ExploredStates = exploredStates;
         }
 
-        public IPlan? FindOptimalPlanFor(IState initialState)
+        public IPlan? FindOptimalPlanFor(VehicleState initialState)
         {
             var sampler = new Sampler(random, track, vehicleModel, goalBias);
 
@@ -77,13 +77,13 @@ namespace Racing.Planning
 
                 var (newState, selectedAction) = steer(nearestNode, sampleState, distances, out var reachedGoal);
 
-                if (newState == null)
+                if (!newState.HasValue)
                 {
                     continue;
                 }
 
-                var newNode = new TreeNode(nearestNode, newState, selectedAction, timeStep, 0);
-                exploredStates.OnNext(newState);
+                var newNode = new TreeNode(nearestNode, newState.Value, selectedAction, timeStep, 0);
+                exploredStates.OnNext(newState.Value);
 
                 if (reachedGoal)
                 {
@@ -96,7 +96,7 @@ namespace Racing.Planning
             return null;
         }
 
-        private TreeNode? nearest(List<TreeNode> nodes, IState state)
+        private TreeNode? nearest(List<TreeNode> nodes, VehicleState state)
         {
             // todo: use kd-tree
 
@@ -117,9 +117,9 @@ namespace Racing.Planning
             return best;
         }
 
-        private (IState?, IAction?) steer(TreeNode from, IState to, DistanceMeasurement distances, out bool reachedGoal)
+        private (VehicleState?, IAction?) steer(TreeNode from, VehicleState to, DistanceMeasurement distances, out bool reachedGoal)
         {
-            IState? state = null;
+            VehicleState? state = null;
             IAction? bestAction = null;
             reachedGoal = false;
             var shortestDistance = double.MaxValue;

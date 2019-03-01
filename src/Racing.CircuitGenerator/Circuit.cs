@@ -1,6 +1,7 @@
 ﻿using Racing.Mathematics;
 using Racing.Mathematics.Splines;
 using Racing.Model;
+using Racing.Model.Vehicle;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,6 +12,12 @@ namespace Racing.CircuitGenerator
         public double Radius { get; }
         public Vector Start => WayPoints.First().Position;
         public IList<IGoal> WayPoints { get; }
+        public VehicleState StartingPosition =>
+            new VehicleState(
+                position: Start,
+                headingAngle: tangent(0).Direction(),
+                steeringAngle: 0,
+                speed: 0);
 
         public Circuit(IList<Vector> waypoints, double trackWidth)
         {
@@ -27,13 +34,17 @@ namespace Racing.CircuitGenerator
         public IEnumerable<Vector[]> WayPointLines()
             => Enumerable.Range(1, WayPoints.Count - 1).Select(perpendicularLineTo);
 
+        private Vector tangent(int i)
+        {
+            var next = WayPoints[(i + 1) % WayPoints.Count].Position;
+            var prev = WayPoints[(i - 1 + WayPoints.Count) % WayPoints.Count].Position;
+            return next - prev;
+        }
+
         private Vector[] perpendicularLineTo(int i)
         {
             var point = WayPoints[i].Position;
-            var next = WayPoints[(i + 1) % WayPoints.Count].Position;
-            var prev = WayPoints[(i - 1 + WayPoints.Count) % WayPoints.Count].Position;
-            var tangentDirection = (next - prev);
-            var normalVector = tangentDirection.CalculateNormal();
+            var normalVector = tangent(i).CalculateNormal();
 
             var start = point + Radius * normalVector;
             var end = point - Radius * normalVector;

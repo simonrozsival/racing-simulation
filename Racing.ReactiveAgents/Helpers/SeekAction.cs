@@ -1,6 +1,6 @@
 ﻿using Racing.Model;
 
-namespace Racing.ReactiveAgents
+namespace Racing.ReactiveAgents.Helpers
 {
     internal sealed class SeekAction : IAction
     {

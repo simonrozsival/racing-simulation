@@ -20,14 +20,14 @@ namespace Racing.Planning.Algorithms.Domain
         private readonly ICollisionDetector collisionDetector;
         private readonly Random random;
         private readonly TimeSpan timeStep;
-        private readonly ISubject<IState> exploredStates = new Subject<IState>();
+        private readonly ISubject<VehicleState> exploredStates = new Subject<VehicleState>();
         private readonly IActionSet actions;
         private readonly IReadOnlyList<IGoal> wayPoints;
         private readonly DistanceMeasurement distances;
 
         private int wayPointsReached;
 
-        public IObservable<IState> ExploredStates { get; }
+        public IObservable<VehicleState> ExploredStates { get; }
 
         public WayPointsFollowingRRTPlanner(
             double goalBias,
@@ -63,7 +63,7 @@ namespace Racing.Planning.Algorithms.Domain
             ExploredStates = exploredStates;
         }
 
-        public IPlan? FindOptimalPlanFor(IState initialState)
+        public IPlan? FindOptimalPlanFor(VehicleState initialState)
         {
             var sampler = new Sampler(random, track, vehicleModel, goalBias);
 
@@ -84,7 +84,7 @@ namespace Racing.Planning.Algorithms.Domain
 
                 var (newState, selectedAction, reachedBreakPoint) = steer(nearestNode, sampleState, distances);
 
-                if (newState == null)
+                if (!newState.HasValue)
                 {
                     continue;
                 }
@@ -98,8 +98,8 @@ namespace Racing.Planning.Algorithms.Domain
                     wayPointsReached = reachedWayPoints;
                 }
 
-                var newNode = new TreeNode(nearestNode, newState, selectedAction, timeStep, reachedWayPoints);
-                exploredStates.OnNext(newState);
+                var newNode = new TreeNode(nearestNode, newState.Value, selectedAction, timeStep, reachedWayPoints);
+                exploredStates.OnNext(newState.Value);
 
                 if (reachedWayPoints == wayPoints.Count)
                 {
@@ -112,7 +112,7 @@ namespace Racing.Planning.Algorithms.Domain
             return null;
         }
 
-        private TreeNode? nearest(List<TreeNode> nodes, IState state)
+        private TreeNode? nearest(List<TreeNode> nodes, VehicleState state)
         {
             // todo: use kd-tree
 
@@ -133,9 +133,9 @@ namespace Racing.Planning.Algorithms.Domain
             return best;
         }
 
-        private (IState?, IAction?, bool) steer(TreeNode from, IState to, DistanceMeasurement distances)
+        private (VehicleState?, IAction?, bool) steer(TreeNode from, VehicleState to, DistanceMeasurement distances)
         {
-            IState? state = null;
+            VehicleState? state = null;
             IAction? bestAction = null;
             bool reachedWayPoint = false;
             var shortestDistance = double.MaxValue;

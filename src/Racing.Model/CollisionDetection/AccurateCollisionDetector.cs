@@ -35,7 +35,7 @@ namespace Racing.Model.CollisionDetection
             }
         }
 
-        public bool IsCollision(IState state)
+        public bool IsCollision(VehicleState state)
         {
             var i = discretize(state.HeadingAngle);
             var pointA = state.Position + frontLeft[i];
@@ -66,7 +66,7 @@ namespace Racing.Model.CollisionDetection
             return (int)(angle / discretizationStep);
         }
 
-        public double DistanceToClosestObstacle(IState state)
+        public double DistanceToClosestObstacle(VehicleState state)
             => track.DistanceToClosestObstacle(state.Position) - Math.Max(ux, uy);
     }
 }

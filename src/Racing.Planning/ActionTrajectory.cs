@@ -1,5 +1,6 @@
 ﻿using Racing.Model;
 using Racing.Model.Planning;
+using Racing.Model.Vehicle;
 using System;
 
 namespace Racing.Planning
@@ -8,7 +9,7 @@ namespace Racing.Planning
     {
         public ActionTrajectory(
             TimeSpan time,
-            IState state,
+            VehicleState state,
             IAction? action,
             int targetWayPoint)
         {
@@ -19,7 +20,7 @@ namespace Racing.Planning
         }
 
         public TimeSpan Time { get; }
-        public IState State { get; }
+        public VehicleState State { get; }
         public IAction? Action { get; }
         public int TargetWayPoint { get; }
     }

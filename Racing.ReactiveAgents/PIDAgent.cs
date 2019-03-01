@@ -3,6 +3,7 @@ using Racing.Model;
 using Racing.Model.Planning;
 using Racing.Model.Vehicle;
 using Racing.Model.Visualization;
+using Racing.ReactiveAgents.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace Racing.ReactiveAgents
                 crossTrackError.WithLatestFrom(selectedTarget, (error, target) => new Dot(target, Math.Abs(error), Math.Sign(error) == 1 ? "blue" : "red", reactionTime)));
         }
 
-        public IAction ReactTo(IState state, int waypoint)
+        public IAction ReactTo(VehicleState state, int waypoint)
         {
             var projectedState = lastAction == null
                 ? state
@@ -59,7 +60,7 @@ namespace Racing.ReactiveAgents
             return action;
         }
 
-        private int findClosestPoint(IState state)
+        private int findClosestPoint(VehicleState state)
         {
             var closestState = 0;
             var shortestDistance = double.MaxValue;
@@ -78,7 +79,7 @@ namespace Racing.ReactiveAgents
             return closestState;
         }
 
-        private double calculateSteering(IState currentState, int target)
+        private double calculateSteering(VehicleState currentState, int target)
         {
             var targetPosition = path[target].State.Position;
             var followingPointPosition = target < path.Count - 1

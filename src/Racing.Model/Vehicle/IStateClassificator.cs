@@ -1,7 +1,7 @@
 ﻿namespace Racing.Model.Vehicle
 {
-    public interface IStateClassificator
+    public interface VehicleStateClassificator
     {
-        StateType Classify(IState state);
+        StateType Classify(VehicleState state);
     }
 }

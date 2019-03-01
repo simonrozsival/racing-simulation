@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Racing.ReactiveAgents
+namespace Racing.ReactiveAgents.Helpers
 {
     internal sealed class PIDController
     {

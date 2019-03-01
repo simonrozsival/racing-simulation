@@ -5,6 +5,7 @@ using Racing.Mathematics;
 using Racing.Model;
 using Racing.Model.Planning;
 using Racing.Model.Simulation;
+using Racing.Model.Vehicle;
 using Racing.Simulation;
 using System;
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace Racing.Planning
             //    perceptionPeriod,
             //    wayPoints.Last());
 
-            var exploredStates = new List<IState>();
+            var exploredStates = new List<VehicleState>();
             var lastFlush = DateTimeOffset.Now;
             void flush()
             {

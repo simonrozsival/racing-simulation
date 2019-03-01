@@ -24,9 +24,9 @@ namespace Racing.Planning
         private readonly bool greedy;
 
         private readonly StateDiscretizer discretizer;
-        private readonly ISubject<IState> exploredStates = new Subject<IState>();
+        private readonly ISubject<VehicleState> exploredStates = new Subject<VehicleState>();
 
-        public IObservable<IState> ExploredStates { get; }
+        public IObservable<VehicleState> ExploredStates { get; }
 
         public HybridAStarPlanner(
             TimeSpan timeStep,
@@ -52,7 +52,7 @@ namespace Racing.Planning
             ExploredStates = exploredStates;
         }
 
-        public IPlan? FindOptimalPlanFor(IState initialState)
+        public IPlan? FindOptimalPlanFor(VehicleState initialState)
         {
             var heuristic = createShortestPathHeuristic(initialState);
 
@@ -156,7 +156,7 @@ namespace Racing.Planning
             return null;
         }
 
-        private GridShortestPathHeuristic createShortestPathHeuristic(IState initialState)
+        private GridShortestPathHeuristic createShortestPathHeuristic(VehicleState initialState)
         {
             var heuristic = new GridShortestPathHeuristic(
                 initialState.Position,

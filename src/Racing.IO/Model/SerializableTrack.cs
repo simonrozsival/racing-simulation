@@ -1,5 +1,6 @@
 ﻿using Racing.Mathematics;
 using Racing.Model;
+using Racing.Model.Vehicle;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -63,6 +64,7 @@ namespace Racing.IO.Model
             public double Radius { get; set; }
             public Vector Start { get; set; }
             public IList<IGoal> WayPoints { get; set; } = new List<IGoal>();
+            public VehicleState StartingPosition { get; set; }
         }
     }
 }

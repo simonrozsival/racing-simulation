@@ -2,7 +2,7 @@
 
 namespace Racing.Model.Vehicle
 {
-    public sealed class StateClassificator : IStateClassificator
+    public sealed class StateClassificator : VehicleStateClassificator
     {
         private readonly ICollisionDetector collisionDetector;
         private readonly IGoal goal;
@@ -13,7 +13,7 @@ namespace Racing.Model.Vehicle
             this.goal = goal;
         }
 
-        public StateType Classify(IState state)
+        public StateType Classify(VehicleState state)
         {
             if (collisionDetector.IsCollision(state))
             {

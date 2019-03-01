@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Racing.Model;
 using Racing.Model.Planning;
+using Racing.Model.Vehicle;
 using System;
 
 namespace Racing.IO.Model
@@ -9,11 +10,7 @@ namespace Racing.IO.Model
     {
         public TimeSpan Time { get; set; }
 
-        [JsonIgnore]
-        public IState State => SerializableState;
-
-        [JsonProperty("state")]
-        public SerializableState SerializableState { get; set; }
+        public VehicleState State { get; set; }
 
         [JsonIgnore]
         public IAction? Action => SerializableAction;

@@ -1,7 +1,9 @@
-﻿namespace Racing.Model.Simulation
+﻿using Racing.Model.Vehicle;
+
+namespace Racing.Model.Simulation
 {
-    public interface IStateUpdatedEvent : IEvent
+    public interface VehicleStateUpdatedEvent : IEvent
     {
-        IState State { get; }
+        VehicleState State { get; }
     }
 }

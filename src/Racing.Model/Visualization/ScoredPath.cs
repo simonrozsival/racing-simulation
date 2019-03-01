@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Racing.Model.Vehicle;
+using System;
 
 namespace Racing.Model.Visualization
 {
     public sealed class ScoredPath : IVisualization
     {
-        public ScoredPath(IState[] states, double score, TimeSpan? duration)
+        public ScoredPath(VehicleState[] states, double score, TimeSpan? duration)
         {
             States = states;
             Score = score;
@@ -12,7 +13,7 @@ namespace Racing.Model.Visualization
         }
 
         public double? Duration { get; }
-        public IState[] States { get; }
+        public VehicleState[] States { get; }
         public double Score { get; }
     }
 }

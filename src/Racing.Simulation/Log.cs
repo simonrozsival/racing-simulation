@@ -1,5 +1,6 @@
 ﻿using Racing.Model;
 using Racing.Model.Simulation;
+using Racing.Model.Vehicle;
 using Racing.Model.Visualization;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace Racing.Simulation
             log(new ActionSelectedEvent(action, simulationTime));
         }
 
-        public void StateUpdated(IState state)
+        public void StateUpdated(VehicleState state)
         {
             log(new StateUpdatedEvent(state, simulationTime));
         }
@@ -77,15 +78,15 @@ namespace Racing.Simulation
         }
 
 
-        private sealed class StateUpdatedEvent : IStateUpdatedEvent
+        private sealed class StateUpdatedEvent : VehicleStateUpdatedEvent
         {
-            public StateUpdatedEvent(IState state, TimeSpan time)
+            public StateUpdatedEvent(VehicleState state, TimeSpan time)
             {
                 State = state;
                 Time = time;
             }
 
-            public IState State { get; }
+            public VehicleState State { get; }
 
             public TimeSpan Time { get; }
         }

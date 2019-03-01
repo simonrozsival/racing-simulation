@@ -96,7 +96,7 @@ namespace Racing.Simulation
             return new SimulationSummary(elapsedTime, result, log.History, distanceTravelled);
         }
 
-        private double travelledDistance(IState vehicleState, IReadOnlyList<IGoal> wayPoints, int lastTargetWayPoint)
+        private double travelledDistance(VehicleState vehicleState, IReadOnlyList<IGoal> wayPoints, int lastTargetWayPoint)
         {
             if (lastTargetWayPoint == wayPoints.Count)
             {

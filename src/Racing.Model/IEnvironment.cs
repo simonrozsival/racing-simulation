@@ -11,8 +11,8 @@ namespace Racing.Model
         IVehicleModel VehicleModel { get; }
         IMotionModel MotionModel { get; }
         ICollisionDetector CollisionDetector { get; }
-        IStateClassificator StateClassificator { get; }
-        IState InitialState { get; }
+        VehicleStateClassificator StateClassificator { get; }
+        VehicleState InitialState { get; }
         IActionSet Actions { get; }
     }
 }

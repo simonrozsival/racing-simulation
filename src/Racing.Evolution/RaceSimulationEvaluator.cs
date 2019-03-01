@@ -2,6 +2,7 @@
 using Racing.Model;
 using Racing.Model.Sensing;
 using Racing.Model.Simulation;
+using Racing.Model.Vehicle;
 using SharpNeat.Core;
 using SharpNeat.Phenomes;
 using System;
@@ -92,7 +93,7 @@ namespace Racing.Evolution
             var actionsWithHightThrottleAndSmallSteeringAngle = 0;
 
             var totalDistanceTravelled = 0.0;
-            IState? previous = null;
+            VehicleState? previous = null;
 
             foreach (var log in summary.Log)
             {
@@ -108,11 +109,11 @@ namespace Racing.Evolution
                         actionsWithHightThrottleAndSmallSteeringAngle++;
                     }
                 }
-                else if (log is IStateUpdatedEvent updated)
+                else if (log is VehicleStateUpdatedEvent updated)
                 {
-                    if (previous != null)
+                    if (previous.HasValue)
                     {
-                        totalDistanceTravelled += Distance.Between(updated.State.Position, previous.Position);
+                        totalDistanceTravelled += Distance.Between(updated.State.Position, previous.Value.Position);
                     }
 
                     previous = updated.State;

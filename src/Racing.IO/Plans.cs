@@ -17,7 +17,7 @@ namespace Racing.IO
                     new SerializableTrajectory
                     {
                         SerializableAction = segment.Action != null ? new SerializableAction { Steering = segment.Action.Steering, Throttle = segment.Action.Throttle } : null,
-                        SerializableState = new SerializableState { Position = segment.State.Position, HeadingAngle = segment.State.HeadingAngle, Speed = segment.State.Speed, SteeringAngle = segment.State.SteeringAngle },
+                        State = segment.State,
                         TargetWayPoint = segment.TargetWayPoint,
                         Time = segment.Time
                     }).ToList().AsReadOnly()

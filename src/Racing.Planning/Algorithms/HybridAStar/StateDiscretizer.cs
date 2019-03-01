@@ -1,5 +1,6 @@
 ﻿using Racing.Mathematics;
 using Racing.Model;
+using Racing.Model.Vehicle;
 
 namespace Racing.Planning.Algorithms.HybridAStar
 {
@@ -19,7 +20,7 @@ namespace Racing.Planning.Algorithms.HybridAStar
             this.headingAngleCellSize = headingAngleCellSize;
         }
 
-        public DiscreteState Discretize(IState state, int targetWayPoint)
+        public DiscreteState Discretize(VehicleState state, int targetWayPoint)
             => new DiscreteState(
                 x: (int)(state.Position.X / positionXCellSize),
                 y: (int)(state.Position.Y / positionYCellSize),
