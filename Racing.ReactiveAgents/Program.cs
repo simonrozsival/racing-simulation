@@ -1,5 +1,6 @@
 ﻿using Racing.IO;
 using Racing.Model;
+using Racing.Model.Actions;
 using System;
 using System.IO;
 
@@ -24,18 +25,16 @@ namespace Racing.ReactiveAgents
             var planName = "plan-HybridAStarPlanner-1551383968-15200.json";
             Console.WriteLine($"Loading plan {planName}");
             var plan = Plans.Load($"{assetsDirectoryPath}/plans/{planName}");
+            var trajectory = new Trajectory(plan.Trajectory);
 
-            //var agent = new DynamcWindowApproachAgent(
-            //    plan.Trajectory,
-            //    world.VehicleModel,
-            //    world.Track,
-            //    world.CollisionDetector,
-            //    world.MotionModel,
-            //    world.Actions,
-            //    4 * world.VehicleModel.Length,
-            //    perceptionPeriod);
+            var agent = new DynamcWindowApproachAgent(
+                trajectory,
+                world,
+                4 * world.VehicleModel.Length,
+                perceptionPeriod,
+                4 * perceptionPeriod);
 
-            var agent = new PIDAgent(plan.Trajectory, world.MotionModel, perceptionPeriod);
+            //var agent = new PIDAgent(plan.Trajectory, world.MotionModel, perceptionPeriod);
 
             Console.WriteLine($"Simulating agent {agent.GetType().Name}");
             var simulation = new Simulation.Simulation(agent, world);

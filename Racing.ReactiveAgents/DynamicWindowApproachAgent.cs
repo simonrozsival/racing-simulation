@@ -22,7 +22,7 @@ namespace Racing.ReactiveAgents
         private readonly IActionSet actions;
         private readonly double maximumLookaheadDistance;
 
-        private readonly TimeSpan reactionTime;
+        private readonly TimeSpan predictionHorizon;
 
         private readonly double alignmentWeight = 5.0;
         private readonly double clearanceWeight = 0.2;
@@ -38,22 +38,20 @@ namespace Racing.ReactiveAgents
 
         public DynamcWindowApproachAgent(
             Trajectory trajectory,
-            IVehicleModel vehicleModel,
-            ITrack track,
-            ICollisionDetector collisionDetector,
-            IMotionModel motionModel,
-            IActionSet actions,
+            IWorldDefinition world,
             double maximumLookaheadDistance,
-            TimeSpan reactionTime)
+            TimeSpan reactionTime,
+            TimeSpan predictionHorizon)
         {
             this.trajectory = trajectory;
-            this.vehicleModel = vehicleModel;
-            this.track = track;
-            this.collisionDetector = collisionDetector;
-            this.motionModel = motionModel;
-            this.actions = actions;
             this.maximumLookaheadDistance = maximumLookaheadDistance;
-            this.reactionTime = reactionTime;
+            this.predictionHorizon = predictionHorizon;
+
+            vehicleModel = world.VehicleModel;
+            track = world.Track;
+            collisionDetector = world.CollisionDetector;
+            motionModel = world.MotionModel;
+            actions = world.Actions;
 
             Visualization = Observable.Merge<IVisualization>(
                 Observable.Return(new Path(null, trajectory.Segments.Select(segment => segment.State.Position).ToArray())),
@@ -93,8 +91,7 @@ namespace Racing.ReactiveAgents
 
         private double calculateScoreFor(VehicleState state, IAction action, Vector target)
         {
-            var caution = 10;
-            var predictions = motionModel.CalculateNextState(state, action, caution * reactionTime).ToArray();
+            var predictions = motionModel.CalculateNextState(state, action, predictionHorizon).ToArray();
             foreach (var (_, predictedState) in predictions)
             {
                 if (collisionDetector.IsCollision(predictedState))
