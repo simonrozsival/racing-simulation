@@ -12,6 +12,7 @@ namespace Racing.Model.Vehicle
         public double Acceleration { get; }
         public double SteeringAcceleration { get; }
         public double BrakingDeceleration { get; }
+        public double Mass { get; }
 
         public ForwardDrivingOnlyVehicle(double width)
         {
@@ -23,6 +24,7 @@ namespace Racing.Model.Vehicle
             Acceleration = 9 * oneMeter; // 9 ms^-2 => 0-100 km/h in 3s
             SteeringAcceleration = 8 * MaxSteeringAngle;
             BrakingDeceleration = -27 * oneMeter;
+            Mass = 1850; // kg
         }
     }
 }

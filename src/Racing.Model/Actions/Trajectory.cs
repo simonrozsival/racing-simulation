@@ -86,7 +86,7 @@ namespace Racing.Model.Actions
             return new VehicleState(
                 position: intermediatePosition,
                 headingAngle: t * target.HeadingAngle + (1 - t) * afterTarget.HeadingAngle,
-                steeringAngle: t * target.SteeringAngle + (1 - t) * afterTarget.SteeringAngle,
+                angularVelocity: t * target.AngularVelocity + (1 - t) * afterTarget.AngularVelocity,
                 speed: t * target.Speed + (1 - t) * afterTarget.Speed);
         }
 

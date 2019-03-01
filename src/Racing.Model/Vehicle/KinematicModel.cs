@@ -41,32 +41,24 @@ namespace Racing.Model.Vehicle
             var seconds = time.TotalSeconds;
 
             var targetSpeed = action.Throttle * vehicle.MaxSpeed;
-            var targetSteeringAngle = action.Steering * vehicle.MaxSteeringAngle;
-
-            var acceleration = action.Throttle > 0
-                ? Min(targetSpeed - state.Speed, vehicle.Acceleration)
-                : vehicle.BrakingDeceleration;
-            var steeringAcceleration = action.Steering > 0
-                ? Min(targetSteeringAngle - state.SteeringAngle, vehicle.SteeringAcceleration)
-                : Max(targetSteeringAngle - state.SteeringAngle, -vehicle.SteeringAcceleration);
-
+            var acceleration = action.Throttle > 0 ? vehicle.Acceleration : vehicle.BrakingDeceleration;
             var ds = seconds * acceleration;
-            var speed = Clamp(state.Speed + ds, vehicle.MinSpeed, vehicle.MaxSpeed);
+            var speed = Abs(state.Speed - targetSpeed) > Abs(ds)
+                ? targetSpeed // don't overshoot
+                :  Clamp(state.Speed + ds, vehicle.MinSpeed, vehicle.MaxSpeed);
 
-            var da = seconds * steeringAcceleration;
-            var steeringAngle = Clamp(state.SteeringAngle + da, -vehicle.MaxSteeringAngle, vehicle.MaxSteeringAngle);
+            var steeringAngle = action.Steering * vehicle.MaxSteeringAngle;
+            var headingAngularVelocity = (state.Speed / vehicle.Length) * Sin(steeringAngle);
 
             var velocity = new Vector(
-                x: speed * Cos(steeringAngle) * Cos(state.HeadingAngle),
-                y: speed * Cos(steeringAngle) * Sin(state.HeadingAngle));
-
-            var headingAngularVelocity = (speed / vehicle.Length) * Sin(steeringAngle);
-
+                x: speed * Cos(state.HeadingAngle),
+                y: speed * Sin(state.HeadingAngle));
+            
             return new VehicleState(
                 position: state.Position + seconds * velocity,
                 headingAngle: state.HeadingAngle + seconds * headingAngularVelocity,
                 speed: speed,
-                steeringAngle: steeringAngle);
+                angularVelocity: 0);
         }
     }
 }

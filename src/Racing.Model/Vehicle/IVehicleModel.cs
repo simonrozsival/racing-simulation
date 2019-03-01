@@ -12,5 +12,6 @@ namespace Racing.Model.Vehicle
         double Acceleration { get; }
         double SteeringAcceleration { get; }
         double BrakingDeceleration { get; }
+        double Mass { get; }
     }
 }

@@ -16,7 +16,7 @@ namespace Racing.CircuitGenerator
             new VehicleState(
                 position: Start,
                 headingAngle: tangent(0).Direction(),
-                steeringAngle: 0,
+                angularVelocity: 0,
                 speed: 0);
 
         public Circuit(IList<Vector> waypoints, double trackWidth)

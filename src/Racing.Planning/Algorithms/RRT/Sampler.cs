@@ -30,7 +30,7 @@ namespace Racing.Planning.Algorithms.RRT
             return new VehicleState(
                 freePosition,
                 headingAngle: random.NextDoubleBetween(0, 2 * PI),
-                steeringAngle: random.NextDoubleBetween(-vehicleModel.MaxSteeringAngle, vehicleModel.MaxSteeringAngle),
+                angularVelocity: random.NextDoubleBetween(-vehicleModel.MaxSteeringAngle, vehicleModel.MaxSteeringAngle),
                 speed: random.NextDoubleBetween(vehicleModel.MinSpeed, vehicleModel.MaxSpeed));
         }
 
