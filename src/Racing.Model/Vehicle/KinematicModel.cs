@@ -5,12 +5,12 @@ using static System.Math;
 
 namespace Racing.Model.Vehicle
 {
-    public sealed class DynamicModel : IMotionModel
+    public sealed class KinematicModel : IMotionModel
     {
         private readonly IVehicleModel vehicle;
         private readonly TimeSpan minimumSimulationTime;
 
-        public DynamicModel(IVehicleModel vehicle, TimeSpan minimumSimulationTime)
+        public KinematicModel(IVehicleModel vehicle, TimeSpan minimumSimulationTime)
         {
             this.vehicle = vehicle;
             this.minimumSimulationTime = minimumSimulationTime;

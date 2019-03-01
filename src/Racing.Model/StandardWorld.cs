@@ -21,7 +21,7 @@ namespace Racing.Model
         {
             Track = track;
             VehicleModel = new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
-            MotionModel = new DynamicModel(VehicleModel, simulationTime);
+            MotionModel = new KinematicModel(VehicleModel, simulationTime);
             // CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin);
             CollisionDetector = new NoCollisionDetection();
             WayPoints = track.Circuit.WayPoints.Count > 4
