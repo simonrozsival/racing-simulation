@@ -12,17 +12,17 @@ namespace Racing.CircuitGenerator
         public double Radius { get; }
         public Vector Start => WayPoints.First().Position;
         public IList<IGoal> WayPoints { get; }
-        public VehicleState StartingPosition =>
-            new VehicleState(
-                position: Start,
-                headingAngle: tangent(0).Direction(),
-                angularVelocity: 0,
-                speed: 0);
+        public VehicleState StartingPosition { get; }
 
         public Circuit(IList<Vector> waypoints, double trackWidth)
         {
             Radius = trackWidth / 2;
             WayPoints = waypoints.Select(point => new RadialGoal(point, Radius)).ToList<IGoal>();
+            StartingPosition = new VehicleState(
+                position: Start,
+                headingAngle: tangent(0).Direction(),
+                angularVelocity: 0,
+                speed: 0);
         }
 
         public BezierCurve CenterLine()

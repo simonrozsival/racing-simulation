@@ -22,8 +22,7 @@ namespace Racing.Model
             Track = track;
             VehicleModel = new Porsche911VehicleModel(track.Circuit.Radius / 3);
             MotionModel = new KinematicModel(VehicleModel, simulationTime);
-            // CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin);
-            CollisionDetector = new NoCollisionDetection();
+            CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin);
             WayPoints = track.Circuit.WayPoints.Count > 4
                 ? new[]
                 {

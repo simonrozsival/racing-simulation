@@ -60,10 +60,6 @@ namespace Racing.Model.Actions
                 if (Distance.Between(state.Position, Segments[i].State.Position) < lookahead)
                 {
                     target = i;
-                }
-                else
-                {
-                    // we previous point is as far as we can get
                     break;
                 }
             }

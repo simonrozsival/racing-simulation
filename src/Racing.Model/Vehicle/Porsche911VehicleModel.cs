@@ -20,10 +20,10 @@ namespace Racing.Model.Vehicle
             var oneMeter = width / 1.85;
             Width = 1.85 * oneMeter;
             Length = 4.5 * oneMeter;
-            MaxSpeed = 54 * oneMeter; // 27 m/s == 100 km/h
+            MaxSpeed = 81 * oneMeter; // 27 m/s == 100 km/h
             Acceleration = 9 * oneMeter; // 9 ms^-2 => 0-100 km/h in 3s
             SteeringAcceleration = 8 * MaxSteeringAngle;
-            BrakingDeceleration = -27 * oneMeter;
+            BrakingDeceleration = -13 * oneMeter; // -1.3g
             Mass = 1500; // kg
         }
     }

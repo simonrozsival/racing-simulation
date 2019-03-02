@@ -26,7 +26,8 @@ namespace Racing.IO.Model
             {
                 TileSize = tileSize,
                 Circuit = new SerializableCircuit { Radius = circuit.Radius, Start = circuit.Start, WayPoints = circuit.WayPoints.Skip(1).Select(goal => goal.Position).ToList() },
-                OccupancyGrid = occupancyGridLines.ToArray()
+                OccupancyGrid = occupancyGridLines.ToArray(),
+                StartingPosition = circuit.StartingPosition
             };
         }
 
@@ -35,6 +36,8 @@ namespace Racing.IO.Model
         public SerializableCircuit Circuit { get; set; } = new SerializableCircuit();
 
         public string[] OccupancyGrid { get; set; } = new string[0];
+
+        public VehicleState StartingPosition { get; set; }
 
         public ITrack ToTrack()
         {
@@ -53,7 +56,8 @@ namespace Racing.IO.Model
                 {
                     Start = new Vector(Circuit.Start.X, Circuit.Start.Y),
                     Radius = Circuit.Radius,
-                    WayPoints = Circuit.WayPoints.Select(point => new RadialGoal(new Vector(point.X, point.Y), Circuit.Radius)).ToList<IGoal>()
+                    WayPoints = Circuit.WayPoints.Select(point => new RadialGoal(new Vector(point.X, point.Y), Circuit.Radius)).ToList<IGoal>(),
+                    StartingPosition = StartingPosition
                 },
                 occupancyGrid,
                 TileSize);
