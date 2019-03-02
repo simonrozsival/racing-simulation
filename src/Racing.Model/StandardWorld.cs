@@ -20,7 +20,7 @@ namespace Racing.Model
         public StandardWorld(ITrack track, TimeSpan simulationTime, double safetyMargin = 1)
         {
             Track = track;
-            VehicleModel = new ForwardDrivingOnlyVehicle(track.Circuit.Radius / 3);
+            VehicleModel = new Porsche911VehicleModel(track.Circuit.Radius / 3);
             MotionModel = new KinematicModel(VehicleModel, simulationTime);
             // CollisionDetector = new AccurateCollisionDetector(track, VehicleModel, safetyMargin);
             CollisionDetector = new NoCollisionDetection();

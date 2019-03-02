@@ -2,7 +2,7 @@
 
 namespace Racing.Model.Vehicle
 {
-    public sealed class ForwardDrivingOnlyVehicle : IVehicleModel
+    public sealed class Porsche911VehicleModel : IVehicleModel
     {
         public double Width { get; }
         public double Length { get; }
@@ -14,7 +14,7 @@ namespace Racing.Model.Vehicle
         public double BrakingDeceleration { get; }
         public double Mass { get; }
 
-        public ForwardDrivingOnlyVehicle(double width)
+        public Porsche911VehicleModel(double width)
         {
             // Porsche 911 is 1.85m wide and 4.5m long
             var oneMeter = width / 1.85;
@@ -24,7 +24,7 @@ namespace Racing.Model.Vehicle
             Acceleration = 9 * oneMeter; // 9 ms^-2 => 0-100 km/h in 3s
             SteeringAcceleration = 8 * MaxSteeringAngle;
             BrakingDeceleration = -27 * oneMeter;
-            Mass = 1850; // kg
+            Mass = 1500; // kg
         }
     }
 }
